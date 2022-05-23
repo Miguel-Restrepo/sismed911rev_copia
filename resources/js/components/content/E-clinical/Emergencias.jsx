@@ -251,8 +251,8 @@ function Emergencias() {
                                 Math.abs(
                                     Date.parse(row.fecha_admision) - extraData
                                 ) /
-                                    1000 /
-                                    60
+                                1000 /
+                                60
                             ) + " MIN"}
                         </span>
                     </div>
@@ -327,14 +327,14 @@ function Emergencias() {
                 id_admision: row.codigo != null ? row.codigo : "",
                 general:
                     row.general != null &&
-                    row.general[0] != null &&
-                    row.general[0] != ""
+                        row.general[0] != null &&
+                        row.general[0] != ""
                         ? convertir(row.general, general)
                         : [{ key: 1, value: 1, label: "Normal" }],
                 cabeza:
                     row.cabeza != null &&
-                    row.cabeza[0] != null &&
-                    row.cabeza[0] != ""
+                        row.cabeza[0] != null &&
+                        row.cabeza[0] != ""
                         ? convertir(row.cabeza, cabeza)
                         : [{ key: 1, value: 1, label: "Normal" }],
                 ojo:
@@ -343,8 +343,8 @@ function Emergencias() {
                         : [{ key: 1, value: 1, label: "Normal" }],
                 otorrino:
                     row.otorrino != null &&
-                    row.otorrino[0] != null &&
-                    row.otorrino[0] != ""
+                        row.otorrino[0] != null &&
+                        row.otorrino[0] != ""
                         ? convertir(row.otorrino, otorrino)
                         : [{ key: 1, value: 1, label: "Normal" }],
                 boca:
@@ -353,20 +353,20 @@ function Emergencias() {
                         : [{ key: 1, value: 1, label: "Normal" }],
                 cuello:
                     row.cuello != null &&
-                    row.cuello[0] != null &&
-                    row.cuello[0] != ""
+                        row.cuello[0] != null &&
+                        row.cuello[0] != ""
                         ? convertir(row.cuello, cuello)
                         : [{ key: 1, value: 1, label: "Normal" }],
                 torax:
                     row.torax != null &&
-                    row.torax[0] != null &&
-                    row.torax[0] != ""
+                        row.torax[0] != null &&
+                        row.torax[0] != ""
                         ? convertir(row.torax, torax)
                         : [{ key: 1, value: 1, label: "Normal" }],
                 corazon:
                     row.corazon &&
-                    row.corazon[0] != null &&
-                    row.corazon[0] != ""
+                        row.corazon[0] != null &&
+                        row.corazon[0] != ""
                         ? convertir(row.corazon, corazon)
                         : [{ key: 1, value: 1, label: "Normal" }],
                 pulmon:
@@ -375,38 +375,38 @@ function Emergencias() {
                         : [{ key: 1, value: 1, label: "Normal" }],
                 abdomen:
                     row.abdomen &&
-                    row.abdomen[0] != null &&
-                    row.abdomen[0] != ""
+                        row.abdomen[0] != null &&
+                        row.abdomen[0] != ""
                         ? convertir(row.abdomen, abdomen)
                         : [{ key: 1, value: 1, label: "Normal" }],
                 pelvis:
                     row.pelvis != null &&
-                    row.pelvis[0] != null &&
-                    row.pelvis[0] != ""
+                        row.pelvis[0] != null &&
+                        row.pelvis[0] != ""
                         ? convertir(row.pelvis, pelvis)
                         : [{ key: 1, value: 1, label: "Normal" }],
                 rectal:
                     row.rectal != null &&
-                    row.rectal[0] != null &&
-                    row.rectal[0] != ""
+                        row.rectal[0] != null &&
+                        row.rectal[0] != ""
                         ? convertir(row.rectal, rectal)
                         : [{ key: 1, value: 1, label: "Normal" }],
                 genital:
                     row.genital != null &&
-                    row.genital[0] != null &&
-                    row.genital[0] != ""
+                        row.genital[0] != null &&
+                        row.genital[0] != ""
                         ? convertir(row.genital, genital)
                         : [{ key: 1, value: 1, label: "Normal" }],
                 extremidad:
                     row.extremidad != null &&
-                    row.extremidad[0] != null &&
-                    row.extremidad[0] != ""
+                        row.extremidad[0] != null &&
+                        row.extremidad[0] != ""
                         ? convertir(row.extremidad, extremidad)
                         : [{ key: 1, value: 1, label: "Normal" }],
                 neuro:
                     row.neuro != null &&
-                    row.neuro[0] != null &&
-                    row.neuro[0] != ""
+                        row.neuro[0] != null &&
+                        row.neuro[0] != ""
                         ? convertir(row.neuro, neuro)
                         : [{ key: 1, value: 1, label: "Normal" }],
                 piel:
@@ -708,7 +708,7 @@ function Emergencias() {
         clickToSelect: true,
         hideSelectColumn: true,
         style: { color: "#fff", background: "#0d6efd" },
-        onSelect: (row, isSelect, rowIndex, e) => {},
+        onSelect: (row, isSelect, rowIndex, e) => { },
     };
 
     const contentTableMedicamentosSeleccionados = ({
@@ -790,7 +790,7 @@ function Emergencias() {
         clickToSelect: true,
         hideSelectColumn: true,
         style: { color: "#fff", background: "#0d6efd" },
-        onSelect: (row, isSelect, rowIndex, e) => {},
+        onSelect: (row, isSelect, rowIndex, e) => { },
     };
 
     const contentTableExamenesSeleccionados = ({
@@ -1394,16 +1394,12 @@ function Emergencias() {
             }
         }
     };
-    useEffect(() => {
-        PostSala();
-    }, [form2]);
-    useEffect(() => {
-        PostExamenes();
-    }, [formRegistrarExamenes]);
-    useEffect(() => {
-        PostMedicamentos();
-    }, [formRegistrarMedicamento]);
 
+    const guardar = () => {
+        PostMedicamentos();
+        PostExamenes();
+        PostSala();
+    }
     const PostMedicamentos = () => {
         if (formRegistrarMedicamento.id_atencionmedica != "") {
             axios
@@ -1475,7 +1471,7 @@ function Emergencias() {
 
                 return responser.data;
             })
-            .catch((error) => {});
+            .catch((error) => { });
     };
     //PDF
     const generatePDFMedicamentos = () => {
@@ -1495,16 +1491,16 @@ function Emergencias() {
         let rowsPaciente = [];
         rowsPaciente.push([
             registro.paciente.nombre1 +
-                " " +
-                registro.paciente.nombre2 +
-                " " +
-                registro.paciente.apellido1 +
-                " " +
-                registro.paciente.apellido2,
+            " " +
+            registro.paciente.nombre2 +
+            " " +
+            registro.paciente.apellido1 +
+            " " +
+            registro.paciente.apellido2,
             registro.paciente.num_doc,
             registro.paciente.edad +
-                " " +
-                registro.paciente.codigo_edad.nombre_edad,
+            " " +
+            registro.paciente.codigo_edad.nombre_edad,
         ]);
         //Tabla medicamentos
         let colMedicamentos = ["Medicamento", "Dosis"];
@@ -1542,16 +1538,16 @@ function Emergencias() {
         let rowsPaciente = [];
         rowsPaciente.push([
             registro.paciente.nombre1 +
-                " " +
-                registro.paciente.nombre2 +
-                " " +
-                registro.paciente.apellido1 +
-                " " +
-                registro.paciente.apellido2,
+            " " +
+            registro.paciente.nombre2 +
+            " " +
+            registro.paciente.apellido1 +
+            " " +
+            registro.paciente.apellido2,
             registro.paciente.num_doc,
             registro.paciente.edad +
-                " " +
-                registro.paciente.codigo_edad.nombre_edad,
+            " " +
+            registro.paciente.codigo_edad.nombre_edad,
         ]);
         //Tabla examenes
         let colExamenes = ["Examen"];
@@ -2032,21 +2028,21 @@ function Emergencias() {
                                         </Button>
                                         {medicamentosSeleccionados.length >
                                             0 && (
-                                            <Button
-                                                variant="primary"
-                                                onClick={
-                                                    generatePDFMedicamentos
-                                                }
-                                            >
-                                                <Icofont
-                                                    icon="printer"
-                                                    className="mx-2"
-                                                />
-                                                {t(
-                                                    "eclinical.emergencias.formulario.ordenmedicamentos"
-                                                )}
-                                            </Button>
-                                        )}
+                                                <Button
+                                                    variant="primary"
+                                                    onClick={
+                                                        generatePDFMedicamentos
+                                                    }
+                                                >
+                                                    <Icofont
+                                                        icon="printer"
+                                                        className="mx-2"
+                                                    />
+                                                    {t(
+                                                        "eclinical.emergencias.formulario.ordenmedicamentos"
+                                                    )}
+                                                </Button>
+                                            )}
                                     </Col>
 
                                     <Col>
@@ -2098,6 +2094,15 @@ function Emergencias() {
                                         </PaginationProvider>
                                     </Col>
                                 </Row>
+                                <Button
+                                    variant="primary"
+                                    onClick={() => {
+                                        guardar();
+                                    }}
+                                >
+                                    {t("etiquetas.guardar")}
+                                </Button>
+
                             </Form>
                         )}
                     </Tab>

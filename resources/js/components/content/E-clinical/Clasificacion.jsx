@@ -461,9 +461,9 @@ function Clasificacion() {
         }));
     };
 
-    const notificarExitoCaso = (codigo) =>
+    const notificarExitoCaso = (codigo, clasificacion_admision) =>
         toast.success(
-            `${t("mensajes.msccasoid")} ${codigo} ${t("mensajes.mscexito")}`,
+            `${t("mensajes.msccasoid")} ${codigo} ${t("mensajes.mscexito")} ${t("eclinical.clasificacion.titulo")}: ${clasificacion_admision}`,
             {
                 position: "top-right",
                 autoClose: 5000,
@@ -493,7 +493,7 @@ function Clasificacion() {
             .put(`/api/sala_admision/${idAdmision}`, formAdmision)
             .then((response) => {
                 GetAdmisiones();
-                notificarExitoCaso(idAdmision);
+                notificarExitoCaso(idAdmision, formAdmision.clasificacion_admision);
                 setMostrarFormulario(false);
                 return response.data;
             })

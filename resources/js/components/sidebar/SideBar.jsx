@@ -314,7 +314,7 @@ function SideBar(props) {
                             ...prevState,
                             '/clasificacion': t(
                                 'sidebar.e-clinical.clasificacion'
-                            ),
+                            )
                         }));
                         return;
                     }
@@ -350,6 +350,7 @@ function SideBar(props) {
                             ...prevState,
                             '/emergencias': t('sidebar.e-clinical.emergencias'),
                             '/monitoreokamban': 'Monitoreo',
+                            'expediente': t('formularios.formpacientes.expediente')
                         }));
                         return;
                     }

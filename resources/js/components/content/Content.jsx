@@ -33,6 +33,7 @@ import Emergencias from './E-clinical/Emergencias';
 import Urgencias from './E-clinical/Urgencias';
 import Monitoreo from './E-clinical/Monitoreo';
 import Evaluacion from './E-clinical/Evaluacion';
+import Expediente from './E-clinical/Expediente';
 
 import ModalidadAmbulancia from './Administracion/ModalidadAmbulancia';
 import TipoAmbulancia from './Administracion/TipoAmbulancia';
@@ -535,13 +536,20 @@ class Content extends React.Component {
                             />
                         )}
 
-                        {this.state.monitoreokamban && (
+                        {this.state.admision && (
                             <Route
                                 path="/evaluacion"
                                 element={<Evaluacion />}
                             />
-                        )}
 
+
+                        )}
+                        {this.state.monitoreokamban && (
+                            <Route
+                                path="/expediente"
+                                element={<Expediente />}
+                            />
+                        )}
                         {this.state.tipoambulancia && (
                             <Route
                                 path="/tipoambulancia"
