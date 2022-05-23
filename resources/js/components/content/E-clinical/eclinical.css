@@ -1,0 +1,26 @@
+#Rojo{
+    background-color: #FF5630;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+}
+#Naranja{
+    background-color: #FF8B00;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+}
+#Amarillo{
+    background-color: #FFC400;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    color: black;
+}
+#Azul{
+    background-color: #0052CC;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+}
+#Verde{
+    background-color: #36B37E;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+}

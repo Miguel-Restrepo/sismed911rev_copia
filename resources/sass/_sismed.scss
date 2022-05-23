@@ -1,0 +1,511 @@
+@import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
+@import "https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,500,600,700";
+
+body {
+    font-family: "Nunito Sans", sans-serif;
+    background-color: #f5f9fc;
+    overflow-y: hidden !important;
+    height: 100vh;
+
+    .inpgroup {
+        position: absolute;
+    }
+
+    .no-wr {
+        flex-wrap: nowrap;
+    }
+
+    a,
+    a:hover,
+    a:focus {
+        color: inherit !important;
+        text-decoration: none !important;
+        transition: all 0.2s !important;
+    }
+
+    #root {
+        height: 100%;
+        display: flex;
+        position: relative;
+        //width: 100%;
+        //align-items: stretch;
+
+        /* ---------------------------------------------------
+                            SIDEBAR STYLE
+        ----------------------------------------------------- */
+        .sidebar {
+            min-width: 280px;
+            max-width: 280px;
+            background: #354052;
+            color: #c2c7d0;
+            margin-left: -280px;
+            transition: all 0.5s;
+            //position: sticky;
+            //top: 0px;
+
+            &.is-open {
+                margin-left: 0;
+                transition: 0.5s;
+            }
+
+            .sisimage {
+                height: 70px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                --bs-bg-opacity: 1;
+                background-color: rgba(
+                    var(--bs-secondary-rgb),
+                    var(--bs-bg-opacity)
+                );
+            }
+
+            .sidebar-layout {
+                overflow-y: auto;
+                overflow-x: hidden;
+                position: relative;
+                height: calc(100vh - 70px);
+
+                .sidebar-content {
+                    flex-grow: 1;
+
+                    .nav-item {
+                        position: relative;
+                        display: flex;
+                        align-items: center;
+                        padding: 8px 35px 8px 20px;
+
+                        &:hover,
+                        &.active {
+                            border-radius: 0.25rem;
+                            background-color: rgba(255, 255, 255, 0.1);
+                        }
+
+                        .accordion > .nav-link {
+                            padding: 0;
+                        }
+
+                        .accordion2 > .nav-link {
+                            padding: 8px 35px 8px 20px !important;
+                        }
+                    }
+                }
+            }
+        }
+
+        /* ---------------------------------------------------
+                            CONTENT STYLE
+        ----------------------------------------------------- */
+        .content {
+            /*margin-left: 0;
+            height: 100vh;*/
+
+            /*&.is-open {
+                width: calc(100vw - 280px);
+            }*/
+
+            flex-grow: 1;
+            overflow-y: hidden;
+
+            .main {
+                width: 100%;
+                overflow: auto;
+                height: calc(100vh - 110px);
+            }
+        }
+
+        /*.pres:hover,
+.pres:focus {
+    text-decoration: none;
+    color: #1360ac;
+    transition: all 0.2s;
+}*/
+
+        /*.navitems {
+    position: relative;
+    margin-left: 1rem;
+}
+
+.nav-link {
+    color: #c2c7d0;
+}
+
+.sidebar ul p {
+    padding: 10px;
+}
+
+.nav-item {
+    color: #ced4da;
+    font-weight: 300;
+}
+
+.nav-item:hover {
+    transition: 0.2s;
+}
+
+.nav-item .svg-inline--fa {
+    color: inherit;
+}
+
+li a.dropdown-toggle::after {
+    display: inline-flex;
+    position: relative;
+    left: 60%;
+    top: 10%;
+}
+
+.sidebar-header > button {
+    position: relative;
+    float: right;
+    margin: 0.5em;
+    font-size: 2rem;
+    cursor: pointer;
+    display: none;
+}
+
+i {
+    font-size: 1.2rem;
+}*/
+    }
+}
+
+@media only screen and (max-width: 575.98px) {
+    body {
+        overflow: hidden;
+    }
+
+    .content.is-open {
+        display: none;
+        transition: all 0.5s;
+    }
+
+    .sidebar.is-open {
+        min-width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        transition: all 0.5s, height 0s;
+        top: 0;
+        height: 100vh !important;
+        position: sticky !important;
+    }
+
+    .sidebar.is-open > .sidebar-header button {
+        display: block;
+        height: 100vh !important;
+        left: 68%;
+    }
+}
+
+.btnn {
+    font-weight: 900;
+    border: 1px solid transparent;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+    font-family: "Font Awesome 5 Free";
+    margin-right: 15px;
+    margin-bottom: 7px;
+}
+
+.monit {
+    display: flex;
+}
+
+.tls {
+    display: flex;
+    padding: 0rem !important;
+    margin: 0rem !important;
+}
+
+.tarjetatitulo,
+.tarjetainfo {
+    color: #1360ac;
+}
+
+.tarjetacontenido {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 0.8rem;
+    padding-bottom: 0;
+}
+
+.tarjetavalue {
+    color: #b9deda;
+    background-color: #1360ac;
+    border-radius: 0.45rem;
+    margin-left: 4px;
+}
+
+.encabezado {
+    padding-top: 1.9rem;
+    padding-right: 1.5rem;
+    padding-bottom: 0.7rem;
+    background-color: #f7fafa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.tarjeta {
+    padding: 0.8rem;
+    background-color: #b9deda;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    margin: 0.8rem;
+    flex-grow: 1;
+}
+
+.disprojo {
+    color: #f01111;
+    text-align: center;
+}
+
+.dispamarillo {
+    color: #7abd54;
+    text-align: center;
+}
+
+.dispverde {
+    color: #f1fc0a;
+    text-align: center;
+}
+
+.opcionasd {
+    padding: 1.5rem;
+    background-color: #f8fafc;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    margin: 2rem;
+}
+
+.optitle {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.ini {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #b9bec4;
+    border-radius: 0.25rem;
+}
+
+.btnsearch {
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.76563rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+    background-color: #f8f9fa;
+    border: 2px solid transparent;
+    border-color: rgb(2, 2, 2);
+    color: #444;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid transparent;
+}
+
+.caret {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 2px;
+    vertical-align: middle;
+    border-top: 4px dashed;
+    border-top: 4px solid \9;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+}
+
+.dropup .caret,
+.navbar-fixed-bottom .dropdown .caret {
+    border-top: 0;
+    border-bottom: 4px dashed;
+    border-bottom: 4px solid \9;
+    content: "";
+}
+
+.show.react-bs-table-sizePerPage-dropdown ul:last-child {
+    display: block;
+}
+
+.dropdown {
+    overflow: visible !important;
+}
+
+.show > .dropdown-menu {
+    display: block;
+    position: absolute;
+}
+
+.table-hover {
+    cursor: pointer;
+}
+
+select:hover {
+    cursor: pointer;
+}
+
+input[type="radio"]:hover,
+input[type="checkbox"]:hover {
+    cursor: pointer;
+}
+
+.react-tel-input .form-control {
+    width: 100%;
+}
+
+.marcado-correcto {
+    background-color: green;
+    color: white;
+    border-radius: 40%;
+}
+
+.marcado-incorrecto {
+    background-color: red;
+    color: white;
+    border-radius: 40%;
+}
+/* CSS DE ANIMACION OCULTACION*/
+
+.show-element {
+    /*duracion de la animacion, puedes variar el tiempo, entre mas grande mas tarda el efecto*/
+    animation-duration: 2s;
+    animation-fill-mode: both;
+    /*le indicas que animacion quieres aplicarle, animacion hecha por ti en un keyframe*/
+    animation-name: fadeIn;
+    background-color: rgb(225, 225, 255);
+    background: #f5f9fc;
+    padding: 0.75rem;
+    margin: 0.75rem;
+}
+
+.hide-element {
+    animation-duration: 2s;
+    animation-fill-mode: both;
+    animation-name: fadeOut;
+}
+
+.icofont-pulse {
+    -webkit-animation-duration: 0s;
+    animation-duration: 0s;
+    -webkit-animation-name: none;
+    animation-name: none;
+}
+
+/*KeyFrames*/
+
+/*La animacion hecha por ti, puedes ponerle cualquier nombre, solo es para identificarlo*/
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/*Puedes hacer mas animaciones personalizadas con todo lo que pueda hacer css*/
+
+@keyframes otherAnimation {
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes animationTranslateIn {
+    from {
+        opacity: 0;
+        transform: translateX(-200px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0px);
+    }
+}
+
+@keyframes animationTranslateOut {
+    from {
+        opacity: 1;
+        transform: translateX(0px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-200px);
+    }
+}
+.Esquinero {
+    display: block;
+}
+
+.equis {
+    float: right;
+}
+
+.nav .dropdown {
+    cursor: pointer;
+    position: absolute;
+    left: 88%;
+    top: 30%;
+}
+
+.dropdown-menu {
+    cursor: pointer;
+    position: absolute !important;
+    left: -10em;
+    top: 3em;
+}
+
+.menu2 {
+    cursor: pointer;
+    position: absolute !important;
+    left: -5em !important;
+    top: 3em !important;
+}
+
+.leaflet-container {
+    width: 100%;
+    height: 100vh;
+}
+
+/*.main {
+    overflow-y: auto !important;
+    height: 88%;
+}*/
+
+.selection-row {
+    color: white !important;
+    background-color: #0d6efd !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+    --bs-table-accent-bg: rgb(63 40 40 / 5%);
+    color: inherit !important;
+}
+
+.table-hover > tbody > tr:hover > * {
+    color: inherit !important;
+}

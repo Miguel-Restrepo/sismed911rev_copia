@@ -1,0 +1,962 @@
+{
+    "sidebar": {
+        "inicio": "Inicio",
+        "inter-hospital": {
+            "principal": "Inter-Hospital",
+            "panel-principal": "Panel principal",
+            "interhospitalario": "Interhospitalario"
+        },
+        "pre-hospital": {
+            "principal": "Pre-Hospital",
+            "panel-principal": "Panel principal",
+            "regulacion": "Regulación",
+            "despacho": "Despacho"
+        },
+        "med-surge": {
+            "principal": "Med-Surge",
+            "hospital": "Hospital",
+            "registro": "Registro",
+            "reportes": {
+                "principal": "Reportes",
+                "estadistica": "Estadística",
+                "reportes": "Reportes"
+            },
+            "configuracion": {
+                "principal": "Configuracion",
+                "alerta": "Alerta",
+                "seleccion-salas": "Selección de salas",
+                "nueva-seccion": "Nueva sección"
+            }
+        },
+        "ambulancias": {
+            "principal": "Ambulancias",
+            "eventos": "Eventos",
+            "ambulancias": "Ambulancias",
+            "recordatorio": "Recordatorio",
+            "taller": "Taller",
+            "tipo-servicios": "Tipo servicios",
+            "novedades": "Novedades"
+        },
+        "e-clinical": {
+            "principal": "E-clinical",
+            "admision": "Admisión",
+            "clasificacion": "Clasificación",
+            "urgencias": "Urgencias",
+            "emergencias": "Emergencias"
+        },
+        "administracion": {
+            "principal": "Administración",
+            "incidentes": "Incidentes",
+            "tipo-ambulancia": "Tipo ambulancia",
+            "modalidad-ambulancia": "Modalidad ambulancia",
+            "especial-ambulancia": "Especial ambulancia",
+            "especialidad-hospital": "Especialidad hospital",
+            "usuarios": "Usuarios",
+            "nivel": "Nivel",
+            "acode": "Acode",
+            "sede": "Sede",
+            "base": "Base",
+            "webservices": "Webservices",
+            "movil": "Movil",
+            "medicamentos": "Medicamentos",
+            "insumos": "Insumos",
+            "procedimientos": "Procedimientos",
+            "exploracion-fisica": "Exploración Física"
+        },
+        "terminos-condiciones": "Términos y condiciones",
+        "acerca-de": "Acerca de"
+    },
+    "panel": {
+        "tipo-servicio": "Tipo de Servicio",
+        "prioridad": "Prioridad",
+        "modalidad": "Modalidad",
+        "hospital-receptor": "Hospital Receptor",
+        "hospital-emisor": "Hospital Emisor",
+        "casos-dia": "Casos por día"
+    },
+    "mensajes": {
+        "exito": "Éxito",
+        "error": "Error",
+        "mscreacionexito": "El nuevo caso ha sido creado con éxito",
+        "mscreacionerror": "Ha ocurrido un error en la creación del nuevo caso",
+        "confirmacion": "Confirmación",
+        "preguntabloque": "¿Estas seguro que deseas seleccionar este bloque?",
+        "cambioexitoso": "El bloque ha sido Cambiado Satisfactoriamente",
+        "mscasoid": "Nuevo caso con id",
+        "msexito": "creado con éxito!",
+        "piepag": "Organización Panamericana de la Salud. Todos los derechos reservados.",
+        "incorrecto": "Usuario y/o Contraseña incorrecta",
+        "msccasoid": "Caso con id",
+        "mscexito": "clasificado con éxito",
+        "msclasificacionerror": "Ha ocurrido un error en la clasificación del caso",
+        "mspexito": "Paciente creado exitosamente",
+        "msperror": "Error creando el paciente"
+    },
+    "navbar": {
+        "info": "Información Personal",
+        "cambiarpw": "Cambiar contraseña",
+        "finsesion": "Cerrar sesión",
+        "iniciosesion": "Iniciar sesión",
+        "actualpw": "Contraseña actual ",
+        "nuevapw": "Nueva Contraseña",
+        "confirmarpw": "Confirme Contraseña",
+        "cambiar": "Cambiar",
+        "datosusuario": "Datos Usuario",
+        "fecha": "Fecha Creación",
+        "nombres": "Nombres",
+        "telefono": "Teléfono",
+        "usuario": "Usuario",
+        "sede": "Sede",
+        "hospital": "Hospital",
+        "rol": "Rol",
+        "cerrar": "Cerrar"
+    },
+    "tabla": {
+        "buscador": "Buscar",
+        "sindatos": "No hay datos que mostrar",
+        "primera": "Primera",
+        "anterior": "Anterior",
+        "sgte": "Siguiente",
+        "ultima": "Última",
+        "sgtepag": "Siguiente página",
+        "anteriorpag": "Anterior página",
+        "primerapag": "Primera página",
+        "ultimapag": "Última página"
+    },
+    "etiquetas": {
+        "ver": "Ver",
+        "eliminar": "Eliminar",
+        "agregar": "Agregar",
+        "editar": "Editar",
+        "enviar": "Enviar",
+        "hecho": "Hecho",
+        "guardar": "Guardar",
+        "cancelar": "Cancelar",
+        "seleccionar": "Seleccionar",
+        "seleccion": "Seleccione",
+        "seleccionhptl": "Seleccione un Hospital",
+        "seleccionpcte": "Seleccione un Paciente",
+        "seleccionopcion": "Seleccione una Opción",
+        "nuevocaso": "Nuevo Caso",
+        "cerrarcaso": "Cerrar caso",
+        "mapa": "Mapa",
+        "hora": "Hora",
+        "adjuntar": "Seleccione archivos Adjuntos",
+        "aceptar": "Aceptar",
+        "subir": "Subir",
+        "crear": "Crear",
+        "minutos": "Minutos",
+        "iniciar": "Iniciar sesión",
+        "hoy": "Hoy",
+        "nuevopaciente": "Nuevo paciente"
+    },
+    "formularios": {
+        "formulario": "Formulario",
+        "pacientes": "Pacientes",
+        "evaluacion": "Evaluación Clínica",
+        "hospital": "Hospital",
+        "ambulancia": "Ambulancia",
+        "cambiobase": "Cambio de base",
+        "formambulancias": {
+            "ambulancia": "Ambulancia",
+            "hasignacion": "H. Asignación",
+            "hllegada": "H. Llegada",
+            "hinicia": "H. Inicia",
+            "hdestino": "H. Destino",
+            "hbase": "H. Base",
+            "tectranssanitario": "Téc. de tranporte sanitario",
+            "tecnicosanitario": "Técnico de transporte sanitario",
+            "medgeneral": "Médico general",
+            "tecmedicas": "Téc. de emergencias médicas/Aux. enfermería/Lic. enfermería",
+            "tecnicomedicas": "Técnico de emergencias médicas",
+            "observaciones": "Observaciones",
+            "selectambulancia": "Por favor, seleccione una ambulancia",
+            "codigo": "Código operativo",
+            "placa": "Placa"
+        },
+        "formpacientes": {
+            "selectpaciente": "Seleccione el paciente a editar",
+            "paciente": "Paciente",
+            "docid": "Doc. de identidad",
+            "pasaporte": "Pasaporte",
+            "numero": "Número",
+            "expediente": "Expediente",
+            "fechanac": "Fecha de nacimiento",
+            "edad": "Edad",
+            "compa": "Acompañante",
+            "nombrecompa": "Nombre del acompañante",
+            "telcompa": "Teléfono del acompañante",
+            "tipoedad": "Tipo de edad",
+            "nombre1": "Nombre 1",
+            "nombre2": "Nombre 2",
+            "apellido1": "Apellido 1",
+            "apellido2": "Apellido 2",
+            "genero": "Género",
+            "apodo": "Apodo",
+            "nacionalidad": "Nacionalidad",
+            "telefono": "Teléfono",
+            "segurosocial": "No. Seguro social",
+            "direccion": "Dirección",
+            "observaciones": "Observaciones",
+            "crearpaciente": "Crear Paciente"
+        },
+        "formhospital": {
+            "hospital": "Hospital",
+            "hptldestino": "Hospital Destino",
+            "hasignacion": "Hora Asignación",
+            "nombremedico": "Nombre del médico",
+            "telmedico": "Teléfono del médico",
+            "selecthptl": "Por favor, seleccione el hospital"
+        },
+        "formevaluacion": {
+            "codigo": "Código",
+            "diagnostico": "Diagnóstico",
+            "selectevaluacion": "Seleccione la evaluacion clínica a editar",
+            "paciente": "Paciente",
+            "ta": "T.A",
+            "fc": "F.C",
+            "fr": "F.R",
+            "to": "T°",
+            "glasgow": "Glasgow",
+            "sp02": "Sp02",
+            "glicemia": "Glicemia",
+            "talla": "Talla",
+            "peso": "Peso",
+            "condicionpcte": "Condición del paciente",
+            "tipopcte": "Tipo de paciente",
+            "cie10": "CIE10",
+            "cuadroclinico": "Cuadro Clínico",
+            "examenfisico": "Examen Físico",
+            "antecedentes": "Antecedentes",
+            "paraclinicos": "Paraclínicos",
+            "tratamiento": "Tratamiento",
+            "informaciondx": "Información DX",
+            "selectcie10": "Por favor, seleccione el CIE10",
+            "crearevualuacion": "Crear Evaluación Clínica",
+            "selectpaciente": "Seleccione el paciente al que pertenece"
+        },
+        "formkamban": {
+            "codigo": "Código",
+            "nombre1": "Primer nombre",
+            "nombre2": "Segundo nombre",
+            "apellido1": "Primer apellido",
+            "apellido2": "Segundo apellido",
+            "titulo": "Monitoreo Kamban",
+            "necesidad": "Necesidad",
+            "hptlz30": "Hospitalizados antes de 30 días",
+            "checkbox": "Checkbox",
+            "nocama": "No. Cama",
+            "especial": "Especialidad",
+            "procedimientos": "Procedimientos de la sala",
+            "cuidadointer": "Cuidado intermedio",
+            "cuidadomin": "Cuidado mínimo",
+            "cuidadoten": "Cuidado intensivo",
+            "tieneriesgo": "Tiene riesgo de",
+            "flebite": "Riesgo de Flebite",
+            "caida": "Riesgo de caída",
+            "exsonda": "Exturbación de Sonda nasogástrica",
+            "ulcera": "Riesgo de ulcera de Decubito",
+            "exaccidente": "Riesgo de Extubación Accidental",
+            "select": "Por favor, seleccione la especialidad"
+        }
+    },
+    "unificado": {
+        "despacho": {
+            "titulo": "Despacho Unificado"
+        },
+        "tabla": {
+            "datos": {
+                "ncaso": "N° Caso",
+                "tipocaso": "Tipo caso",
+                "preh": "Preh",
+                "interh": "InterH",
+                "fecha": "Fecha",
+                "tiempo": "Tiempo",
+                "pacientes": "Pacientes",
+                "hptlorigen": "Hospital Origen",
+                "hptldestino": "Hospital Destino",
+                "prioridad": "Prioridad",
+                "accion": "Acción",
+                "seguimiento": "Seguimiento",
+                "despacho": "Despacho",
+                "cerrarcaso": "Cerrar caso"
+            },
+            "formulario": {
+                "cerrarcaso": "Cerrar caso",
+                "tipocierre": "Por favor, seleccione el tipo de cierre",
+                "razoncierre": "Por favor, escriba la razón por la cual cierra el caso",
+                "razon": "Razón",
+                "seguimiento": "Seguimiento",
+                "escribanota": "Por favor, escriba la nota",
+                "nota": "Nota",
+                "archivos": "Archivos",
+                "enviar": "Enviar a Despacho",
+                "enviardespacho": "¿Desea enviar a despacho de ambulancia?"
+            }
+        },
+        "unido": {
+            "datos": {
+                "id": "Código",
+                "nombre1": "Primer Nombre",
+                "nombre2": "Segundo Nombre",
+                "apellido1": "Primer Apellido",
+                "apellido2": "Segundo Apellido"
+            },
+            "formulario": {
+                "telefono": "Teléfono",
+                "llamadano": "Llamada no pertinente",
+                "motivo": "Motivo llamado",
+                "tiposolicitud": "Tipo de solicitud",
+                "inter": "InterHospitalario",
+                "pre": "PreHospitalario",
+                "serviciosinter": "Servicios interhospitalarios",
+                "solicitudhptl": "Hospital solicitud",
+                "base": "Base",
+                "tiposervicio": "Tipo de servicio",
+                "remision": "Remisión",
+                "contraremision": "Contra remisión",
+                "estudio": "Estudio",
+                "programado": "Programado",
+                "remisionycontra": "Remisión y contra remisión",
+                "ubicacionpte": "Ubicación pte",
+                "prioridad": "Prioridad",
+                "accion": "Acción",
+                "paciente": "Paciente",
+                "generarrt": "Generar retorno",
+                "generacionrt": "Generación de retorno",
+                "ubicacionpcte": "Ubicación Paciente",
+                "tipoestudio": "Tipo de estudio",
+                "programacion": "Programación",
+                "serviciopre": "Servicio PreHospitalario",
+                "incidente": "Incidente",
+                "nombrereporta": "Nombre Reporta",
+                "direccion": "Dirección",
+                "barrio": "Barrio",
+                "multiple": "¿Caso multiple?",
+                "hptlorigen": "Hospital Origen",
+                "selectinicidente": "Incidente Seleccionado",
+                "nombremedico": "Nombre del médico",
+                "telmedico": "Teléfono del médico"
+            },
+            "titulo": "Control"
+        }
+    },
+    "ambulancias": {
+        "catalogo": {
+            "datos": {
+                "id": "Id Catalogo",
+                "servicio": "Servicio"
+            },
+            "titulo": "Catálogo"
+        },
+        "taller": {
+            "datos": {
+                "id": "Id Taller",
+                "nombre": "Nombre Taller"
+            },
+            "titulo": "Taller"
+        },
+        "recordatorio": {
+            "datos": {
+                "id": "Id",
+                "ambulancias": "Ambulancias",
+                "mantenimiento": "Mantenimiento",
+                "frecuenciakm": "Km A Mantenimiento",
+                "frecuenciati": "Mes a Mantenimiento",
+                "anticipokm": "Recordatorio Km",
+                "anticipoti": "Recordatorio Tiempo"
+            },
+            "titulo": "Recordatorios"
+        },
+        "ambulancias": {
+            "datos": {
+                "id": "Id Ambulancia",
+                "codigo": "Código",
+                "placas": "Placa",
+                "chasis": "Chasis",
+                "modelo": "Modelo",
+                "marca": "Marca",
+                "tipo": "Tipo Combustible",
+                "estado": "Estado",
+                "ubicacion": "Ubicación",
+                "servicio": "Servicio Especial",
+                "especial": "Especialidad",
+                "mantenimiento": "Mantenimiento",
+                "fechaini": "Fecha Inicio",
+                "fechafin": "Fecha Fin"
+            },
+            "titulo": "Ambulancias"
+        },
+        "novedades": {
+            "datos": {
+                "id": "Id Transacción",
+                "bases": "Bases",
+                "ambulancias": "Ambulancias",
+                "usuario": "Usuario",
+                "estado": "Estado",
+                "motivo": "Motivo Salida",
+                "mot": "Motivo",
+                "descripcion": "Descripción",
+                "entrada": "Entrada del Servicio",
+                "salida": "Salida del Servicio",
+                "fecha": "Fecha"
+            },
+            "titulo": "Novedades",
+            "tran": "Transacción"
+        },
+        "mantenimiento": {
+            "datos": {
+                "id": "Id",
+                "codigo": "Código",
+                "fechaini": "Fecha Inicio",
+                "fechafin": "Fecha Fin",
+                "observaciones": "Observaciones",
+                "taller": "Taller"
+            },
+            "titulo": "Mantenimiento"
+        },
+        "eventos": {
+            "datos": {
+                "id": "Id",
+                "ambulancia": "Ambulancia",
+                "placas": "Placa",
+                "frecuenciat": "Frecuencia tiempo",
+                "servicios": "Servicios",
+                "estadokm": "Estado por km",
+                "estadoseguro": "Estado seguro",
+                "estadoti": "Estado por tiempo",
+                "atiempo": "A tiempo",
+                "vencido": "Vencido"
+            },
+            "titulo": "Eventos próximos ambulancia"
+        },
+        "panelcobertura": {
+            "fecha": "Fecha",
+            "preposicion": "Preposición",
+            "unidad": "Unidad",
+            "supervisor": "Supervisor que reporta",
+            "motivouni": "Motivo de salida de la unidad",
+            "coberturanacional": "Cobertura Nacional Preposiciones",
+            "fechaini": "Fecha Inicio",
+            "fechafin": "Fecha Fin",
+            "provincia": "Provincia",
+            "todas": "Todas",
+            "ultimos": "Ultimos 5 dígitos",
+            "codigo": "Código",
+            "preposiciones": "Preposiciones Descubiertas",
+            "porcentajedes": "% de Preposiciones Descubiertas",
+            "porcentajecu": "% de Preposiciones Cubiertas",
+            "motivoserv": "Motivo de Salida de Serv. Preposiciones",
+            "ubicacion": "Ubicación Preposiciones Descubiertas"
+        },
+        "panelgestion": {
+            "gestion": "Gestión y Control de Transportación",
+            "unidadestipo": "Unidades Fuera de Servicio Por Tipo",
+            "total": "Total de Unidades Fuera de Serv. y Taller donde se Encuentran",
+            "marca": "Marca/Modelo",
+            "estatus": "Estatus",
+            "terminales": "Terminales Chasis",
+            "unidadesdetalle": "Unidades Fuera Detalle",
+            "entradasalida": "Entradas y Salidas de Unidades Ultimos 7 Días",
+            "tiempo": "Tiempo Promedio (Días) de respuesta de los talleres",
+            "dia": "Día",
+            "observacion": "Observación",
+            "disponible": "Disponible"
+        }
+    },
+    "administracion": {
+        "acode": {
+            "datos": {
+                "id": "Id Acode",
+                "nombre": "Acode"
+            },
+            "titulo": "Acode"
+        },
+        "base": {
+            "datos": {
+                "id": "Id Base",
+                "nombre": "Nombre",
+                "dpto": "Departamento",
+                "provincia": "Provincia",
+                "distrito": "Distrito",
+                "longitud": "Longitud",
+                "latitud": "Latitud"
+            },
+            "titulo": "Base Ambulancia"
+        },
+        "especialamb": {
+            "datos": {
+                "id": "Id Especial",
+                "especial": "Especialidad"
+            },
+            "titulo": "Especial Ambulancia"
+        },
+        "especialhptl": {
+            "datos": {
+                "id": "Id Especialidad",
+                "nombre": "Especialidad"
+            },
+            "titulo": "Especialidad Hospital"
+        },
+        "explorefisica": {
+            "datos": {
+                "id": "Id Especialidad",
+                "explo": "Explo general",
+                "descripcion": "Descripción"
+            },
+            "titulo": "Exploración Física"
+        },
+        "Incidente": {
+            "datos": {
+                "id": "Id Incidente",
+                "nombre": "Nombre"
+            },
+            "titulo": "Catálogo"
+        },
+        "insumos": {
+            "datos": {
+                "id": "Id Insumos",
+                "nombre": "Nombre",
+                "valor": "Valor"
+            },
+            "titulo": "Insumos"
+        },
+        "medicamentos": {
+            "datos": {
+                "id": "Id Medicamentos",
+                "nombre": "Nombre",
+                "valor": "Valor"
+            },
+            "titulo": "Medicamentos"
+        },
+        "modalidad": {
+            "datos": {
+                "id": "Id Modalidad",
+                "nombre": "Modalidad Amb"
+            },
+            "titulo": "Modalidad Ambulancia"
+        },
+        "nivel": {
+            "datos": {
+                "id": "Id Nivel",
+                "nombre": "Nombre",
+                "perfil": "Perfil",
+                "usuario": "Perfil Usuario"
+            },
+            "titulo": "Nivel"
+        },
+        "permisos": {
+            "datos": {
+                "tablas": "Tablas",
+                "agregar": "Agregar",
+                "editar": "Editar",
+                "ver": "Ver",
+                "eliminar": "Eliminar",
+                "admin": "Admin"
+            },
+            "titulo": "Perfiles"
+        },
+        "procedimientos": {
+            "datos": {
+                "id": "Id Procedimiento",
+                "nombre": "Nombre",
+                "valor": "Valor"
+            },
+            "titulo": "Procedimientos"
+        },
+        "tipoamb": {
+            "datos": {
+                "id": "Id Tipo Transporte",
+                "tipo": "Tipo Amb"
+            },
+            "titulo": "Tipo Ambulancia"
+        },
+        "sede": {
+            "datos": {
+                "id": "Id Sede",
+                "nombre": "Nombre sede"
+            },
+            "titulo": "Sede"
+        },
+        "usuarios": {
+            "datos": {
+                "id": "Id User",
+                "nombres": "Nombres",
+                "apellidos": "Apellidos",
+                "telefono": "Teléfono",
+                "usuario": "Usuario",
+                "perfil": "Perfil",
+                "sede": "Sede",
+                "acode": "Acode",
+                "hospital": "Hospital",
+                "pw": "Contraseña"
+            },
+            "titulo": "Usuarios"
+        },
+        "webservices": {
+            "datos": {
+                "id": "Id Parametros",
+                "caller": "Caller",
+                "idpersonas": "Id Personas",
+                "camasdis": "Camas Disponibles",
+                "afiliados": "Afiliados"
+            },
+            "titulo": "Webservices"
+        }
+    },
+    "medsurge": {
+        "alertas": {
+            "datos": {
+                "registro1": " 1°. Reporte",
+                "registro2": " 2°. Reporte",
+                "registro3": " 3°. Reporte",
+                "registro4": " 4°. Reporte",
+                "tiemporecord": "Tiempo recordatorio",
+                "textorecord": "Texto recordatorio",
+                "tiempoms": "Tiempo Notificación",
+                "textoms": "Texto Notificación"
+            },
+            "titulo": "Administración Registro"
+        },
+        "hospital": {
+            "datos": {
+                "id": "Id Hospital",
+                "nombre": "Nombre hospital",
+                "dpto": "Departamento",
+                "provincia": "Provincia",
+                "distrito": "Distrito",
+                "nivel": "Nivel",
+                "camash": "Camas Habilitadas",
+                "longitud": "Longitud",
+                "latitud": "Latitud",
+                "direccion": "Dirección",
+                "estado": "Estado",
+                "emt": "EMT",
+                "tipo": "Tipo",
+                "especial": "Especialidad",
+                "divpolitica": "Divpolitica",
+                "telefono": "Teléfono",
+                "nombreres": "Nombre responsable",
+                "agregarcamas": "Agregar Camas",
+                "camashptlz": "Camas Hospitalización",
+                "camasuci": "Camas UCI",
+                "camasped": "Camas Pediatría"
+            },
+            "titulo": "Hospital"
+        },
+        "registro": {
+            "datos": {
+                "id": "Id",
+                "fecha": "Fecha",
+                "hospital": "Hospital",
+                "nombreres": "Nombre reporta",
+                "telefono": "Teléfono",
+                "ocupadas": "Ocupadas",
+                "libres": "Libres",
+                "noservicio": "Sin servicio",
+                "camashptlz": "Camas Hospitalización",
+                "camasuci": "Camas UCI",
+                "camasped": "Camas Pediatría"
+            },
+            "titulo": "Registro diario"
+        },
+        "reportes": {
+            "datos": {
+                "ambulancia": "Ambulancia",
+                "placa": "Placa",
+                "marca": "Marca",
+                "estado": "Estado",
+                "disponible": "Disponible",
+                "nodisponible": "No disponible"
+            },
+            "titulo": "Reportes"
+        },
+        "seleccion": {
+            "fecha": "Fecha",
+            "titulo": "Clasificación"
+        },
+        "nuevaseccion": {
+            "id": "Id  División",
+            "descripcion": "Descripción",
+            "servicio": "Servicio",
+            "idbloque": " Id Bloque",
+            "bloque": "Bloque",
+            "fecha": "Fecha Creación",
+            "activo": "Activo",
+            "nueva": "Nueva sección",
+            "uci": "UCI",
+            "hospitalizacion": "Hospitalización",
+            "pediatria": "Pedíatria",
+            "seccion": "Sección"
+        }
+    },
+    "eclinical": {
+        "admision": {
+            "datos": {
+                "id": "Código",
+                "nombre1": "Primer nombre",
+                "nombre2": "Segundo nombre",
+                "apellido1": "Primer apellido",
+                "apellido2": "Segundo apellido",
+                "tipoingreso": " Tipo de ingreso"
+            },
+            "titulo": "Admisión"
+        },
+        "clasificacion": {
+            "datos": {
+                "id": "No. ID",
+                "fecha": "Fecha",
+                "hc": "No. HC",
+                "paciente": "Paciente",
+                "tipoingreso": " Tipo de ingreso",
+                "cod911": "No. Caso 911",
+                "sexo": "Sexo",
+                "compa": "Acompañante",
+                "motivo": "Motivo de la consulta",
+                "lugartrauma": "Localización trauma",
+                "causatrauma": "Causa trauma",
+                "sistema": "Sistema",
+                "glasgow": "Glasgow",
+                "pa": "PA(mmHg)",
+                "pas": "PAS(mmHg)",
+                "ta": "T.A",
+                "pad": "PAD(mmHg)",
+                "fc": "FC(bpm)",
+                "fr": "FR(rpm)",
+                "so2": "SO2(%)",
+                "temperatura": "Temperatura",
+                "dolor": "Dolor",
+                "escala": "Escala",
+                "signos": "Signos y síntomas",
+                "signodescrip": "Signos y síntomas descripción"
+            },
+            "titulo": "Clasificación"
+        },
+        "monitoreo": {
+            "datos": {
+                "id": "Id Incidentes",
+                "necesidad": "Necesidad",
+                "nombre": "Nombre",
+                "incidentes": "Incidentes",
+                "tiemposala": "Tiempo en Sala",
+                "ncama": "No Cama",
+                "hc": "No. HC",
+                "paciente": "Paciente",
+                "motivoestancia": "Motivo estancia",
+                "prosala": "Procedimiento en Sala",
+                "examenpendiente": "Examenes pendientes",
+                "riesgoadquirido": "Riesgo Adquiridos",
+                "fechaeva": "Fecha evaluación",
+                "procedimientos": "Procedimientos",
+                "examenes": "Examenes",
+                "notaexamen": "Nota Examenes",
+                "complicacion": "Complicación",
+                "notacomplicacion": "Nota complicación",
+                "especial": "Especialidad",
+                "diagnostico": "Diagnóstico",
+                "cuidadomin": "Cuidado mínimo",
+                "cuidadointer": "Cuidado intermedio",
+                "cuidadointensivo": "Cuidad intensivo",
+                "internados": "Internados",
+                "fb": "FB",
+                "media": "Media",
+                "total": "Total",
+                "censocamas": "Censo Camas",
+                "cadisponibles": "Camas Disponibles",
+                "caocupadas": "Camas Ocupadas",
+                "caextras": "Camas Extras",
+                "totalcamas": "Total Camas",
+                "flebite": "Flebite",
+                "caida": "Caída",
+                "ulcera": "ulcera de Decubito",
+                "extubacion": "Extubación de Sonda Nasogástrica",
+                "evolucion": "Evaluación",
+                "datospcte": "Datos del paciente",
+                "notaevolucion": "Nota evolución",
+                "notaexamenes": "Nota examenes",
+                "disposicion": "Disposición"
+            },
+            "titulo": "Monitoreo en sala"
+        },
+        "urgencias": {
+            "datos": {
+                "alta": "Dar de alta",
+                "emergencias": "Emergencias"
+            },
+            "titulo": "Urgencias"
+        },
+        "emergencias": {
+            "datos": {
+                "codigo": "Código",
+                "diagnostico": "Diagnóstico",
+                "clasificacion": "Clasificación",
+                "tiempo": "Tiempo",
+                "fechaclasi": "Fecha Clasificación",
+                "hc": "No. HC",
+                "paciente": "Paciente",
+                "urgencia": "Urgencia",
+                "alta": "Dar de alta",
+                "egreso": "Egreso",
+                "nombremedicamento": "Nombre medicamento",
+                "examenes": "Examenes",
+                "medicamentos": "Medicamentos",
+                "dosis": "Dosis",
+                "opcion": "Opción"
+            },
+            "formulario": {
+                "formulario": "Formulario",
+                "general": "General",
+                "cabeza": "Cabeza",
+                "ojos": "Ojos",
+                "otorrino": "Otorrino",
+                "boca": "Boca",
+                "cuello": "Cuello",
+                "torax": "Toráx",
+                "corazon": "Corazón",
+                "pulmon": "Pulmón",
+                "abdomen": "Abdomen",
+                "pelvis": "Pélvis",
+                "rectal": "Rectal",
+                "genital": "Genital",
+                "extremidad": "Extremidad",
+                "neuro": "Neuro",
+                "piel": "Piel",
+                "sintomas": "Síntomas",
+                "descripcion": "Descripción diagnóstico",
+                "cie10": "CIE10",
+                "otros": "Otros",
+                "medicamentos": "Medicamentos",
+                "ordenmedicamentos": "Orden medicamentos",
+                "ordenexamenes": "Orden examenes",
+                "examenes": "Examenes",
+                "seleccioncie10": "Por favor, seleccione el CIE10",
+                "selecciondosis": "Seleccione el medicamento e ingrese la dosis",
+                "seleccionexamen": "Seleccione el examen",
+                "disposicion": "Disposición"
+            },
+            "titulo": "Emergencias"
+        }
+    },
+    "interhospital": {
+        "cola": {
+            "datos": {
+                "fecharegistro": "Fecha del registro",
+                "servicioregional": "Servicio regional de salud que reporta",
+                "nombreapellido": "Nombre y apellido de los pacientes",
+                "estatustraslado": "Estatus del traslado",
+                "todas": "Todas",
+                "completado": "Completado",
+                "espera": "En espera",
+                "proceso": "En proceso",
+                "abortados": "Abortados",
+                "filtrosrs": "Filtro SRS",
+                "trasladosinter": "Traslados Inter-Hospital",
+                "trasladospre": "Traslados Pre-Hospital",
+                "nombrepcte": "Nombre del paciente",
+                "regionsalud": "Región de salud",
+                "hospitalprocedencia": "Hospital de procedencia",
+                "edadpcte": "Edad del paciente",
+                "nacionalidad": "Nacionalidad",
+                "ficha": "Ficha de unidad de ambulancia",
+                "cedula": "Cedula y/o pasaporte del paciente",
+                "estatus": "Estatus de traslado",
+                "nombrerecibe": "Nombre de quien recibe el paciente",
+                "hospitalrecibe": "¿Que hospital recibe?",
+                "telrecibe": "Teléfono de quien recibe",
+                "fechaini": "Fecha Inicio",
+                "fechafin": "Fecha Fin",
+                "tipopcte": "Tipo de paciente"
+            }
+        },
+        "interhospital": {
+            "datos": {
+                "tiposervicios": "Tipo Servicios",
+                "hptlorigen": "Hospital Origen",
+                "nombreres": "Nombre reporta",
+                "direccionorigen": "Dirección de origen",
+                "telefono": "Teléfono",
+                "motivoatencion": "Motivos Atención",
+                "motivotraslado": "Motivo traslado",
+                "imagenesdx": "Imagen DX",
+                "faltauci": "Falta de UCI",
+                "faltaespecial": "Falta de la especialidad requerida",
+                "faltaespacio": "Falta de espacio en hospitalización",
+                "faltaestudios": "Falta estudios de imágenes requerido",
+                "faltaucin": "Falta de UCIN",
+                "faltaquemados": "Falta unidad de quemados",
+                "traslado": "Traslado desde el domicilio",
+                "faltacovid": "Falta de unidad COVID",
+                "otro": "Otro",
+                "accion": "Acción",
+                "prioridad": "Prioridad"
+            },
+            "titulo": "Control"
+        },
+        "tabla": {
+            "datos": {
+                "ncaso": "N° Caso",
+                "tipocaso": "Tipo caso",
+                "preh": "Preh",
+                "interh": "InterH",
+                "fecha": "Fecha",
+                "tiempo": "Tiempo",
+                "pacientes": "Pacientes",
+                "hptlorigen": "Hospital Origen",
+                "hptldestino": "Hospital Destino",
+                "prioridad": "Prioridad",
+                "accion": "Acción",
+                "seguimiento": "Seguimiento",
+                "despacho": "Despacho",
+                "cerrarcaso": "Cerrar caso"
+            },
+            "formulario": {
+                "tipocierre": "Por favor, seleccione el tipo de cierre",
+                "razoncierre": "Por favor, escriba la razón por la cual cierra el caso",
+                "razon": "Razón",
+                "seguimiento": "Seguimiento",
+                "escribanota": "Por favor, escriba la nota",
+                "nota": "Notas",
+                "archivos": "Archivos",
+                "enviar": "Enviar a Despacho",
+                "enviardespacho": "¿Desea enviar a despacho de ambulancia?"
+            }
+        },
+        "tablerointerh": {
+            "datos": {
+                "mes": "Mes",
+                "hptlreporta": "Hospital Que Reporta",
+                "paciente": "Paciente",
+                "condicion": "Condición del paciente",
+                "hptlrecibe": "¿Que hospital recibe?",
+                "unidad": "Unidad",
+                "estatus": "Estatus de traslado"
+            },
+            "formulario": {
+                "traslados": "Traslados Inter-Hospitalario",
+                "completados": "Completados",
+                "espera": "En espera",
+                "proceso": "En proceso",
+                "abortados": "Abortados",
+                "total": "Total asistencias"
+            }
+        },
+        "trasladointerh": {
+            "trasladosinter": "Traslados Inter-Hospital",
+            "fechaini": "Fecha Inicio",
+            "fechafin": "Fecha Fin",
+            "filtrosrs": "Filtro SRS",
+            "asistencias": "Asistencias prestadas",
+            "traslados": "Traslados según condición",
+            "trasladosincidente": "Traslados según Incidente",
+            "nacionalidad": "Nacionalidad",
+            "totales": "Totales",
+            "todas": "Todas",
+            "totalasistencias": "Total asistencias",
+            "totaltraslados": "Total traslados completados",
+            "fallecidos": "Facellidos",
+            "trasladospcte": "Traslado de pacientes",
+            "motivo": "Motivo de traslado",
+            "tipopx": "Tipo de px"
+        }
+    }
+}
