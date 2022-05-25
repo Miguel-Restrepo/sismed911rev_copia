@@ -32,11 +32,13 @@ import ManRoundedIcon from '@mui/icons-material/ManRounded';
 import MonitorHeartRoundedIcon from '@mui/icons-material/MonitorHeartRounded';
 import DomainRoundedIcon from '@mui/icons-material/DomainRounded';
 import TaxiAlertRoundedIcon from '@mui/icons-material/TaxiAlertRounded';
-
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 import DataTable from 'react-data-table-component';
 //import FormularioPaciente from './FormularioPaciente';
 
 export default () => {
+    
     const [t, i18n] = useTranslation('global');
     const [openLoad, setOpenLoad] = useState(false);
     const [textLoad, setTextLoad] = useState('Cargando ...');
@@ -122,13 +124,16 @@ export default () => {
                 return (
                     <Stack direction="row">
                         <common.BootstrapTooltip title="Historia clinica">
-                            <IconButton color="inherit">
+                            <IconButton color="inherit"
+                                onClick={generatePDFHistoriaMedica}>
                                 <ReceiptLongRoundedIcon />
                             </IconButton>
                         </common.BootstrapTooltip>
 
                         <common.BootstrapTooltip title="Epicrisis">
-                            <IconButton color="inherit">
+                            <IconButton color="inherit"
+                                onClick={generatePDFEpicrisis}
+                            >
                                 <BadgeRoundedIcon />
                             </IconButton>
                         </common.BootstrapTooltip>
@@ -207,26 +212,64 @@ export default () => {
         setShowForms(select !== null);
     };
 
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-    };
+
 
     const closeDialog = () => {
         setOpenDialog(false);
     };
 
-    const actualizar = () => {
-        setShowForms(false);
-        setSelectedData(null);
-        fetchData();
-    };
+    //PDF
+    const generatePDFEpicrisis = () => {
+     
+        let img = new Image();
+        img.src = 'assets/image.jpg'; 
+        let doc = new jsPDF("p", "pt");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        img.onload = function () 
+        {
+            console.log(doc.getFontList());
+            doc.addImage(img,'JPEG',35,25,109,34); 
+            //doc.setFont("bold");
+            doc.text(412,35, 'Historia Clínica Sala de Emergencia'); 
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8);
+            doc.text(448,45, 'DEM-FOCEAS-001 Versión: 01'); 
+            doc.text(441,55, 'Fecha de aprobación: 30/11/2021'); 
+            doc.setDrawColor(9, 31, 146);
+            doc.setLineWidth(15.0); 
+            doc.line(30, 70, 560, 70);
+            doc.setFillColor(255,255,255);
+            doc.rect(100, 200, 100, 100, 'F');
+            //doc.text(10,10,'Hello world!');
+            doc.save('Epicrisis.pdf');
+        }
+      
 
+    }
+    const generatePDFHistoriaMedica = () => {
+        let doc = new jsPDF("p", "pt");
+        doc.setFont("helvetica");
+        let colPaciente = ["Paciente", "Documento", "Edad"];
+        let rowsPaciente = [];
+        doc.autoTable(colPaciente, rowsPaciente, { startY: 120 });
+        var logo = new Image();
+        logo.src = 'image.jpg';
+        doc.addImage(logo, 'JPEG', 15, 40, 148, 210);
+        var logo1 = new Image();
+        logo1.src = 'image.png';
+
+        doc.addImage(logo1, 'PNG', 15, 40, 148, 210);
+        //doc.addImage(extractImageFromDataUrl("image.png"));
+        doc.save("orden_Medicamento.pdf");
+    };
     useEffect(() => {
         fetchData();
     }, []);
 
     return (
         <>
+        
             <Backdrop
                 sx={{
                     color: '#fff',
