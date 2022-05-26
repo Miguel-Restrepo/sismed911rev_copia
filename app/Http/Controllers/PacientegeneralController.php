@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Monitoreo;
 use App\Models\Departamento;
 use App\Models\Distrito_reniec;
+use App\Models\Especialidad;
+use App\Models\Evolucion;
 use App\Models\Pacientegeneral;
+use App\Models\Procedimientos;
 use App\Models\Provincias;
 use App\Models\Sala_admission;
+use App\Models\Sala_estadoalta;
 use App\Models\Tipo_edad;
 use App\Models\Tipo_genero;
 use App\Models\Tipo_id;
@@ -35,6 +40,44 @@ class PacientegeneralController extends Controller
                 'distrito_reniec.*'
             )
             ->get();
+        foreach ($objeto as $post) {
+            $post->admision = DB::table('sala_admission')
+                ->leftJoin('sala_motivoatencion', 'sala_motivoatencion.id_motivoatencion', '=', 'sala_admission.id_motivoatencion')
+                ->leftJoin('sala_signos', 'sala_signos.id_signos', '=', 'sala_admission.id_signos')
+                ->leftJoin('sala_causatrauma', 'sala_causatrauma.id_salaCausa', '=', 'sala_admission.id_causatrauma')
+                ->leftJoin('sala_localizaciontrauma', 'sala_localizaciontrauma.id_localizaciontrauma', '=', 'sala_admission.id_localizaciontrauma')
+                ->leftJoin('tipo_ingreso', 'tipo_ingreso.id_ingreso', '=', 'sala_admission.id_ingreso')
+                ->leftJoin('sala_atencionmedica', 'sala_atencionmedica.id_admision', '=', 'sala_admission.id_admision')
+                ->select(
+                    'sala_admission.id_admision as codigo',
+                    'sala_admission.*',
+                    'sala_motivoatencion.*',
+                    'sala_signos.*',
+                    'sala_causatrauma.*',
+                    'sala_localizaciontrauma.*',
+                    'tipo_ingreso.*',
+                    'sala_atencionmedica.*'
+                )
+                ->where('sala_admission.id_paciente', $post->codigo)
+                ->first();
+
+            $post->monitoreo=null;
+            if($post->admision!=null){
+                $post->monitoreo = Monitoreo::where('id_salaatencionmedica', $post->admision->codigo)->first();
+                if ($post->monitoreo == null) {
+                    $post->monitoreo = new Monitoreo();
+                    $post->monitoreo->id_salaatencionmedica = $post->codigo;
+                    
+                }else{
+                    $post->monitoreo->especialidad= Especialidad::where('id_especialidad',$post->monitoreo->especialidad)->first();
+                    $post->evoluciones = Evolucion::where('id_monitoreo', $post->monitoreo->id)->get();
+                    $post->procedimiento = Procedimientos::find($post->monitoreo->procedimientos_sala);
+                }
+
+                $post->alta= Sala_estadoalta::where('id_estadoalta', $post->admision->id_estadoalta)->first();
+            }
+           
+        }
 
         return $objeto;
     }
