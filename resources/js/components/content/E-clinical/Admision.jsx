@@ -1,7 +1,6 @@
 import Icofont from 'react-icofont';
 import { useEffect, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -21,6 +20,24 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ServiceConfig from '../config/service';
+
+import SearchIcon from '@mui/icons-material/Search';
+
+import {
+    InputLabel,
+    MenuItem,
+    Box,
+    FormControl,
+    Select,
+    Stack,
+    Item,
+    Grid,
+    Container,
+    TextField,
+    IconButton,
+    Button,
+    Typography,
+} from '@mui/material';
 
 toast.configure();
 
@@ -275,7 +292,6 @@ function Admision() {
     };
 
     const cambioSelect = (e) => {
-        e.persist();
         if (e.target.value == 2) {
             setMostrarSelect(true);
         } else {
@@ -330,8 +346,8 @@ function Admision() {
                                                 response.data.nombres.split(' ')
                                                     .length > 1
                                                     ? response.data.nombres.split(
-                                                          ' '
-                                                      )[1]
+                                                        ' '
+                                                    )[1]
                                                     : '',
                                             ['apellido1']:
                                                 response.data.apellido1,
@@ -463,149 +479,83 @@ function Admision() {
     return (
         <div>
             <div>
-                <h2>{t('eclinical.admision.titulo')}</h2>
+
             </div>
 
             <div>
-                <Form>
-                    <Row className="mb-3">
-                        <Form.Group as={Col} controlId="id_ingreso">
-                            <Form.Label>
-                                <strong>
-                                    {t('eclinical.admision.datos.tipoingreso')}
-                                </strong>
-                            </Form.Label>
 
-                            <Col sm={9}>
-                                <Form.Control
-                                    as="select"
-                                    value={form.id_ingreso}
-                                    onChange={cambioSelect}
-                                    name="id_ingreso"
-                                >
-                                    <option value="" id="defAcc">
-                                        {`-- ${t('etiquetas.seleccion')} --`}
-                                    </option>
-                                    {tipos.map((tipo) => (
-                                        <option
-                                            key={tipo.id_ingreso}
-                                            value={tipo.id_ingreso}
-                                        >
-                                            {tipo.nombre_ingreso}
-                                        </option>
-                                    ))}
-                                </Form.Control>
-                            </Col>
-                        </Form.Group>
+
+                <Container fixed>
+                    <h2>{t('eclinical.admision.titulo')}</h2>
+
+                    <Stack direction="row" spacing={2}>
+
+                        <FormControl sx={{ m: 1, minWidth: 200 }}>
+                            <InputLabel id="label_tipo">{t('eclinical.admision.datos.tipoingreso')}</InputLabel>
+                            <Select
+                                labelId="label_tipo"
+                                value={form.id_ingreso}
+                                onChange={cambioSelect}
+                                name="id_ingreso"
+                                label={`${t('eclinical.admision.datos.tipoingreso')}`}
+                            >
+
+                                {tipos.map((tipo) => (
+                                    <MenuItem value={tipo.id_ingreso} key={tipo.id_ingreso}>{tipo.nombre_ingreso}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
                         {mostrarSelect && (
-                            <Form.Group as={Col}>
-                                <Form.Label htmlFor="inlineFormInputGroup">
-                                    <strong>
-                                        {t('eclinical.admision.datos.nombre1')}
-                                    </strong>
-                                </Form.Label>
-
-                                <Form.Control
-                                    id="inlineFormInputGroup"
-                                    placeholder={`${t(
-                                        'formularios.ambulancia'
-                                    )}`}
-                                    value={form.cod911}
-                                    onChange={handleChange}
-                                    name="cod911"
+                            <FormControl sx={{ m: 1, minWidth: 200 }}>
+                                <TextField
+                                    id="outlined-textarea"
+                                    label={`${t('eclinical.admision.datos.nombre1')}`}
+                                    placeholder={`${t('formularios.ambulancia')}`}
+                                    value={form.cod911} onChange={handleChange}
+                                    multiline
                                 />
-                            </Form.Group>
+                            </FormControl>
                         )}
 
-                        <Form.Group as={Col}>
-                            <Form.Label column sm={3}>
-                                <strong>
-                                    {t('formularios.formpacientes.paciente')}
-                                </strong>
-                            </Form.Label>
 
-                            <Col sm={9}>
-                                <InputGroup className="mb-2">
-                                    <Form.Control
-                                        id="x"
+                        <FormControl sx={{ m: 1, minWidth: 400 }}>
+                            <Grid container  >
+                                <Grid item xs={11}>
+
+                                    <TextField
+                                        id="outlined-textarea"
+                                        label={`${t('formularios.formpacientes.paciente')}`}
                                         placeholder={`-- ${t(
                                             'etiquetas.seleccionpcte'
                                         )} --`}
-                                        disabled
                                         value={paciente}
                                         onChange={handleChange}
                                         name="id_paciente"
+                                        multiline
                                     />
+                                </Grid>
+                                <Grid item >
+                                    <Button variant="outlined" onClick={handleShow2}>
+                                        <SearchIcon />
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </FormControl>
 
-                                    <InputGroup.Text onClick={handleShow2}>
-                                        <Icofont
-                                            icon="ui-search"
-                                            className="mx-2"
-                                        />
-                                    </InputGroup.Text>
 
-                                    <InputGroup.Text onClick={showForm}>
-                                        <Icofont
-                                            icon="ui-add"
-                                            className="mx-2"
-                                        />
-                                    </InputGroup.Text>
-                                </InputGroup>
-                            </Col>
-                        </Form.Group>
-                    </Row>
+                    </Stack>
 
-                    <Row className="mb-3">
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.compa')}
-                                </strong>
-                            </Form.Label>
 
-                            <Form.Control
-                                type="text"
-                                placeholder={`${t(
-                                    'formularios.formpacientes.nombrecompa'
-                                )}`}
-                                value={form.acompañante}
-                                onChange={handleChange}
-                                name="acompañante"
-                            />
-                        </Form.Group>
+                </Container>
 
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.telcompa')}
-                                </strong>
-                            </Form.Label>
 
-                            <Col sm={9}>
-                                <PhoneInput
-                                    containerClass="mx-0"
-                                    inputClass="mx-0"
-                                    country={ServiceConfig.codgoPais}
-                                    value={form.telefono_acompañante}
-                                    onChange={(value) =>
-                                        setForm((prevState) => ({
-                                            ...prevState,
-                                            telefono_acompañante: value,
-                                        }))
-                                    }
-                                />
-                            </Col>
-                        </Form.Group>
-                    </Row>
 
-                    {form.id_ingreso != '' && paciente != '' && (
-                        <Button variant="primary" onClick={Post}>
-                            {t('etiquetas.guardar')}
-                        </Button>
-                    )}
-                </Form>
-            </div>
+
+
+
+
+            </div >
 
             <br></br>
 
@@ -651,375 +601,377 @@ function Admision() {
 
             <br></br>
 
-            {mostrarFormulario && (
-                <Form className={mostrarFormulario ? 'show-element' : null}>
-                    <Row className="mb-3">
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.docid')}
-                                </strong>
-                            </Form.Label>
+            {
+                mostrarFormulario && (
+                    <Form className={mostrarFormulario ? 'show-element' : null}>
+                        <Row className="mb-3">
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t('formularios.formpacientes.docid')}
+                                    </strong>
+                                </Form.Label>
 
-                            <Form.Control
-                                as="select"
-                                placeholder={`${t(
-                                    'formularios.formpacientes.pasaporte'
-                                )}`}
-                                name="tipo_doc"
-                                value={form2.tipo_doc}
-                                onChange={handleChangeFormPacienteDoc}
-                            >
-                                {tipos_documentos.map((elemento) => (
-                                    <option
-                                        key={elemento.id_tipo}
-                                        value={elemento.id_tipo}
+                                <Form.Control
+                                    as="select"
+                                    placeholder={`${t(
+                                        'formularios.formpacientes.pasaporte'
+                                    )}`}
+                                    name="tipo_doc"
+                                    value={form2.tipo_doc}
+                                    onChange={handleChangeFormPacienteDoc}
+                                >
+                                    {tipos_documentos.map((elemento) => (
+                                        <option
+                                            key={elemento.id_tipo}
+                                            value={elemento.id_tipo}
+                                        >
+                                            {elemento.descripcion}
+                                        </option>
+                                    ))}
+                                </Form.Control>
+                            </Form.Group>
+
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t('formularios.formpacientes.numero')}
+                                    </strong>
+                                </Form.Label>
+
+                                <InputGroup className="mb-2">
+                                    <Form.Control
+                                        type="number"
+                                        placeholder={`${t(
+                                            'formularios.formpacientes.numero'
+                                        )}`}
+                                        name="num_doc"
+                                        value={form2.num_doc}
+                                        onChange={handleChange1}
+                                    />
+
+                                    <InputGroup.Text
+                                        onClick={() => buscarCedula(form2.num_doc)}
+                                        className={search ? 'd-flex' : 'd-none'}
                                     >
-                                        {elemento.descripcion}
-                                    </option>
-                                ))}
-                            </Form.Control>
-                        </Form.Group>
+                                        <Icofont
+                                            icon="ui-search"
+                                            className="mx-2"
+                                        />
+                                    </InputGroup.Text>
+                                </InputGroup>
+                            </Form.Group>
 
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.numero')}
-                                </strong>
-                            </Form.Label>
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t('formularios.formpacientes.expediente')}
+                                    </strong>
+                                </Form.Label>
 
-                            <InputGroup className="mb-2">
+                                <Form.Control
+                                    type="text"
+                                    placeholder={`${t(
+                                        'formularios.formpacientes.expediente'
+                                    )}`}
+                                    name="expendiente"
+                                    value={form2.expendiente}
+                                    onChange={handleChange1}
+                                />
+                            </Form.Group>
+
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t('formularios.formpacientes.fechanac')}
+                                    </strong>
+                                </Form.Label>
+
+                                <Form.Control
+                                    type="date"
+                                    name="fecha_nacido"
+                                    value={form2.fecha_nacido}
+                                    onChange={calcularEdad}
+                                />
+                            </Form.Group>
+
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t('formularios.formpacientes.edad')}
+                                    </strong>
+                                </Form.Label>
+
                                 <Form.Control
                                     type="number"
                                     placeholder={`${t(
-                                        'formularios.formpacientes.numero'
+                                        'formularios.formpacientes.edad'
                                     )}`}
-                                    name="num_doc"
-                                    value={form2.num_doc}
+                                    name="edad"
+                                    value={form2.edad}
                                     onChange={handleChange1}
                                 />
+                            </Form.Group>
 
-                                <InputGroup.Text
-                                    onClick={() => buscarCedula(form2.num_doc)}
-                                    className={search ? 'd-flex' : 'd-none'}
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t('formularios.formpacientes.tipoedad')}
+                                    </strong>
+                                </Form.Label>
+
+                                <Form.Control
+                                    as="select"
+                                    placeholder={`${t(
+                                        'formularios.formpacientes.tipoedad'
+                                    )}`}
+                                    name="cod_edad"
+                                    value={form2.cod_edad}
+                                    onChange={handleChange1}
                                 >
-                                    <Icofont
-                                        icon="ui-search"
-                                        className="mx-2"
-                                    />
-                                </InputGroup.Text>
-                            </InputGroup>
-                        </Form.Group>
+                                    {tipos_edad.map((elemento) => (
+                                        <option
+                                            key={elemento.id_edad}
+                                            value={elemento.id_edad}
+                                        >
+                                            {elemento.nombre_edad}
+                                        </option>
+                                    ))}
+                                </Form.Control>
+                            </Form.Group>
+                        </Row>
 
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.expediente')}
-                                </strong>
-                            </Form.Label>
+                        <Row className="mb-3">
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t('formularios.formpacientes.nombre1')}
+                                    </strong>
+                                </Form.Label>
 
-                            <Form.Control
-                                type="text"
-                                placeholder={`${t(
-                                    'formularios.formpacientes.expediente'
-                                )}`}
-                                name="expendiente"
-                                value={form2.expendiente}
-                                onChange={handleChange1}
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.fechanac')}
-                                </strong>
-                            </Form.Label>
-
-                            <Form.Control
-                                type="date"
-                                name="fecha_nacido"
-                                value={form2.fecha_nacido}
-                                onChange={calcularEdad}
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.edad')}
-                                </strong>
-                            </Form.Label>
-
-                            <Form.Control
-                                type="number"
-                                placeholder={`${t(
-                                    'formularios.formpacientes.edad'
-                                )}`}
-                                name="edad"
-                                value={form2.edad}
-                                onChange={handleChange1}
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.tipoedad')}
-                                </strong>
-                            </Form.Label>
-
-                            <Form.Control
-                                as="select"
-                                placeholder={`${t(
-                                    'formularios.formpacientes.tipoedad'
-                                )}`}
-                                name="cod_edad"
-                                value={form2.cod_edad}
-                                onChange={handleChange1}
-                            >
-                                {tipos_edad.map((elemento) => (
-                                    <option
-                                        key={elemento.id_edad}
-                                        value={elemento.id_edad}
-                                    >
-                                        {elemento.nombre_edad}
-                                    </option>
-                                ))}
-                            </Form.Control>
-                        </Form.Group>
-                    </Row>
-
-                    <Row className="mb-3">
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.nombre1')}
-                                </strong>
-                            </Form.Label>
-
-                            <Form.Control
-                                type="text"
-                                placeholder={`${t(
-                                    'formularios.formpacientes.nombre1'
-                                )}`}
-                                name="nombre1"
-                                value={form2.nombre1}
-                                onChange={handleChange1}
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.nombre2')}
-                                </strong>
-                            </Form.Label>
-
-                            <Form.Control
-                                type="text"
-                                placeholder={`${t(
-                                    'formularios.formpacientes.nombre2'
-                                )}`}
-                                name="nombre2"
-                                value={form2.nombre2}
-                                onChange={handleChange1}
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.apellido1')}
-                                </strong>
-                            </Form.Label>
-
-                            <Form.Control
-                                type="text"
-                                placeholder={`${t(
-                                    'formularios.formpacientes.apellido1'
-                                )}`}
-                                name="apellido1"
-                                value={form2.apellido1}
-                                onChange={handleChange1}
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.apellido2')}
-                                </strong>
-                            </Form.Label>
-
-                            <Form.Control
-                                type="text"
-                                placeholder={`${t(
-                                    'formularios.formpacientes.apellido2'
-                                )}`}
-                                name="apellido2"
-                                value={form2.apellido2}
-                                onChange={handleChange1}
-                            />
-                        </Form.Group>
-                    </Row>
-
-                    <Row className="mb-3">
-                        <Form.Group as={Col} xs={2}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.genero')}
-                                </strong>
-                            </Form.Label>
-
-                            <Col sm={9}>
-                                {tipos_genero.map((genero) => (
-                                    <Form.Check
-                                        type="radio"
-                                        checked={
-                                            form2.genero == genero.id_genero
-                                        }
-                                        label={genero.nombre_genero}
-                                        key={genero.id_genero}
-                                        name="genero"
-                                        id={genero.id_genero}
-                                        value={genero.id_genero}
-                                        onChange={handleChange1}
-                                    />
-                                ))}
-                            </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.apodo')}
-                                </strong>
-                            </Form.Label>
-
-                            <Form.Control
-                                type="text"
-                                placeholder={`${t(
-                                    'formularios.formpacientes.apodo'
-                                )}`}
-                                name="apodo"
-                                value={form2.apodo}
-                                onChange={handleChange1}
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        'formularios.formpacientes.nacionalidad'
-                                    )}
-                                </strong>
-                            </Form.Label>
-
-                            <Form.Control
-                                type="text"
-                                placeholder={`${t(
-                                    'formularios.formpacientes.nacionalidad'
-                                )}`}
-                                name="nacionalidad"
-                                value={form2.nacionalidad}
-                                onChange={handleChange1}
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.telefono')}
-                                </strong>
-                            </Form.Label>
-
-                            <Col sm={9}>
-                                <PhoneInput
-                                    containerClass="mx-0"
-                                    inputClass="mx-0"
-                                    country={ServiceConfig.codgoPais}
-                                    value={form2.telefono}
-                                    onChange={(value) =>
-                                        setForm2((prevState) => ({
-                                            ...prevState,
-                                            telefono: value,
-                                        }))
-                                    }
+                                <Form.Control
+                                    type="text"
+                                    placeholder={`${t(
+                                        'formularios.formpacientes.nombre1'
+                                    )}`}
+                                    name="nombre1"
+                                    value={form2.nombre1}
+                                    onChange={handleChange1}
                                 />
-                            </Col>
-                        </Form.Group>
+                            </Form.Group>
 
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t('formularios.formpacientes.nombre2')}
+                                    </strong>
+                                </Form.Label>
+
+                                <Form.Control
+                                    type="text"
+                                    placeholder={`${t(
+                                        'formularios.formpacientes.nombre2'
+                                    )}`}
+                                    name="nombre2"
+                                    value={form2.nombre2}
+                                    onChange={handleChange1}
+                                />
+                            </Form.Group>
+
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t('formularios.formpacientes.apellido1')}
+                                    </strong>
+                                </Form.Label>
+
+                                <Form.Control
+                                    type="text"
+                                    placeholder={`${t(
+                                        'formularios.formpacientes.apellido1'
+                                    )}`}
+                                    name="apellido1"
+                                    value={form2.apellido1}
+                                    onChange={handleChange1}
+                                />
+                            </Form.Group>
+
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t('formularios.formpacientes.apellido2')}
+                                    </strong>
+                                </Form.Label>
+
+                                <Form.Control
+                                    type="text"
+                                    placeholder={`${t(
+                                        'formularios.formpacientes.apellido2'
+                                    )}`}
+                                    name="apellido2"
+                                    value={form2.apellido2}
+                                    onChange={handleChange1}
+                                />
+                            </Form.Group>
+                        </Row>
+
+                        <Row className="mb-3">
+                            <Form.Group as={Col} xs={2}>
+                                <Form.Label>
+                                    <strong>
+                                        {t('formularios.formpacientes.genero')}
+                                    </strong>
+                                </Form.Label>
+
+                                <Col sm={9}>
+                                    {tipos_genero.map((genero) => (
+                                        <Form.Check
+                                            type="radio"
+                                            checked={
+                                                form2.genero == genero.id_genero
+                                            }
+                                            label={genero.nombre_genero}
+                                            key={genero.id_genero}
+                                            name="genero"
+                                            id={genero.id_genero}
+                                            value={genero.id_genero}
+                                            onChange={handleChange1}
+                                        />
+                                    ))}
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t('formularios.formpacientes.apodo')}
+                                    </strong>
+                                </Form.Label>
+
+                                <Form.Control
+                                    type="text"
+                                    placeholder={`${t(
+                                        'formularios.formpacientes.apodo'
+                                    )}`}
+                                    name="apodo"
+                                    value={form2.apodo}
+                                    onChange={handleChange1}
+                                />
+                            </Form.Group>
+
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t(
+                                            'formularios.formpacientes.nacionalidad'
+                                        )}
+                                    </strong>
+                                </Form.Label>
+
+                                <Form.Control
+                                    type="text"
+                                    placeholder={`${t(
+                                        'formularios.formpacientes.nacionalidad'
+                                    )}`}
+                                    name="nacionalidad"
+                                    value={form2.nacionalidad}
+                                    onChange={handleChange1}
+                                />
+                            </Form.Group>
+
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t('formularios.formpacientes.telefono')}
+                                    </strong>
+                                </Form.Label>
+
+                                <Col sm={9}>
+                                    <PhoneInput
+                                        containerClass="mx-0"
+                                        inputClass="mx-0"
+                                        country={ServiceConfig.codgoPais}
+                                        value={form2.telefono}
+                                        onChange={(value) =>
+                                            setForm2((prevState) => ({
+                                                ...prevState,
+                                                telefono: value,
+                                            }))
+                                        }
+                                    />
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t(
+                                            'formularios.formpacientes.segurosocial'
+                                        )}
+                                    </strong>
+                                </Form.Label>
+
+                                <Form.Control
+                                    type="number"
+                                    placeholder={`${t(
                                         'formularios.formpacientes.segurosocial'
-                                    )}
-                                </strong>
-                            </Form.Label>
+                                    )}`}
+                                    name="aseguradro"
+                                    value={form2.aseguradro}
+                                    onChange={handleChange1}
+                                />
+                            </Form.Group>
+                        </Row>
 
-                            <Form.Control
-                                type="number"
-                                placeholder={`${t(
-                                    'formularios.formpacientes.segurosocial'
-                                )}`}
-                                name="aseguradro"
-                                value={form2.aseguradro}
-                                onChange={handleChange1}
-                            />
-                        </Form.Group>
-                    </Row>
+                        <Row className="mb-3">
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t('formularios.formpacientes.direccion')}
+                                    </strong>
+                                </Form.Label>
 
-                    <Row className="mb-3">
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formpacientes.direccion')}
-                                </strong>
-                            </Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder={`${t(
+                                        'formularios.formpacientes.direccion'
+                                    )}`}
+                                    name="direccion"
+                                    value={form2.direccion}
+                                    onChange={handleChange1}
+                                />
+                            </Form.Group>
 
-                            <Form.Control
-                                type="text"
-                                placeholder={`${t(
-                                    'formularios.formpacientes.direccion'
-                                )}`}
-                                name="direccion"
-                                value={form2.direccion}
-                                onChange={handleChange1}
-                            />
-                        </Form.Group>
+                            <Form.Group as={Col}>
+                                <Form.Label>
+                                    <strong>
+                                        {t(
+                                            'formularios.formpacientes.observaciones'
+                                        )}
+                                    </strong>
+                                </Form.Label>
 
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
+                                <Form.Control
+                                    type="text"
+                                    as="textarea"
+                                    placeholder={`${t(
                                         'formularios.formpacientes.observaciones'
-                                    )}
-                                </strong>
-                            </Form.Label>
-
-                            <Form.Control
-                                type="text"
-                                as="textarea"
-                                placeholder={`${t(
-                                    'formularios.formpacientes.observaciones'
-                                )}`}
-                                name="observacion"
-                                value={form2.observacion}
-                                onChange={handleChange1}
-                            />
-                        </Form.Group>
-                    </Row>
-                    {form2.num_doc != '' && (
-                        <Button variant="primary" onClick={PostPaciente}>
-                            {t('etiquetas.guardar')}
-                        </Button>
-                    )}
-                </Form>
-            )}
-        </div>
+                                    )}`}
+                                    name="observacion"
+                                    value={form2.observacion}
+                                    onChange={handleChange1}
+                                />
+                            </Form.Group>
+                        </Row>
+                        {form2.num_doc != '' && (
+                            <Button variant="primary" onClick={PostPaciente}>
+                                {t('etiquetas.guardar')}
+                            </Button>
+                        )}
+                    </Form>
+                )
+            }
+        </div >
     );
 }
 
