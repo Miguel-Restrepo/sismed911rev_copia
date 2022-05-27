@@ -1,5 +1,5 @@
 import Icofont from 'react-icofont';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
@@ -14,15 +14,24 @@ import ToolkitProvider, {
     Search,
 } from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit';
 import { DateTime } from 'luxon';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import PhoneInput from 'react-phone-input-2';
 //import 'react-phone-input-2/lib/style.css';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ServiceConfig from '../config/service';
-
+import ArticleIcon from '@mui/icons-material/Article';
 import SearchIcon from '@mui/icons-material/Search';
-
+import AddIcon from '@mui/icons-material/Add';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import LocalHospitalRoundedIcon from '@mui/icons-material/LocalHospitalRounded';
+import MapRoundedIcon from '@mui/icons-material/MapRounded';
+import PersonSearchRoundedIcon from '@mui/icons-material/PersonSearchRounded';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import common from '../../../common';
+import DataTable from 'react-data-table-component';
 import {
     InputLabel,
     MenuItem,
@@ -37,8 +46,20 @@ import {
     IconButton,
     Button,
     Typography,
+    Dialog,
+    DialogContent,
+    DialogActions,
+    AppBar,
+    Toolbar,
+    Card,
+    CardContent,
+    Radio,
+    FormControlLabel,
+    FormLabel,
+    RadioGroup,
+    InputAdornment
 } from '@mui/material';
-
+const moment = require('moment');
 toast.configure();
 
 function Admision() {
@@ -58,6 +79,9 @@ function Admision() {
     const [mostrarSelect, setMostrarSelect] = useState(false); //mostrar o ucultar slect
     const [mostrarFormulario, setMostrarFormulario] = useState(false); //mostrar o ucultar formulario
     const [search, setSearch] = useState(false);
+    const [filterText, setFilterText] = useState('');
+    const [openDialog, setOpenDialog] = useState(false);
+
 
     const [form, setForm] = useState({
         id_ingreso: '',
@@ -91,91 +115,71 @@ function Admision() {
         observacion: '',
     });
 
-    const { SearchBar } = Search;
+    const subHeaderComponent = useMemo(() => {
+        const handleClear = () => {
+            if (filterText) setFilterText('');
+        };
 
-    const columns = [
-        {
-            dataField: 'codigo',
-            text: `${t('eclinical.admision.datos.id')}`,
-            sort: true,
-        },
-        {
-            dataField: 'nombre1',
-            text: `${t('eclinical.admision.datos.nombre1')}`,
-            sort: true,
-        },
-        {
-            dataField: 'nombre2',
-            text: `${t('eclinical.admision.datos.nombre2')}`,
-            sort: true,
-        },
-        {
-            dataField: 'apellido1',
-            text: `${t('eclinical.admision.datos.apellido1')}`,
-            sort: true,
-        },
-        {
-            dataField: 'apellido2',
-            text: `${t('eclinical.admision.datos.apellido2')}`,
-            sort: true,
-        },
-    ];
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
 
-    const options = {
-        custom: true,
-        paginationSize: 3,
-        pageStartIndex: 1,
-        firstPageText: `${t('tabla.primera')}`,
-        prePageText: `${t('tabla.anterior')}`,
-        nextPageText: `${t('tabla.sgte')}`,
-        lastPageText: `${t('tabla.ultima')}`,
-        nextPageTitle: `${t('tabla.sgtepag')}`,
-        prePageTitle: `${t('tabla.anteriorpag')}`,
-        firstPageTitle: `${t('tabla.primerapag')}`,
-        lastPageTitle: `${t('tabla.ultimapag')}`,
-        showTotal: true,
-        totalSize: pacientes.length,
+                    </Stack>
+                </Grid>
+
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear}
+                        filterText={filterText}
+                        onFilter={(e) => setFilterText(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterText]);
+
+    const columns = useMemo(() => [
+        {
+            name: `${t('eclinical.admision.datos.id')}`,
+            sortable: true,
+            width: '100px',
+            selector: (row) => row.codigo,
+        },
+        {
+            name: `${t('eclinical.admision.datos.nombre1')}`,
+            sortable: true,
+            width: '160px',
+            selector: (row) => row.nombre1,
+        },
+        {
+            name: `${t('eclinical.admision.datos.nombre2')}`,
+            sortable: true,
+            minWidth: '200px',
+            selector: (row) => row.nombre2,
+        },
+        {
+            name: `${t('eclinical.admision.datos.apellido1')}`,
+            wrap: true,
+            sortable: true,
+            minWidth: '200px',
+            selector: (row) => row.apellido1,
+        },
+        {
+            name: `${t('eclinical.admision.datos.apellido2')}`,
+            wrap: true,
+            sortable: true,
+            minWidth: '200px',
+            selector: (row) => row.apellido2,
+        }
+    ]);
+
+    const handleRowClicked = (row) => {
+        setPacienteTemp(row.nombre1);
+        setIdPacienteTemp(row.codigo);
     };
 
-    const selectRow = {
-        mode: 'radio',
-        clickToSelect: true,
-        hideSelectColumn: false,
-        style: { color: '#fff', background: '#0d6efd' },
-        onSelect: (row, isSelect, rowIndex, e) => {
-            setPacienteTemp(row.nombre1);
-            setIdPacienteTemp(row.codigo);
-        },
-    };
 
-    const contentTable = ({ paginationProps, paginationTableProps }) => (
-        <div>
-            <ToolkitProvider
-                keyField="codigo"
-                columns={columns}
-                data={pacientes}
-                search
-            >
-                {(toolkitprops) => (
-                    <div>
-                        <SearchBar
-                            placeholder={`${t('tabla.buscador')}`}
-                            {...toolkitprops.searchProps}
-                            className="mb-3"
-                        />
-                        <BootstrapTable
-                            hover
-                            {...toolkitprops.baseProps}
-                            {...paginationTableProps}
-                            noDataIndication={`${t('tabla.sindatos')}`}
-                            selectRow={selectRow}
-                        />
-                    </div>
-                )}
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
-    );
 
     const GetPacientes = () => {
         axios
@@ -211,6 +215,13 @@ function Admision() {
             .catch((error) => {
                 return error;
             });
+    };
+
+    const handleChangeFormNuevoFechaNacido = (value) => {
+        setForm2((prevState) => ({
+            ...prevState,
+            fecha_nacido: value.format('YYYY-MM-DD'),
+        }));
     };
 
     const GetTipoEdad = () => {
@@ -389,6 +400,15 @@ function Admision() {
         }
     };
 
+    const filteredItems = pacientes.filter(
+        (item) =>
+            (item.codigo &&
+                item.codigo
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase()))
+    );
+
     const mostarError = (texto) => {
         toast.error(texto, {
             position: 'top-right',
@@ -478,19 +498,31 @@ function Admision() {
 
     return (
         <div>
-            <div>
-
-            </div>
 
             <div>
 
 
-                <Container fixed>
-                    <h2>{t('eclinical.admision.titulo')}</h2>
 
-                    <Stack direction="row" spacing={2}>
 
-                        <FormControl sx={{ m: 1, minWidth: 200 }}>
+
+                <Typography variant="h4" gutterBottom component="div">
+                    {t('eclinical.admision.titulo')}
+                </Typography>
+
+                <Grid
+                    container
+                    noValidate
+                    direction="row"
+                    justifyContent="center"
+                    spacing={3}
+                    sx={{ my: 2 }}
+                    component="form"
+                    autoComplete="off"
+                >
+
+
+                    <Grid item xs={6} md={3} lg={4}>
+                        <FormControl fullWidth size="small">
                             <InputLabel id="label_tipo">{t('eclinical.admision.datos.tipoingreso')}</InputLabel>
                             <Select
                                 labelId="label_tipo"
@@ -505,80 +537,187 @@ function Admision() {
                                 ))}
                             </Select>
                         </FormControl>
-
+                    </Grid>
+                    <Grid item xs={6} md={3} lg={3}>
                         {mostrarSelect && (
-                            <FormControl sx={{ m: 1, minWidth: 200 }}>
+                            <FormControl fullWidth size="small">
                                 <TextField
                                     id="outlined-textarea"
                                     label={`${t('eclinical.admision.datos.nombre1')}`}
                                     placeholder={`${t('formularios.ambulancia')}`}
                                     value={form.cod911} onChange={handleChange}
+                                    name="cod911"
                                     multiline
                                 />
                             </FormControl>
                         )}
+                    </Grid>
+                    <Grid item xs={6} md={3} lg={5}>
+                        <Stack direction="row">
 
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={`${t('formularios.formpacientes.paciente')}`}
+                                value={paciente}
+                                onChange={handleChange}
+                                name="id_paciente"
 
-                        <FormControl sx={{ m: 1, minWidth: 400 }}>
-                            <Grid container  >
-                                <Grid item xs={11}>
+                            />
 
-                                    <TextField
-                                        id="outlined-textarea"
-                                        label={`${t('formularios.formpacientes.paciente')}`}
-                                        placeholder={`-- ${t(
-                                            'etiquetas.seleccionpcte'
-                                        )} --`}
-                                        value={paciente}
-                                        onChange={handleChange}
-                                        name="id_paciente"
-                                        multiline
-                                    />
-                                </Grid>
-                                <Grid item >
-                                    <Button variant="outlined" onClick={handleShow2}>
-                                        <SearchIcon />
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </FormControl>
+                            <Button variant="outlined" onClick={handleShow2}
+                                startIcon={< SearchIcon />}
+                                sx={{
+                                    p: 0,
+                                    minWidth: '30px',
+                                    '& > span.MuiButton-startIcon': { m: 0 },
+                                }} />
+                            <Button variant="outlined" onClick={showForm}
+                                startIcon={< AddIcon />}
+                                sx={{
+                                    p: 0,
+                                    minWidth: '30px',
+                                    '& > span.MuiButton-startIcon': { m: 0 },
+                                }} />
+                        </Stack>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={3}>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            variant="outlined"
+                            label={`${t(
+                                'formularios.formpacientes.nombrecompa'
+                            )}`}
+                            value={form.acompañante}
+                            onChange={handleChange}
+                            name="acompañante"
 
+                        />
+                    </Grid>
 
-                    </Stack>
+                    <Grid
+                        item
+                        xs={6}
+                        md={3}
+                        sx={{
+                            '& > .react-tel-input > .special-label': {
+                                display: 'block',
+                                color: 'rgba(0, 0, 0, 0.6)',
+                                backgroundColor: 'transparent',
+                            },
+                            '& > .react-tel-input > input.form-control': {
+                                width: '100%',
+                                minHeight: '41px',
+                                backgroundColor: 'transparent',
+                            },
+                            '& > .react-tel-input ul.country-list': {
+                                width: '100%',
+                                minWidth: '300px',
+                            },
+                        }}
+                    >
+                        <PhoneInput
+                            label={`${t('formularios.formpacientes.telcompa')}`}
+                            country={common.codgoPais}
+                            value={form.telefono_acompañante}
+                            onChange={(value) =>
+                                setForm((prevState) => ({
+                                    ...prevState,
+                                    telefono_acompañante: value,
+                                }))
+                            }
+                        />
+                    </Grid>
+                </Grid>
 
-
-                </Container>
-
-
-
-
-
-
+                {form.id_ingreso != '' && paciente != '' && (
+                    <Button variant="outlined" onClick={Post}>
+                        {t('etiquetas.guardar')}
+                    </Button>
+                )}
 
             </div >
 
             <br></br>
 
-            <h5>
-                <Icofont icon="patient-file" className="mx-2" />{' '}
+
+            <Typography variant="h5" gutterBottom component="div">
+                <ArticleIcon />
                 {t('formularios.formulario')}
-                <span className="case"></span>
-            </h5>
+            </Typography>
 
-            <Modal show={show2} onHide={handleClose2} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>{t('etiquetas.seleccionpcte')}</Modal.Title>
-                </Modal.Header>
+            
+            <Dialog
+                fullWidth
+                maxWidth="lg"
+                open={show2}
+                onClose={handleClose2}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t('etiquetas.seleccionpcte')}
+                        </Typography>
 
-                <Modal.Body>
-                    <PaginationProvider pagination={paginationFactory(options)}>
-                        {contentTable}
-                    </PaginationProvider>
-                </Modal.Body>
-
-                <Modal.Footer>
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={handleClose2}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    <Card>
+                        <CardContent
+                            sx={{
+                                pb: '0 !important',
+                                '& > header': {
+                                    padding: 0,
+                                },
+                                '& .rdt_Table': {
+                                    border: 'solid 1px rgba(0, 0, 0, .12)',
+                                },
+                            }}
+                        >
+                           <DataTable
+                                striped
+                                columns={columns}
+                                data={filteredItems}
+                                onRowClicked={handleRowClicked}
+                                conditionalRowStyles={common.conditionalRowStyles}
+                                pagination
+                                paginationComponentOptions={
+                                    common.paginationComponentOptions
+                                }
+                                subHeader
+                                subHeaderComponent={subHeaderComponent}
+                                fixedHeader
+                                persistTableHead
+                                fixedHeaderScrollHeight="calc(100vh - 317px)"
+                                customStyles={common.customStyles}
+                                highlightOnHover
+                                noDataComponent={
+                                    <Typography sx={{ my: 2 }}>
+                                        No existen casos para mostrar
+                                    </Typography>
+                                }
+                            />
+                        </CardContent>
+                    </Card>
+                </DialogContent>
+                <DialogActions sx={{ mb: 1 }}>
                     <Button
-                        variant="primary"
+                        variant="contained"
                         onClick={() => {
                             setPaciente(pacienteTemp);
                             setIdPaciente(idPacienteTemp);
@@ -589,388 +728,380 @@ function Admision() {
                     </Button>
 
                     <Button
-                        variant="secondary"
+                        variant="outlined"
                         onClick={() => {
                             handleClose2();
                         }}
                     >
                         {t('etiquetas.cancelar')}
                     </Button>
-                </Modal.Footer>
-            </Modal>
+                </DialogActions>
+            </Dialog>
+
+
 
             <br></br>
 
             {
                 mostrarFormulario && (
-                    <Form className={mostrarFormulario ? 'show-element' : null}>
-                        <Row className="mb-3">
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t('formularios.formpacientes.docid')}
-                                    </strong>
-                                </Form.Label>
 
-                                <Form.Control
-                                    as="select"
-                                    placeholder={`${t(
-                                        'formularios.formpacientes.pasaporte'
-                                    )}`}
+                    <Grid
+                        container
+                        noValidate
+                        spacing={2}
+                        sx={{ my: 2 }}
+                        component="form"
+                        autoComplete="off"
+                    >
+                        <Grid item xs={6} md={3} lg={2}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="tipodoc-label">
+                                    {t('formularios.formpacientes.docid')}:
+                                </InputLabel>
+
+                                <Select
+                                    labelId="tipodoc-label"
+                                    id="tipodoc"
+                                    label={`${t(
+                                        'formularios.formpacientes.docid'
+                                    )}:`}
                                     name="tipo_doc"
                                     value={form2.tipo_doc}
                                     onChange={handleChangeFormPacienteDoc}
                                 >
-                                    {tipos_documentos.map((elemento) => (
-                                        <option
-                                            key={elemento.id_tipo}
-                                            value={elemento.id_tipo}
+                                    {tipos_documentos.map((item) => (
+                                        <MenuItem
+                                            key={item.id_tipo}
+                                            value={item.id_tipo}
                                         >
-                                            {elemento.descripcion}
-                                        </option>
+                                            {item.descripcion}
+                                        </MenuItem>
                                     ))}
-                                </Form.Control>
-                            </Form.Group>
+                                </Select>
+                            </FormControl>
+                        </Grid>
 
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t('formularios.formpacientes.numero')}
-                                    </strong>
-                                </Form.Label>
+                        <Grid item xs={6} md={3} lg={2}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    'formularios.formpacientes.numero'
+                                )}:`}
+                                variant="outlined"
+                                name="num_doc"
+                                value={form2.num_doc}
+                                onChange={handleChange1}
+                                sx={{
+                                    '& > .MuiOutlinedInput-root': {
+                                        pr: 0,
+                                    },
+                                }}
+                                InputProps={{
+                                    endAdornment:
+                                        form2.tipo_doc === 1 ? (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    onClick={() =>
+                                                        buscarCedula(
+                                                            form2.num_doc,
+                                                            true
+                                                        )
+                                                    }
+                                                >
+                                                    <PersonSearchRoundedIcon />
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ) : (
+                                            ''
+                                        ),
+                                }}
+                            />
+                        </Grid>
 
-                                <InputGroup className="mb-2">
-                                    <Form.Control
-                                        type="number"
-                                        placeholder={`${t(
-                                            'formularios.formpacientes.numero'
-                                        )}`}
-                                        name="num_doc"
-                                        value={form2.num_doc}
-                                        onChange={handleChange1}
-                                    />
+                        <Grid item xs={6} md={3} lg={2}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    'formularios.formpacientes.expediente'
+                                )}:`}
+                                variant="outlined"
+                                name="expendiente"
+                                value={form2.expendiente}
+                                onChange={handleChange1}
+                            />
+                        </Grid>
 
-                                    <InputGroup.Text
-                                        onClick={() => buscarCedula(form2.num_doc)}
-                                        className={search ? 'd-flex' : 'd-none'}
-                                    >
-                                        <Icofont
-                                            icon="ui-search"
-                                            className="mx-2"
-                                        />
-                                    </InputGroup.Text>
-                                </InputGroup>
-                            </Form.Group>
-
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t('formularios.formpacientes.expediente')}
-                                    </strong>
-                                </Form.Label>
-
-                                <Form.Control
-                                    type="text"
-                                    placeholder={`${t(
-                                        'formularios.formpacientes.expediente'
-                                    )}`}
-                                    name="expendiente"
-                                    value={form2.expendiente}
-                                    onChange={handleChange1}
+                        <Grid item xs={6} md={3} lg={2}>
+                            <LocalizationProvider
+                                dateAdapter={AdapterMoment}
+                                locale={common.locale}
+                            >
+                                <MobileDatePicker
+                                    showTodayButton
+                                    label={t(
+                                        'formularios.formpacientes.fechanac'
+                                    )}
+                                    okText={t('etiquetas.aceptar')}
+                                    cancelText={t('etiquetas.cancelar')}
+                                    todayText={t('etiquetas.hoy')}
+                                    value={moment(handleChange1.fecha_nacido)}
+                                    onAccept={calcularEdad}
+                                    onChange={handleChangeFormNuevoFechaNacido}
+                                    maxDate={moment()}
+                                    renderInput={(params) => (
+                                        <TextField {...params} size="small" />
+                                    )}
+                                    sx={{
+                                        '& button.PrivateDatePickerToolbar-penIcon':
+                                        {
+                                            display: 'none',
+                                        },
+                                    }}
                                 />
-                            </Form.Group>
+                            </LocalizationProvider>
+                        </Grid>
 
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t('formularios.formpacientes.fechanac')}
-                                    </strong>
-                                </Form.Label>
+                        <Grid item xs={6} md={2}>
+                            <TextField
+                                disabled
+                                fullWidth
+                                size="small"
+                                type="number"
+                                variant="outlined"
+                                label={`${t(
+                                    'formularios.formpacientes.edad'
+                                )}:`}
+                                name="edad"
+                                value={form2.edad}
+                                onChange={handleChange1}
+                                InputProps={{
+                                    inputProps: {
+                                        min: 0,
+                                        max: 200,
+                                    },
+                                }}
+                            />
+                        </Grid>
 
-                                <Form.Control
-                                    type="date"
-                                    name="fecha_nacido"
-                                    value={form2.fecha_nacido}
-                                    onChange={calcularEdad}
-                                />
-                            </Form.Group>
+                        <Grid item xs={6} md={3} lg={2}>
+                            <FormControl disabled fullWidth size="small">
+                                <InputLabel id="tipoedad-label">
+                                    {t('formularios.formpacientes.tipoedad')}:
+                                </InputLabel>
 
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t('formularios.formpacientes.edad')}
-                                    </strong>
-                                </Form.Label>
-
-                                <Form.Control
-                                    type="number"
-                                    placeholder={`${t(
-                                        'formularios.formpacientes.edad'
-                                    )}`}
-                                    name="edad"
-                                    value={form2.edad}
-                                    onChange={handleChange1}
-                                />
-                            </Form.Group>
-
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t('formularios.formpacientes.tipoedad')}
-                                    </strong>
-                                </Form.Label>
-
-                                <Form.Control
-                                    as="select"
-                                    placeholder={`${t(
+                                <Select
+                                    labelId="tipoedad-label"
+                                    id="tipoedad"
+                                    label={`${t(
                                         'formularios.formpacientes.tipoedad'
-                                    )}`}
+                                    )}:`}
                                     name="cod_edad"
                                     value={form2.cod_edad}
                                     onChange={handleChange1}
                                 >
-                                    {tipos_edad.map((elemento) => (
-                                        <option
-                                            key={elemento.id_edad}
-                                            value={elemento.id_edad}
+                                    {tipos_edad.map((item) => (
+                                        <MenuItem
+                                            key={item.id_edad}
+                                            value={item.id_edad}
                                         >
-                                            {elemento.nombre_edad}
-                                        </option>
+                                            {item.nombre_edad}
+                                        </MenuItem>
                                     ))}
-                                </Form.Control>
-                            </Form.Group>
-                        </Row>
+                                </Select>
+                            </FormControl>
+                        </Grid>
 
-                        <Row className="mb-3">
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t('formularios.formpacientes.nombre1')}
-                                    </strong>
-                                </Form.Label>
+                        <Grid item xs={6} md={3}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    'formularios.formpacientes.nombre1'
+                                )}:`}
+                                variant="outlined"
+                                name="nombre1"
+                                value={form2.nombre1}
+                                onChange={handleChange1}
+                            />
+                        </Grid>
 
-                                <Form.Control
-                                    type="text"
-                                    placeholder={`${t(
-                                        'formularios.formpacientes.nombre1'
-                                    )}`}
-                                    name="nombre1"
-                                    value={form2.nombre1}
+                        <Grid item xs={6} md={3}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    'formularios.formpacientes.nombre2'
+                                )}:`}
+                                variant="outlined"
+                                name="nombre2"
+                                value={form2.nombre2}
+                                onChange={handleChange1}
+                            />
+                        </Grid>
+
+                        <Grid item xs={6} md={3}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    'formularios.formpacientes.apellido1'
+                                )}:`}
+                                variant="outlined"
+                                name="apellido1"
+                                value={form2.apellido1}
+                                onChange={handleChange1}
+                            />
+                        </Grid>
+
+                        <Grid item xs={6} md={3}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    'formularios.formpacientes.apellido2'
+                                )}:`}
+                                variant="outlined"
+                                name="apellido2"
+                                value={form2.apellido2}
+                                onChange={handleChange1}
+                            />
+                        </Grid>
+
+                        <Grid item xs={6} md={3}>
+                            <FormControl>
+                                <FormLabel id="genero-label">
+                                    {t('formularios.formpacientes.genero')}
+                                </FormLabel>
+
+                                <RadioGroup
+                                    row
+                                    aria-labelledby="genero-label"
+                                    defaultValue={1}
+                                    name="genero"
+                                    value={form2.genero}
                                     onChange={handleChange1}
-                                />
-                            </Form.Group>
-
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t('formularios.formpacientes.nombre2')}
-                                    </strong>
-                                </Form.Label>
-
-                                <Form.Control
-                                    type="text"
-                                    placeholder={`${t(
-                                        'formularios.formpacientes.nombre2'
-                                    )}`}
-                                    name="nombre2"
-                                    value={form2.nombre2}
-                                    onChange={handleChange1}
-                                />
-                            </Form.Group>
-
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t('formularios.formpacientes.apellido1')}
-                                    </strong>
-                                </Form.Label>
-
-                                <Form.Control
-                                    type="text"
-                                    placeholder={`${t(
-                                        'formularios.formpacientes.apellido1'
-                                    )}`}
-                                    name="apellido1"
-                                    value={form2.apellido1}
-                                    onChange={handleChange1}
-                                />
-                            </Form.Group>
-
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t('formularios.formpacientes.apellido2')}
-                                    </strong>
-                                </Form.Label>
-
-                                <Form.Control
-                                    type="text"
-                                    placeholder={`${t(
-                                        'formularios.formpacientes.apellido2'
-                                    )}`}
-                                    name="apellido2"
-                                    value={form2.apellido2}
-                                    onChange={handleChange1}
-                                />
-                            </Form.Group>
-                        </Row>
-
-                        <Row className="mb-3">
-                            <Form.Group as={Col} xs={2}>
-                                <Form.Label>
-                                    <strong>
-                                        {t('formularios.formpacientes.genero')}
-                                    </strong>
-                                </Form.Label>
-
-                                <Col sm={9}>
-                                    {tipos_genero.map((genero) => (
-                                        <Form.Check
-                                            type="radio"
-                                            checked={
-                                                form2.genero == genero.id_genero
-                                            }
-                                            label={genero.nombre_genero}
-                                            key={genero.id_genero}
-                                            name="genero"
-                                            id={genero.id_genero}
-                                            value={genero.id_genero}
-                                            onChange={handleChange1}
+                                >
+                                    {tipos_genero.map((item) => (
+                                        <FormControlLabel
+                                            key={item.id_genero}
+                                            value={item.id_genero}
+                                            control={<Radio size="small" />}
+                                            label={item.nombre_genero}
                                         />
                                     ))}
-                                </Col>
-                            </Form.Group>
+                                </RadioGroup>
+                            </FormControl>
+                        </Grid>
 
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t('formularios.formpacientes.apodo')}
-                                    </strong>
-                                </Form.Label>
+                        <Grid item xs={6} md={3} lg={2}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    'formularios.formpacientes.apodo'
+                                )}:`}
+                                variant="outlined"
+                                name="apodo"
+                                value={form2.apodo}
+                                onChange={handleChange1}
+                            />
+                        </Grid>
 
-                                <Form.Control
-                                    type="text"
-                                    placeholder={`${t(
-                                        'formularios.formpacientes.apodo'
-                                    )}`}
-                                    name="apodo"
-                                    value={form2.apodo}
-                                    onChange={handleChange1}
-                                />
-                            </Form.Group>
+                        <Grid item xs={6} md={3} lg={2}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    'formularios.formpacientes.nacionalidad'
+                                )}:`}
+                                variant="outlined"
+                                name="nacionalidad"
+                                value={form2.nacionalidad}
+                                onChange={handleChange1}
+                            />
+                        </Grid>
 
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t(
-                                            'formularios.formpacientes.nacionalidad'
-                                        )}
-                                    </strong>
-                                </Form.Label>
+                        <Grid
+                            item
+                            xs={6}
+                            md={3}
+                            sx={{
+                                '& > .react-tel-input > .special-label': {
+                                    display: 'block',
+                                    color: 'rgba(0, 0, 0, 0.6)',
+                                    backgroundColor: 'transparent',
+                                },
+                                '& > .react-tel-input > input.form-control': {
+                                    width: '100%',
+                                    minHeight: '41px',
+                                    backgroundColor: 'transparent',
+                                },
+                                '& > .react-tel-input ul.country-list': {
+                                    width: '100%',
+                                    minWidth: '300px',
+                                },
+                            }}
+                        >
+                            <PhoneInput
+                                label="celular"
+                                value={form2.celular}
+                                country={common.codgoPais}
+                                onChange={(value) =>
+                                    setForm2((prevState) => ({
+                                        ...prevState,
+                                        telefono: value,
+                                    }))
+                                }
+                            />
+                        </Grid>
 
-                                <Form.Control
-                                    type="text"
-                                    placeholder={`${t(
-                                        'formularios.formpacientes.nacionalidad'
-                                    )}`}
-                                    name="nacionalidad"
-                                    value={form2.nacionalidad}
-                                    onChange={handleChange1}
-                                />
-                            </Form.Group>
+                        <Grid item xs={6} md={3} lg={2}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    'formularios.formpacientes.segurosocial'
+                                )}:`}
+                                variant="outlined"
+                                name="aseguradro"
+                                value={form2.aseguradro}
+                                onChange={handleChange1}
+                            />
+                        </Grid>
 
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t('formularios.formpacientes.telefono')}
-                                    </strong>
-                                </Form.Label>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    'formularios.formpacientes.direccion'
+                                )}:`}
+                                variant="outlined"
+                                name="direccion"
+                                value={form2.direccion}
+                                onChange={handleChange1}
+                            />
+                        </Grid>
 
-                                <Col sm={9}>
-                                    <PhoneInput
-                                        containerClass="mx-0"
-                                        inputClass="mx-0"
-                                        country={ServiceConfig.codgoPais}
-                                        value={form2.telefono}
-                                        onChange={(value) =>
-                                            setForm2((prevState) => ({
-                                                ...prevState,
-                                                telefono: value,
-                                            }))
-                                        }
-                                    />
-                                </Col>
-                            </Form.Group>
-
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t(
-                                            'formularios.formpacientes.segurosocial'
-                                        )}
-                                    </strong>
-                                </Form.Label>
-
-                                <Form.Control
-                                    type="number"
-                                    placeholder={`${t(
-                                        'formularios.formpacientes.segurosocial'
-                                    )}`}
-                                    name="aseguradro"
-                                    value={form2.aseguradro}
-                                    onChange={handleChange1}
-                                />
-                            </Form.Group>
-                        </Row>
-
-                        <Row className="mb-3">
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t('formularios.formpacientes.direccion')}
-                                    </strong>
-                                </Form.Label>
-
-                                <Form.Control
-                                    type="text"
-                                    placeholder={`${t(
-                                        'formularios.formpacientes.direccion'
-                                    )}`}
-                                    name="direccion"
-                                    value={form2.direccion}
-                                    onChange={handleChange1}
-                                />
-                            </Form.Group>
-
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t(
-                                            'formularios.formpacientes.observaciones'
-                                        )}
-                                    </strong>
-                                </Form.Label>
-
-                                <Form.Control
-                                    type="text"
-                                    as="textarea"
-                                    placeholder={`${t(
-                                        'formularios.formpacientes.observaciones'
-                                    )}`}
-                                    name="observacion"
-                                    value={form2.observacion}
-                                    onChange={handleChange1}
-                                />
-                            </Form.Group>
-                        </Row>
-                        {form2.num_doc != '' && (
-                            <Button variant="primary" onClick={PostPaciente}>
-                                {t('etiquetas.guardar')}
-                            </Button>
-                        )}
-                    </Form>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    'formularios.formpacientes.observaciones'
+                                )}:`}
+                                variant="outlined"
+                                name="observacion"
+                                value={form2.observacion}
+                                onChange={handleChange1}
+                            />
+                        </Grid>
+                    </Grid>
                 )
             }
+
         </div >
     );
 }

@@ -1,5 +1,4 @@
 import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
@@ -8,7 +7,41 @@ import InputMask from "react-input-mask";
 import Modal from "react-bootstrap/Modal";
 import axios from "axios";
 import BootstrapTable from "react-bootstrap-table-next";
+import DataTable from 'react-data-table-component';
+import Select1 from "react-select";
+import SearchIcon from '@mui/icons-material/Search';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import {
+    InputLabel,
+    MenuItem,
+    FormControl,
+    Select,
+    Stack,
+    Item,
+    Grid,
+    TextField,
+    Typography,
+    Dialog,
+    DialogContent,
+    DialogActions,
+    AppBar,
+    NativeSelect,
+    Toolbar,
+    Card,
+    CardContent,
+    Radio,
+    FormControlLabel,
+    FormLabel,
+    Backdrop,
+    Button,
+    CircularProgress,
+    IconButton,
+} from '@mui/material';
 
+import common from '../../../common';
+import ArticleIcon from '@mui/icons-material/Article';
+
+import { useEffect, useMemo, useState } from 'react';
 import paginationFactory, {
     PaginationProvider,
     PaginationListStandalone,
@@ -18,12 +51,11 @@ import ToolkitProvider, {
     Search,
 } from "react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit";
 
-import { useEffect, useState } from "react";
+
 
 import { DateTime } from "luxon";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
-import Select from "react-select";
 import chroma from "chroma-js";
 
 import "react-phone-input-2/lib/style.css";
@@ -69,17 +101,17 @@ function Clasificacion() {
                 backgroundColor: isDisabled
                     ? undefined
                     : isSelected
-                    ? data.color
-                    : isFocused
-                    ? color.alpha(0.1).css()
-                    : undefined,
+                        ? data.color
+                        : isFocused
+                            ? color.alpha(0.1).css()
+                            : undefined,
                 color: isDisabled
                     ? "#ccc"
                     : isSelected
-                    ? chroma.contrast(color, "white") > 2
-                        ? "white"
-                        : "black"
-                    : data.color,
+                        ? chroma.contrast(color, "white") > 2
+                            ? "white"
+                            : "black"
+                        : data.color,
                 cursor: isDisabled ? "not-allowed" : "default",
 
                 ":active": {
@@ -112,7 +144,12 @@ function Clasificacion() {
     const [localizaciones, setLocalizacion] = useState([]);
     const [causas, setCausa] = useState([]);
     const [sistemas, setsistemas] = useState([]);
+    const [selectedData, setSelectedData] = useState(null);
     const [idAdmision, setIdAdmision] = useState(null);
+    const [openLoad, setOpenLoad] = useState(false);
+    const [filterText, setFilterText] = useState('');
+    const [filterText1, setFilterText1] = useState('');
+    const [textLoad, setTextLoad] = useState('Cargando ...');
     const [formAdmision, setFormAdmision] = useState({
         id_ingreso: "",
         id_paciente: "",
@@ -142,73 +179,95 @@ function Clasificacion() {
             .toISO({ suppressMilliseconds: true }),
     });
 
-    //TABLA PRINCIPAL
-    const columns1 = [
-        {
-            dataField: "codigo",
-            text: `${t("eclinical.clasificacion.datos.id")}`,
-            sort: true,
-        },
-        {
-            dataField: "fecha_admision",
-            text: `${t("eclinical.clasificacion.datos.fecha")}`,
-            sort: true,
-        },
-        {
-            dataField: "expediente",
-            text: `${t("eclinical.clasificacion.datos.hc")}`,
-            sort: true,
-        },
-        {
-            dataField: "nombre1", //'nombre2','apellido1','apellido2',
-            text: `${t("eclinical.clasificacion.datos.paciente")}`,
-            sort: true,
-        },
-        {
-            dataField: "nombre_ingreso",
-            text: `${t("eclinical.clasificacion.datos.tipoingreso")}`,
-            sort: true,
-        },
-        {
-            dataField: "cod911",
-            text: `${t("eclinical.clasificacion.datos.cod911")}`,
-            sort: true,
-        },
-        {
-            dataField: "nombre_genero",
-            text: `${t("eclinical.clasificacion.datos.sexo")}`,
-            sort: true,
-        },
-        {
-            dataField: "acompañante",
-            text: `${t("eclinical.clasificacion.datos.compa")}`,
-            sort: true,
-        },
-    ];
+    const filteredItems = admisiones.filter(
+        (item) =>
+        (item.codigo &&
+            item.codigo
+                .toString()
+                .toLowerCase()
+                .includes(filterText.toLowerCase()))
+    );
 
-    const options1 = {
-        custom: true,
-        paginationSize: 5,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: admisiones.length,
+    const filteredItems1 = pacientes.filter(
+        (item) =>
+        (item.id_signos &&
+            item.id_signos
+                .toString()
+                .toLowerCase()
+                .includes(filterText1.toLowerCase()))
+    );
+
+    const subHeaderComponent = useMemo(() => {
+        const handleClear = () => {
+            if (filterText) setFilterText('');
+        };
+
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
+
+                    </Stack>
+                </Grid>
+
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear}
+                        filterText={filterText}
+                        onFilter={(e) => setFilterText(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterText]);
+
+    const subHeaderComponent1 = useMemo(() => {
+        const handleClear1 = () => {
+            if (filterText1) setFilterText1('');
+        };
+
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
+
+                    </Stack>
+                </Grid>
+
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear1}
+                        filterText={filterText1}
+                        onFilter={(e) => setFilterText1(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterText1]);
+
+    const handleRowClicked1 = (row) => {
+        setPacienteTemp(row.sintomas_signos);
+        setIdPacienteTemp(row.id_signos);
     };
 
-    const selectRow1 = {
-        mode: "radio",
-        clickToSelect: true,
-        hideSelectColumn: true,
-        style: { color: "#fff", background: "#0d6efd" },
-        onSelect: (row, isSelect, rowIndex, e) => {
+
+    const handleRowClicked = (row) => {
+        let select = row;
+        if (!selectedData) {
             setIdAdmision(row.codigo);
+            
+            setSelectedData(row);
+            const updatedData = admisiones.map((item) => {
+                if (row.codigo !== item.codigo) {
+                    return item;
+                }
+
+                return {
+                    ...item,
+                    toggleSelected: true,
+                };
+            });
+
             setFormAdmision((prevState) => ({
                 ...prevState,
                 id_ingreso: row.id_ingreso,
@@ -252,114 +311,231 @@ function Clasificacion() {
                 fecha_clasificacion:
                     row.fecha_clasificacion == null
                         ? DateTime.now()
-                              .set({ milliseconds: 0 })
-                              .toISO({ suppressMilliseconds: true })
+                            .set({ milliseconds: 0 })
+                            .toISO({ suppressMilliseconds: true })
                         : row.fecha_clasificacion,
                 fecha_inicio_clasificacion:
                     row.fecha_inicio_clasificacion == null
                         ? DateTime.now()
-                              .set({ milliseconds: 0 })
-                              .toISO({ suppressMilliseconds: true })
+                            .set({ milliseconds: 0 })
+                            .toISO({ suppressMilliseconds: true })
                         : row.fecha_inicio_clasificacion,
             }));
-            setMostrarFormulario(true);
-        },
+        } else {
+            if (row.codigo === selectedData.codigo) {
+                select = null;
+                setSelectedData(null);
+                const updatedData = admisiones.map((item) => {
+                    if (row.codigo !== item.codigo) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: false,
+                    };
+                });
+                setFormAdmision((prevState) => ({
+                    ...prevState,
+                    id_ingreso: row.id_ingreso,
+                    id_paciente: row.id_paciente == null ? "" : row.id_paciente,
+                    acompañante: row.acompañante == null ? "" : row.acompañante,
+                    telefono_acompañante:
+                        row.telefono_acompañante == null
+                            ? ""
+                            : row.telefono_acompañante,
+                    fecha_admision:
+                        row.fecha_admision == null ? "" : row.fecha_admision,
+                    cod911: row.cod911 == null ? "" : row.cod911,
+                    id_motivoatencion:
+                        row.id_motivoatencion == null ? "" : row.id_motivoatencion,
+                    id_localizaciontrauma:
+                        row.id_localizaciontrauma == null
+                            ? ""
+                            : row.id_localizaciontrauma,
+                    id_causatrauma:
+                        row.id_causatrauma == null ? "" : row.id_causatrauma,
+                    id_sistema: row.id_sistema == null ? "" : row.id_sistema,
+                    glasgow_admision:
+                        row.glasgow_admision == null ? "" : row.glasgow_admision,
+                    pas_admision: row.pas_admision == null ? "" : row.pas_admision,
+                    //pad_admision: row.pad_admision == null ? "" : row.pad_admision,
+                    fc_admision: row.fc_admision == null ? "" : row.fc_admision,
+                    so2_admision: row.so2_admision == null ? "" : row.so2_admision,
+                    fr_admision: row.fr_admision == null ? "" : row.fr_admision,
+                    temp_admision:
+                        row.temp_admision == null ? "" : row.temp_admision,
+                    clasificacion_admision:
+                        row.clasificacion_admision == null
+                            ? ""
+                            : row.clasificacion_admision,
+                    dolor: row.dolor == null ? "" : row.dolor,
+                    id_signos: row.id_signos == null ? "" : row.id_signos,
+                    motivo_consulta:
+                        row.motivo_consulta == null ? "" : row.motivo_consulta,
+                    signos_sintomas:
+                        row.signos_sintomas == null ? "" : row.signos_sintomas,
+                    fecha_clasificacion:
+                        row.fecha_clasificacion == null
+                            ? DateTime.now()
+                                .set({ milliseconds: 0 })
+                                .toISO({ suppressMilliseconds: true })
+                            : row.fecha_clasificacion,
+                    fecha_inicio_clasificacion:
+                        row.fecha_inicio_clasificacion == null
+                            ? DateTime.now()
+                                .set({ milliseconds: 0 })
+                                .toISO({ suppressMilliseconds: true })
+                            : row.fecha_inicio_clasificacion,
+                }));
+            } else {
+                setSelectedData(row);
+                const updatedData = admisiones.map((item) => {
+                    if (selectedData.codigo === item.codigo) {
+                        return {
+                            ...item,
+                            toggleSelected: false,
+                        };
+                    } else if (row.codigo !== item.codigo) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: true,
+                    };
+                });
+                setFormAdmision((prevState) => ({
+                    ...prevState,
+                    id_ingreso: row.id_ingreso,
+                    id_paciente: row.id_paciente == null ? "" : row.id_paciente,
+                    acompañante: row.acompañante == null ? "" : row.acompañante,
+                    telefono_acompañante:
+                        row.telefono_acompañante == null
+                            ? ""
+                            : row.telefono_acompañante,
+                    fecha_admision:
+                        row.fecha_admision == null ? "" : row.fecha_admision,
+                    cod911: row.cod911 == null ? "" : row.cod911,
+                    id_motivoatencion:
+                        row.id_motivoatencion == null ? "" : row.id_motivoatencion,
+                    id_localizaciontrauma:
+                        row.id_localizaciontrauma == null
+                            ? ""
+                            : row.id_localizaciontrauma,
+                    id_causatrauma:
+                        row.id_causatrauma == null ? "" : row.id_causatrauma,
+                    id_sistema: row.id_sistema == null ? "" : row.id_sistema,
+                    glasgow_admision:
+                        row.glasgow_admision == null ? "" : row.glasgow_admision,
+                    pas_admision: row.pas_admision == null ? "" : row.pas_admision,
+                    //pad_admision: row.pad_admision == null ? "" : row.pad_admision,
+                    fc_admision: row.fc_admision == null ? "" : row.fc_admision,
+                    so2_admision: row.so2_admision == null ? "" : row.so2_admision,
+                    fr_admision: row.fr_admision == null ? "" : row.fr_admision,
+                    temp_admision:
+                        row.temp_admision == null ? "" : row.temp_admision,
+                    clasificacion_admision:
+                        row.clasificacion_admision == null
+                            ? ""
+                            : row.clasificacion_admision,
+                    dolor: row.dolor == null ? "" : row.dolor,
+                    id_signos: row.id_signos == null ? "" : row.id_signos,
+                    motivo_consulta:
+                        row.motivo_consulta == null ? "" : row.motivo_consulta,
+                    signos_sintomas:
+                        row.signos_sintomas == null ? "" : row.signos_sintomas,
+                    fecha_clasificacion:
+                        row.fecha_clasificacion == null
+                            ? DateTime.now()
+                                .set({ milliseconds: 0 })
+                                .toISO({ suppressMilliseconds: true })
+                            : row.fecha_clasificacion,
+                    fecha_inicio_clasificacion:
+                        row.fecha_inicio_clasificacion == null
+                            ? DateTime.now()
+                                .set({ milliseconds: 0 })
+                                .toISO({ suppressMilliseconds: true })
+                            : row.fecha_inicio_clasificacion,
+                }));
+            }
+        }
+        setMostrarFormulario(select !== null);
     };
 
-    const contentTable1 = ({ paginationProps, paginationTableProps }) => (
-        <div>
-            <ToolkitProvider
-                keyField="codigo"
-                columns={columns1}
-                data={admisiones}
-                search
-            >
-                {(toolkitprops) => (
-                    <div>
-                        <SearchBar
-                            placeholder={`${t("tabla.buscador")}`}
-                            {...toolkitprops.searchProps}
-                        />
-                        <BootstrapTable
-                            striped
-                            hover
-                            {...toolkitprops.baseProps}
-                            {...paginationTableProps}
-                            noDataIndication={`${t("tabla.sindatos")}`}
-                            selectRow={selectRow1}
-                        />
-                    </div>
-                )}
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
-    );
-    //TABLA MODAL
-    const { SearchBar } = Search;
 
-    const columns = [
+
+    const closeDialog = () => {
+        setOpenDialog(false);
+    };
+
+    const columns1 = useMemo(() => [
         {
-            dataField: "sintomas_signos",
-            text: `${t("eclinical.clasificacion.datos.signos")}`,
-            sort: true,
+            name: `${t("eclinical.clasificacion.datos.id")}`,
+            sortable: true,
+            width: '100px',
+            selector: (row) => row.codigo,
         },
-    ];
-
-    const options = {
-        custom: true,
-        paginationSize: 3,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: pacientes.length,
-    };
-
-    const selectRow = {
-        mode: "radio",
-        clickToSelect: true,
-        hideSelectColumn: true,
-        style: { color: "#fff", background: "#0d6efd" },
-        onSelect: (row, isSelect, rowIndex, e) => {
-            setPacienteTemp(row.sintomas_signos);
-            setIdPacienteTemp(row.id_signos);
+        {
+            name: `${t("eclinical.clasificacion.datos.fecha")}`,
+            sortable: true,
+            width: '160px',
+            selector: (row) => row.fecha_admision,
         },
-    };
+        {
+            name: `${t("eclinical.clasificacion.datos.hc")}`,
+            sortable: true,
+            width: '160px',
+            selector: (row) => row.expediente,
+        },
+        {
+            name: `${t("eclinical.clasificacion.datos.paciente")}`,
+            sortable: true,
+            width: '160px',
+            selector: (row) => row.nombre1,
+        },
+        {
+            name: `${t("eclinical.clasificacion.datos.tipoingreso")}`,
+            sortable: true,
+            width: '160px',
+            selector: (row) => row.nombre_genero,
+        }, {
+            name: `${t("eclinical.clasificacion.datos.cod911")}`,
+            sortable: true,
+            width: '160px',
+            selector: (row) => row.cod911,
+        }, {
+            name: `${t("eclinical.clasificacion.datos.sexo")}`,
+            sortable: true,
+            width: '160px',
+            selector: (row) => row.nombre_genero,
+        }, {
+            name: `${t("eclinical.clasificacion.datos.compa")}`,
+            sortable: true,
+            width: '160px',
+            selector: (row) => row.acompañante,
+        }
+    ]);
 
-    const contentTable = ({ paginationProps, paginationTableProps }) => (
-        <div>
-            <ToolkitProvider
-                keyField="id_signos"
-                columns={columns}
-                data={pacientes}
-                search
-            >
-                {(toolkitprops) => (
-                    <div>
-                        <SearchBar
-                            placeholder={`${t("tabla.buscador")}`}
-                            {...toolkitprops.searchProps}
-                            className="mb-3"
-                        />
-                        <BootstrapTable
-                            hover
-                            {...toolkitprops.baseProps}
-                            {...paginationTableProps}
-                            noDataIndication={`${t("tabla.sindatos")}`}
-                            selectRow={selectRow}
-                        />
-                    </div>
-                )}
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
-    );
+    const columns = useMemo(() => [
+        {
+            name: `${t("eclinical.clasificacion.datos.signos")}`,
+            sortable: true,
+            width: '100px',
+            selector: (row) => row.sintomas_signos
+        }
+    ])
+
+    //TABLA PRINCIPAL
+
+
+
+
+
+
+
+
+
 
     const GetPacientes = () => {
         axios
@@ -373,14 +549,17 @@ function Clasificacion() {
             });
     };
 
-    const GetAdmisiones = () => {
-        axios
+    const GetAdmisiones = async () => {
+        setOpenLoad(true);
+        await axios
             .get("/api/sala_admision/clasificacion")
             .then((response) => {
                 setAdmisiones(response.data);
+                setOpenLoad(false);
                 return response.data;
             })
             .catch((error) => {
+                setOpenLoad(false);
                 return error;
             });
     };
@@ -402,6 +581,7 @@ function Clasificacion() {
             .get("/api/sala_localizaciontrauma")
             .then((response) => {
                 setLocalizacion(response.data);
+                console.log(response.data)
                 return response.data;
             })
             .catch((error) => {
@@ -441,7 +621,6 @@ function Clasificacion() {
     };
 
     const handleChange = (e) => {
-        e.persist();
         setFormAdmision((prevState) => ({
             ...prevState,
             [e.target.name]: e.target.value,
@@ -449,7 +628,6 @@ function Clasificacion() {
     };
 
     const cambioSelect = (e) => {
-        e.persist();
         if (e.target.value == 1) {
             setMostrarSelect(true);
         } else {
@@ -521,502 +699,529 @@ function Clasificacion() {
 
     return (
         <div>
-            <div>
-                <h2>{t("eclinical.clasificacion.titulo")}</h2>
-            </div>
-            <PaginationProvider pagination={paginationFactory(options1)}>
-                {contentTable1}
-            </PaginationProvider>
+            <Backdrop
+                sx={{
+                    color: '#fff',
+                    zIndex: (theme) => theme.zIndex.drawer + 101,
+                }}
+                open={openLoad}
+            >
+                <Stack spacing={1} alignItems="center">
+                    <CircularProgress disableShrink color="inherit" />
+                    <Typography>{textLoad}</Typography>
+                </Stack>
+            </Backdrop>
+
+            <h2>{t("eclinical.clasificacion.titulo")}</h2>
+
+            <Card>
+                <CardContent
+                    sx={{
+                        pb: '0 !important',
+                        '& > header': {
+                            padding: 0,
+                        },
+                        '& .rdt_Table': {
+                            border: 'solid 1px rgba(0, 0, 0, .12)',
+                        },
+                    }}
+                >
+                    <DataTable
+                        striped
+                        columns={columns1}
+                        data={filteredItems}
+                        onRowClicked={handleRowClicked}
+                        conditionalRowStyles={common.conditionalRowStyles}
+                        pagination
+                        paginationComponentOptions={
+                            common.paginationComponentOptions
+                        }
+                        subHeader
+                        subHeaderComponent={subHeaderComponent}
+                        fixedHeader
+                        persistTableHead
+                        fixedHeaderScrollHeight="calc(100vh - 317px)"
+                        customStyles={common.customStyles}
+                        highlightOnHover
+                        noDataComponent={
+                            <Typography sx={{ my: 2 }}>
+                                No existen pacientes para mostrar
+                            </Typography>
+                        }
+                    />
+                </CardContent>
+            </Card>
             <br></br>
             <div>
-                <h3>
-                    <Icofont icon="patient-file" className="mx-2" />
-                    {t("formularios.formulario")}
-                </h3>
+                <Typography variant="h5" gutterBottom component="div">
+                    <ArticleIcon />
+                    {t('formularios.formulario')}
+                </Typography>
             </div>
             <br></br>
 
             {mostrarFormulario && (
-                <Form className={mostrarFormulario ? "show-element" : null}>
-                    <Row className="mb-4">
-                        <Form.Group as={Col} controlId="id_ingreso">
-                            <Form.Label>
-                                <strong>
-                                    {t("eclinical.clasificacion.datos.motivo")}
-                                </strong>
-                            </Form.Label>
+                <Grid
+                    container
+                    noValidate
+                    direction="row"
+                    justifyContent="center"
+                    spacing={3}
+                    sx={{ my: 2 }}
+                    component="form"
+                    autoComplete="off"
+                >
 
-                            <Col sm={9}>
-                                <Form.Control
-                                    as="select"
-                                    value={formAdmision.id_motivoatencion}
-                                    onChange={cambioSelect}
-                                    name="id_motivoatencion"
-                                >
-                                    <option value="" id="defAcc">
-                                        {`-- ${t("etiquetas.seleccion")} --`}
-                                    </option>
 
-                                    {motivos.map((tipo) => (
-                                        <option
-                                            key={tipo.id_motivoatencion}
-                                            value={tipo.id_motivoatencion}
-                                        >
-                                            {tipo.nombre_motivoatencion}
-                                        </option>
-                                    ))}
-                                </Form.Control>
-                            </Col>
-                        </Form.Group>
+                    <Grid item xs={12} md={6} lg={6}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="label_tipo1">{t("eclinical.clasificacion.datos.motivo")}</InputLabel>
+                            <Select
+                                labelId="label_tipo1"
+                                value={formAdmision.id_motivoatencion}
+                                onChange={cambioSelect}
+                                name="id_motivoatencion"
+                                label={`${t("eclinical.clasificacion.datos.motivo")}`}
+                            >
 
-                        {mostrarSelect && (
-                            <div>
-                                <Form.Group as={Col}>
-                                    <Form.Label>
-                                        <strong>
-                                            {t(
-                                                "eclinical.clasificacion.datos.lugartrauma"
-                                            )}
-                                        </strong>
-                                    </Form.Label>
-
-                                    <Form.Control
-                                        as="select"
-                                        placeholder={`${t(
+                                {motivos.map((tipo) => (
+                                    <MenuItem value={tipo.id_motivoatencion} key={tipo.id_motivoatencion}>{tipo.nombre_motivoatencion}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    {mostrarSelect && (
+                        <Grid
+                            container
+                            noValidate
+                            direction="row"
+                            justifyContent="center"
+                            spacing={3}
+                            sx={{ my: 2 }}
+                            component="form"
+                            autoComplete="off"
+                        >
+                            <Grid item xs={12} md={6} lg={6}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel id="label_tipo2">{t(
+                                        "eclinical.clasificacion.datos.lugartrauma"
+                                    )}</InputLabel>
+                                    <Select
+                                        labelId="label_tipo2"
+                                        value={formAdmision.id_localizaciontrauma}
+                                        onChange={handleChange}
+                                        name="id_localizaciontrauma"
+                                        label={`${t(
                                             "eclinical.clasificacion.datos.lugartrauma"
                                         )}`}
-                                        name="id_localizaciontrauma"
-                                        value={
-                                            formAdmision.id_localizaciontrauma
-                                        }
-                                        onChange={handleChange}
                                     >
-                                        {localizaciones.map((elemento) => (
-                                            <option
-                                                key={
-                                                    elemento.id_localizaciontrauma
-                                                }
-                                                value={
-                                                    elemento.id_localizaciontrauma
-                                                }
-                                            >
-                                                {
-                                                    elemento.nombre_localizaciontrauma
-                                                }
-                                            </option>
+
+                                        {localizaciones.map((tipo) => (
+                                            <MenuItem value={tipo.id_localizaciontrauma} key={tipo.id_localizaciontrauma}>{tipo.nombre_localizaciontrauma}</MenuItem>
                                         ))}
-                                    </Form.Control>
-                                </Form.Group>
-
-                                <Form.Group as={Col}>
-                                    <Form.Label>
-                                        <strong>
-                                            {t(
-                                                "eclinical.clasificacion.datos.causatrauma"
-                                            )}
-                                        </strong>
-                                    </Form.Label>
-
-                                    <Form.Control
-                                        as="select"
-                                        placeholder={`${t(
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={12} md={6} lg={6}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel id="label_tipo2">{t(
+                                        "eclinical.clasificacion.datos.causatrauma"
+                                    )}</InputLabel>
+                                    <Select
+                                        labelId="label_tipo2"
+                                        value={formAdmision.id_salaCausa}
+                                        onChange={handleChange}
+                                        name="id_salaCausa"
+                                        label={`${t(
                                             "eclinical.clasificacion.datos.causatrauma"
                                         )}`}
-                                        name="id_causatrauma"
-                                        value={formAdmision.id_causatrauma}
-                                        onChange={handleChange}
                                     >
-                                        {causas.map((elemento) => (
-                                            <option
-                                                key={elemento.id_salaCausa}
-                                                value={elemento.id_salaCausa}
-                                            >
-                                                {elemento.nombre_causaTrauma}
-                                            </option>
+
+                                        {sistemas.map((tipo) => (
+                                            <MenuItem value={tipo.id_salaCausa} key={tipo.id_salaCausa}>{tipo.nombre_causaTrauma}</MenuItem>
                                         ))}
-                                    </Form.Control>
-                                </Form.Group>
-                            </div>
-                        )}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        </Grid>
+                    )}
 
-                        {!mostrarSelect && (
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>
-                                        {t(
-                                            "eclinical.clasificacion.datos.sistema"
-                                        )}
-                                    </strong>
-                                </Form.Label>
-
-                                <Form.Control
-                                    as="select"
-                                    placeholder={`${t(
-                                        "eclinical.clasificacion.datos.sistema"
-                                    )}`}
-                                    name="id_sistema"
+                    {!mostrarSelect && (
+                        <Grid item xs={12} md={6} lg={6}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="label_tipo3">{t(
+                                    "eclinical.clasificacion.datos.sistema"
+                                )}</InputLabel>
+                                <Select
+                                    labelId="label_tipo3"
                                     value={formAdmision.id_sistema}
                                     onChange={handleChange}
+                                    name="id_sistema"
+                                    label={`${t(
+                                        "eclinical.clasificacion.datos.sistema"
+                                    )}`}
                                 >
-                                    {sistemas.map((elemento) => (
-                                        <option
-                                            key={elemento.id_sistema}
-                                            value={elemento.id_sistema}
-                                        >
-                                            {elemento.nombre_sistema}
-                                        </option>
+
+                                    {sistemas.map((tipo) => (
+                                        <MenuItem value={tipo.id_sistema} key={tipo.id_sistema}>{tipo.nombre_sistema}</MenuItem>
                                     ))}
-                                </Form.Control>
-                            </Form.Group>
-                        )}
-                    </Row>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                    )}
 
-                    <Row className="mb-3">
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t("eclinical.clasificacion.datos.glasgow")}
-                                </strong>
-                            </Form.Label>
+                    <Grid item xs={6} md={4} lg={4}>
+                        <TextField
 
-                            <Form.Control
-                                type="number"
-                                placeholder={`${t(
-                                    "eclinical.clasificacion.datos.glasgow"
+                            fullWidth
+                            size="small"
+                            type="number"
+                            variant="outlined"
+                            label={`${t(
+                                "eclinical.clasificacion.datos.glasgow"
+                            )}:`}
+                            name="glasgow_admision"
+                            value={formAdmision.glasgow_admision}
+                            onChange={handleChange}
+                            onKeyUp={(e) => {
+                                if (e.target.value > 15) {
+                                    e.target.value = 15;
+                                }
+                            }}
+                            onBlur={(e) => {
+                                if (
+                                    e.target.value < 3 &&
+                                    e.target.value != ""
+                                ) {
+                                    e.target.value = 3;
+                                }
+                            }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={6} md={4} lg={4}>
+
+                        <InputMask
+                            mask="(999)/(999) mmHg"
+                            value={formAdmision.pas_admision}
+                            onChange={handleChange}
+                        >
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    "eclinical.clasificacion.datos.pa"
                                 )}`}
-                                name="glasgow_admision"
-                                value={formAdmision.glasgow_admision}
-                                onChange={handleChange}
-                                onKeyUp={(e) => {
-                                    if (e.target.value > 15) {
-                                        e.target.value = 15;
-                                    }
-                                }}
-                                onBlur={(e) => {
-                                    if (
-                                        e.target.value < 3 &&
-                                        e.target.value != ""
-                                    ) {
-                                        e.target.value = 3;
-                                    }
-                                }}
+                                variant="outlined"
+                                name="pas_admision"
                             />
-                        </Form.Group>
+                        </InputMask>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={4}>
 
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t("eclinical.clasificacion.datos.pa")}
-                                </strong>
-                            </Form.Label>
+                        <InputMask
+                            mask="999 bpm"
+                            value={formAdmision.fc_admision}
+                            onChange={handleChange}
+                        >
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    "eclinical.clasificacion.datos.fc"
+                                )}`}
+                                variant="outlined"
+                                name="fc_admision"
+                            />
+                        </InputMask>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={4}>
 
-                            <InputMask
-                                mask="(999)/(999) mmHg"
-                                value={formAdmision.pas_admision}
-                                onChange={handleChange}
-                            >
-                                <Form.Control
-                                    type="text"
-                                    placeholder={`${t(
-                                        "eclinical.clasificacion.datos.pa"
-                                    )}`}
-                                    name="pas_admision"
-                                />
-                            </InputMask>
-                        </Form.Group>
+                        <InputMask
+                            mask="999 %"
+                            value={formAdmision.so2_admision}
+                            onChange={handleChange}
+                        >
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    "eclinical.clasificacion.datos.so2"
+                                )}`}
+                                variant="outlined"
+                                name="so2_admision"
+                            />
+                        </InputMask>
+                    </Grid>
 
-                        {/* <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t("eclinical.clasificacion.datos.pad")}
-                                </strong>
-                            </Form.Label>
+                    <Grid item xs={6} md={4} lg={4}>
 
-                            <InputMask
-                                mask="(99)/(99) mmHg"
-                                value={formAdmision.pad_admision}
-                                onChange={handleChange}
-                            >
-                                <Form.Control
-                                    type="text"
-                                    placeholder={`${t(
-                                        "eclinical.clasificacion.datos.pad"
-                                    )}`}
-                                    name="pad_admision"
-                                />
-                            </InputMask>
-                        </Form.Group> */}
+                        <InputMask
+                            mask="99 rpm"
+                            value={formAdmision.fr_admision}
+                            onChange={handleChange}
+                        >
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    "eclinical.clasificacion.datos.fr"
+                                )}`}
+                                variant="outlined"
+                                name="fr_admision"
+                            />
+                        </InputMask>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={4}>
 
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t("eclinical.clasificacion.datos.fc")}
-                                </strong>
-                            </Form.Label>
+                        <InputMask
+                            mask="99 °C"
+                            value={formAdmision.temp_admision}
+                            onChange={handleChange}
+                        >
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    "eclinical.clasificacion.datos.temperatura"
+                                )}`}
+                                variant="outlined"
+                                name="temp_admision"
+                            />
+                        </InputMask>
+                    </Grid>
 
-                            <InputMask
-                                mask="999 bpm"
-                                value={formAdmision.fc_admision}
-                                onChange={handleChange}
-                            >
-                                <Form.Control
-                                    type="text"
-                                    placeholder={`${t(
-                                        "eclinical.clasificacion.datos.fc"
-                                    )}`}
-                                    name="fc_admision"
-                                />
-                            </InputMask>
-                        </Form.Group>
-                    </Row>
+                    <Grid item xs={6} md={3} sx={{
+                        '& > .react-select-2-input > .special-label': {
+                            display: 'block',
+                            color: 'rgba(0, 0, 0, 0.6)',
+                            backgroundColor: 'transparent',
+                        },
+                        '& > .react-select-2-input > input.form-control': {
+                            width: '100%',
+                            minHeight: '41px',
+                            backgroundColor: 'transparent',
+                        }
+                    }}>
 
-                    <Row className="mb-3">
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t("eclinical.clasificacion.datos.so2")}
-                                </strong>
-                            </Form.Label>
 
-                            <InputMask
-                                mask="999 %"
-                                value={formAdmision.so2_admision}
-                                onChange={handleChange}
-                            >
-                                <Form.Control
-                                    type="text"
-                                    placeholder={`${t(
-                                        "eclinical.clasificacion.datos.so2"
-                                    )}`}
-                                    name="so2_admision"
-                                />
-                            </InputMask>
-                        </Form.Group>
+                        <Select1
+                            labelId="label_tipo3"
+                            name="clasificacion_admision"
+                            defaultValue={colourOptions[2]}
+                            onChange={seleccionColor}
+                            options={colourOptions}
+                            label={`${t("eclinical.clasificacion.titulo")}`}
+                            styles={colourStyles}
+                        />
 
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t("eclinical.clasificacion.datos.fr")}
-                                </strong>
-                            </Form.Label>
-
-                            <InputMask
-                                mask="99 rpm"
-                                value={formAdmision.fr_admision}
-                                onChange={handleChange}
-                            >
-                                <Form.Control
-                                    type="text"
-                                    placeholder={`${t(
-                                        "eclinical.clasificacion.datos.fr"
-                                    )}`}
-                                    name="fr_admision"
-                                />
-                            </InputMask>
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.clasificacion.datos.temperatura"
-                                    )}
-                                </strong>
-                            </Form.Label>
-
-                            <InputMask
-                                mask="99 °C"
-                                value={formAdmision.temp_admision}
-                                onChange={handleChange}
-                            >
-                                <Form.Control
-                                    type="text"
-                                    name="temp_admision"
-                                    value={formAdmision.temp_admision}
-                                    placeholder={`${t(
-                                        "eclinical.clasificacion.datos.temperatura"
-                                    )}`}
-                                />
-                            </InputMask>
-                        </Form.Group>
-                    </Row>
-
-                    <Row className="mb-3">
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t("eclinical.clasificacion.titulo")}
-                                </strong>
-                            </Form.Label>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={4}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="label_tipo5">{t("eclinical.clasificacion.datos.dolor")}</InputLabel>
                             <Select
-                                name="clasificacion_admision"
-                                defaultValue={colourOptions[2]}
-                                onChange={seleccionColor}
-                                options={colourOptions}
-                                styles={colourStyles}
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t("eclinical.clasificacion.datos.dolor")}
-                                </strong>
-                            </Form.Label>
-                            <Form.Control
-                                as="select"
+                                labelId="label_tipo5"
                                 value={formAdmision.dolor}
                                 onChange={handleChange}
                                 name="dolor"
+                                label={`${t("eclinical.clasificacion.datos.dolor")}`}
                             >
-                                <option value="">{`-- ${t(
+
+
+                                <MenuItem value="" >{`-- ${t(
                                     "etiquetas.seleccion"
-                                )} --`}</option>
-                                <option value="1">{`${t(
+                                )} --`}</MenuItem>
+                                <MenuItem value="1" >{`${t(
                                     "eclinical.clasificacion.datos.escala"
-                                )} 1`}</option>
-                                <option value="2">{`${t(
+                                )} 1`}</MenuItem>
+                                <MenuItem value="2" >{`${t(
                                     "eclinical.clasificacion.datos.escala"
-                                )} 2`}</option>
-                                <option value="3">{`${t(
+                                )} 2`}</MenuItem>
+                                <MenuItem value="3" >{`${t(
                                     "eclinical.clasificacion.datos.escala"
-                                )} 3`}</option>
-                                <option value="4">{`${t(
+                                )} 3`}</MenuItem>
+                                <MenuItem value="4" >{`${t(
                                     "eclinical.clasificacion.datos.escala"
-                                )} 4`}</option>
-                                <option value="5">{`${t(
+                                )} 4`}</MenuItem>
+                                <MenuItem value="5" >{`${t(
                                     "eclinical.clasificacion.datos.escala"
-                                )} 5`}</option>
-                                <option value="6">{`${t(
+                                )} 5`}</MenuItem>
+                                <MenuItem value="6" >{`${t(
                                     "eclinical.clasificacion.datos.escala"
-                                )} 6`}</option>
-                                <option value="7">{`${t(
+                                )} 6`}</MenuItem>
+                                <MenuItem value="7" >{`${t(
                                     "eclinical.clasificacion.datos.escala"
-                                )} 7`}</option>
-                                <option value="8">{`${t(
+                                )} 7`}</MenuItem>
+                                <MenuItem value="8" >{`${t(
                                     "eclinical.clasificacion.datos.escala"
-                                )} 8`}</option>
-                                <option value="9">{`${t(
+                                )} 8`}</MenuItem>
+                                <MenuItem value="9" >{`${t(
                                     "eclinical.clasificacion.datos.escala"
-                                )} 9`}</option>
-                                <option value="10">{`${t(
+                                )} 9`}</MenuItem>
+                                <MenuItem value="10" >{`${t(
                                     "eclinical.clasificacion.datos.escala"
-                                )} 10`}</option>
-                            </Form.Control>
-                        </Form.Group>
-                        <Form.Group as={Col}>
-                            <Form.Label column sm={3}>
-                                <strong>
-                                    {t("eclinical.clasificacion.datos.signos")}
-                                </strong>
-                            </Form.Label>
-                            <Col sm={9}>
-                                <InputGroup className="mb-2">
-                                    <Form.Control
-                                        id="x"
-                                        placeholder={`-- ${t(
-                                            "etiquetas.seleccionopcion"
-                                        )} --`}
-                                        disabled
-                                        value={paciente}
-                                        onChange={handleChange}
-                                        name="id_signos"
-                                    />
+                                )} 10`}</MenuItem>
 
-                                    <InputGroup.Text onClick={handleShow2}>
-                                        <Icofont
-                                            icon="ui-search"
-                                            className="mx-2"
-                                        />
-                                    </InputGroup.Text>
-                                </InputGroup>
-                            </Col>
-                        </Form.Group>
-                    </Row>
 
-                    <Row className="mb-3">
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t("eclinical.clasificacion.datos.motivo")}
-                                </strong>
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                as="textarea"
-                                placeholder={`${t(
-                                    "eclinical.clasificacion.datos.motivo"
-                                )}`}
-                                value={formAdmision.motivo_consulta}
+
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={4}>
+                        <Stack direction="row">
+
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={`${t("eclinical.clasificacion.datos.signos")}`}
+                                disabled
+                                value={paciente}
                                 onChange={handleChange}
-                                name="motivo_consulta"
-                            />
-                        </Form.Group>
+                                name="id_signos"
 
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.clasificacion.datos.signodescrip"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                as="textarea"
-                                placeholder={`${t(
-                                    "eclinical.clasificacion.datos.signodescrip"
-                                )}`}
-                                value={formAdmision.signos_sintomas}
-                                onChange={handleChange}
-                                name="signos_sintomas"
                             />
-                        </Form.Group>
-                    </Row>
 
-                    {formAdmision.id_motivoatencion != "" &&
-                        formAdmision.dolor != "" &&
-                        formAdmision.temp_admision != "" && (
-                            <Button variant="primary" onClick={PostAdmision}>
-                                {t("etiquetas.enviar")}
-                            </Button>
-                        )}
-                </Form>
+                            <Button variant="outlined" onClick={handleShow2}
+                                startIcon={< SearchIcon />}
+                                sx={{
+                                    p: 0,
+                                    minWidth: '40px',
+                                    '& > span.MuiButton-startIcon': { m: 0 },
+                                }} />
+                        </Stack>
+                    </Grid>
+
+                    <Grid item xs={12} md={6} lg={6}>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            variant="outlined"
+                            label={`${t("eclinical.clasificacion.datos.motivo")}`}
+                            multiline
+                            rows={4}
+                            value={formAdmision.motivo_consulta}
+                            onChange={handleChange}
+                            name="motivo_consulta"
+                        />
+                    </Grid>
+                    <Grid item xs={12} md={6} lg={6}>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            variant="outlined"
+                            label={`${t(
+                                "eclinical.clasificacion.datos.signodescrip"
+                            )}`}
+                            multiline
+                            rows={4}
+                            value={formAdmision.signos_sintomas}
+                            onChange={handleChange}
+                            name="signos_sintomas"
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        {formAdmision.id_motivoatencion != "" &&
+                            formAdmision.dolor != "" &&
+                            formAdmision.temp_admision != "" && (
+                                <Button variant="outlined" onClick={PostAdmision}>
+                                    {t("etiquetas.enviar")}
+                                </Button>
+                            )}
+                    </Grid>
+                </Grid>
+
+
             )}
-            <Modal show={show2} onHide={handleClose2} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>
-                        {t("eclinical.clasificacion.datos.signos")}
-                    </Modal.Title>
-                </Modal.Header>
 
-                <Modal.Body>
-                    <PaginationProvider pagination={paginationFactory(options)}>
-                        {contentTable}
-                    </PaginationProvider>
-                </Modal.Body>
+            <Dialog
+                fullWidth
+                maxWidth="lg"
+                open={show2}
+                onClose={handleClose2}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t('etiquetas.seleccionpcte')}
+                        </Typography>
 
-                <Modal.Footer>
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={handleClose2}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    <Card>
+                        <CardContent
+                            sx={{
+                                pb: '0 !important',
+                                '& > header': {
+                                    padding: 0,
+                                },
+                                '& .rdt_Table': {
+                                    border: 'solid 1px rgba(0, 0, 0, .12)',
+                                },
+                            }}
+                        >
+                            <DataTable
+                                striped
+                                columns={columns}
+                                data={filteredItems1}
+                                onRowClicked={handleRowClicked1}
+                                conditionalRowStyles={common.conditionalRowStyles}
+                                pagination
+                                paginationComponentOptions={
+                                    common.paginationComponentOptions
+                                }
+                                subHeader
+                                subHeaderComponent={subHeaderComponent1}
+                                fixedHeader
+                                persistTableHead
+                                fixedHeaderScrollHeight="calc(100vh - 317px)"
+                                customStyles={common.customStyles}
+                                highlightOnHover
+                                noDataComponent={
+                                    <Typography sx={{ my: 2 }}>
+                                        No existen casos para mostrar
+                                    </Typography>
+                                }
+                            />
+                        </CardContent>
+                    </Card>
+                </DialogContent>
+                <DialogActions sx={{ mb: 1 }}>
                     <Button
-                        variant="primary"
+                        variant="contained"
                         onClick={() => {
                             setPaciente(pacienteTemp);
                             setIdPaciente(idPacienteTemp);
                             handleClose2();
                         }}
                     >
-                        {t("etiquetas.seleccionar")}
+                        {t('etiquetas.seleccionar')}
                     </Button>
+
                     <Button
-                        variant="secondary"
+                        variant="outlined"
                         onClick={() => {
                             handleClose2();
                         }}
                     >
-                        {t("etiquetas.cancelar")}
+                        {t('etiquetas.cancelar')}
                     </Button>
-                </Modal.Footer>
-            </Modal>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }
