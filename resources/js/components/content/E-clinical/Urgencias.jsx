@@ -1,7 +1,46 @@
 import Form from "react-bootstrap/Form";
 import Icofont from "react-icofont";
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import DataTable from 'react-data-table-component';
+import { red } from '@mui/material/colors';
+import AddIcon from '@mui/icons-material/Add';
+import PrintIcon from '@mui/icons-material/Print';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import {
+    InputLabel,
+    MenuItem,
+    FormControl,
+    OutlinedInput,
+    Box,
+    Stack,
+    Chip,
+    Item,
+    Grid,
+    TextField,
+    Typography,
+    Dialog,
+    DialogContent,
+    DialogActions,
+    AppBar,
+    NativeSelect,
+    Toolbar,
+    Card,
+    CardContent,
+    Radio,
+    FormControlLabel,
+    FormLabel,
+    Backdrop,
+    Button,
+    CircularProgress,
+    IconButton,
+} from '@mui/material';
 
-import { useEffect, useState } from "react";
+import common from '../../../common';
+import ArticleIcon from '@mui/icons-material/Article';
+import SearchIcon from '@mui/icons-material/Search';
+import { useEffect, useMemo, useState } from 'react';
 import axios from "axios";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory, {
@@ -13,11 +52,9 @@ import ToolkitProvider, {
 } from "react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit";
 
 import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
-import Select from "react-select";
 import makeAnimated from "react-select/animated";
 import "./eclinical.css";
 import { useTranslation } from "react-i18next";
@@ -35,6 +72,7 @@ function Urgencias() {
 
     const [admisiones, setAdmisiones] = useState([]);
     const [mostrarFormulario, setMostrarFormulario] = useState(false); //mostrar o ucultar formulario
+    const handleform = () => setMostrarFormulario(true);
     const [tiempo, setTiempo] = useState(new Date()); //mostrar o ucultar formulario
     const [registro, setRegistro] = useState(null);
     //modales
@@ -52,6 +90,8 @@ function Urgencias() {
     const [salaEstadoAlta, setSalaEstadoAlta] = useState([]);
     const [salaAtencion, setSalaAtencion] = useState(null);
     //formulario
+    const [personName, setPersonName] = useState([]);
+
     const [show2, setShow2] = useState(false);
     const handleClose2 = () => setShow2(false);
     const handleShow2 = () => setShow2(true);
@@ -88,6 +128,16 @@ function Urgencias() {
     const [examenesSeleccionado, setExamenesSeleccionado] = useState(null);
     const [examenesSeleccionados, setExamenesSeleccionados] = useState([]);
     const animatedComponents = makeAnimated();
+
+    const [textLoad, setTextLoad] = useState('Cargando ...');
+    const [openLoad, setOpenLoad] = useState(false);
+    const [filterText, setFilterText] = useState('');
+    const [filterText1, setFilterText1] = useState('');
+    const [filterTextexamenes, setFilterTextexamenes] = useState('');
+    const [filterTextmedicamentos, setFilterTextmedicamentos] = useState('');
+    const [filterTextmediselect, setFilterTextmediselect] = useState('');
+    const [filterTextexamselect, setFilterTextexamselect] = useState('');
+
     const [sesionActual, setSesionActual] = useState(null);
     const [form2, setForm2] = useState({
         id_atencionmedica: "",
@@ -133,89 +183,66 @@ function Urgencias() {
         id_examen: "",
     });
 
-    const { SearchBar } = Search;
+    const filteredItems = pacientes.filter(
+        (item) =>
+        (item.codigo_cie &&
+            item.codigo_cie
+                .toString()
+                .toLowerCase()
+                .includes(filterText.toLowerCase()))
+    );
+    const subHeaderComponent = useMemo(() => {
+        const handleClear = () => {
+            if (filterText) setFilterText('');
+        };
+
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
+
+                    </Stack>
+                </Grid>
+
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear}
+                        filterText={filterText}
+                        onFilter={(e) => setFilterText(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterText]);
+
+    
 
     //TABLA CIE10
-    const columns = [
+    const columns = useMemo(() => [
         {
-            dataField: "codigo_cie",
-            text: `${t("eclinical.emergencias.datos.codigo")}`,
-            sort: true,
+            name: `${t("eclinical.emergencias.datos.codigo")}`,
+            sortable: true,
+            width: '100px',
+            selector: (row) => row.codigo_cie,
         },
         {
-            dataField: "diagnostico",
-            text: `${t("eclinical.emergencias.datos.diagnostico")}`,
-            sort: true,
-        },
-    ];
+            name: `${t("eclinical.emergencias.datos.diagnostico")}`,
+            sortable: true,
+            minWidth: '200px',
+            selector: (row) => row.diagnostico,
+        }
+    ])
 
-    const options = {
-        custom: true,
-        paginationSize: 3,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: pacientes.length,
-    };
-
-    const selectRow = {
-        mode: "radio",
-        clickToSelect: true,
-        hideSelectColumn: false,
-        style: { color: "#fff", background: "#0d6efd" },
-        onSelect: (row, isSelect, rowIndex, e) => {
-            setPacienteTemp(row.diagnostico);
-            setIdPacienteTemp(row.codigo_cie);
-        },
-    };
-
-    const contentTable = ({ paginationProps, paginationTableProps }) => (
-        <div>
-            <ToolkitProvider
-                keyField="codigo_cie"
-                columns={columns}
-                data={pacientes}
-                search
-            >
-                {(toolkitprops) => (
-                    <div>
-                        <SearchBar
-                            placeholder={`${t("tabla.buscador")}`}
-                            {...toolkitprops.searchProps}
-                            className="mb-3"
-                        />
-                        <BootstrapTable
-                            hover
-                            {...toolkitprops.baseProps}
-                            {...paginationTableProps}
-                            noDataIndication={`${t("tabla.sindatos")}`}
-                            selectRow={selectRow}
-                        />
-                    </div>
-                )}
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
-    );
-
+    
     //TABLA PRINCIPAL
-    const columns1 = [
+    const columns1 = useMemo(() => [
         {
-            dataField: "3",
-            text: `${t("eclinical.emergencias.datos.clasificacion")}`,
-            sort: true,
-            formatter: (cell, row, rowIndex, extraData) => {
+            name: `${t("eclinical.emergencias.datos.clasificacion")}`,
+            cell: (row) => {
                 return (
                     <div>
                         <Button
-                            variant="secondary"
+                            variant="outlined"
                             id={row.clasificacion_admision}
                             disabled
                         >
@@ -224,14 +251,12 @@ function Urgencias() {
                     </div>
                 );
             },
-        },
-        {
-            dataField: "2",
-            text: "Tiempo",
-            formatter: (cell, row, rowIndex, extraData) => {
+        }, {
+            name: `Tiempo`,
+            cell: (row, extraData) => {
                 return (
                     <div>
-                        <Icofont icon="ui-clock" className="mx-2 text-danger" />
+                        <AccessTimeIcon sx={{ color: red[500] }} />
                         <span className="text-danger">
                             {Math.floor(
                                 Math.abs(
@@ -244,38 +269,38 @@ function Urgencias() {
                     </div>
                 );
             },
-            formatExtraData: tiempo,
-            sort: true,
         },
         {
-            dataField: "fecha_clasificacion", //'nombre2','apellido1','apellido2',
-            text: `${t("eclinical.emergencias.datos.fechaclasi")}`,
-            sort: true,
+            name: `${t("eclinical.emergencias.datos.fechaclasi")}`,
+            sortable: true,
+            width: '100px',
+            selector: (row) => row.codigo,
         },
         {
-            dataField: "expendiente",
-            text: `${t("eclinical.emergencias.datos.hc")}`,
-            sort: true,
+            name: `${t("eclinical.emergencias.datos.hc")}`,
+            sortable: true,
+            width: '160px',
+            selector: (row) => row.fecha_admision,
         },
         {
-            dataField: "nombre1",
-            text: `${t("eclinical.emergencias.datos.paciente")}`,
-            sort: true,
+            name: `${t("eclinical.emergencias.datos.paciente")}`,
+            sortable: true,
+            width: '160px',
+            selector: (row) => row.expediente,
         },
         {
-            dataField: "nombre_motivoatencion",
-            text: `${t("eclinical.emergencias.datos.urgencia")}`,
-            sort: true,
+            name: `${t("eclinical.emergencias.datos.urgencia")}`,
+            sortable: true,
+            width: '160px',
+            selector: (row) => row.nombre1,
         },
         {
-            dataField: "1",
-            text: `${t("eclinical.emergencias.datos.alta")}`,
-            sort: true,
-            formatter: (cell, row, rowIndex, extraData) => {
+            name: `${t("eclinical.emergencias.datos.alta")}`,
+            cell: (row) => {
                 return (
                     <div>
                         {row.id_atencionmedica && (
-                            <Button variant="secondary" onClick={abrirEgreso}>
+                            <Button variant="contained" onClick={abrirEgreso}>
                                 {t("eclinical.emergencias.datos.egreso")}
                             </Button>
                         )}
@@ -283,142 +308,261 @@ function Urgencias() {
                 );
             },
         },
-    ];
+    ])
+    const filteredItemsmedicamentos = medicamentos.filter(
+        (item) =>
+        (item.id_medicamento &&
+            item.id_medicamento
+                .toString()
+                .toLowerCase()
+                .includes(filterTextmedicamentos.toLowerCase()))
+    );
 
-    const options1 = {
-        custom: true,
-        paginationSize: 5,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: admisiones.length,
-    };
+    const filteredItemsexamenes = examenes.filter(
+        (item) =>
+        (item.id_examen &&
+            item.id_examen
+                .toString()
+                .toLowerCase()
+                .includes(filterTextexamenes.toLowerCase()))
+    );
 
-    const selectRow1 = {
-        mode: "radio",
-        clickToSelect: true,
-        selected: [1],
-        hideSelectColumn: true,
-        bgColor: "#00BFFF",
-        onSelect: (row, isSelect, rowIndex, e) => {
-            setRegistro(row);
-            setForm2((prevState) => ({
-                ...prevState,
-                id_atencionmedica:
-                    row.id_atencionmedica != null ? row.id_atencionmedica : "",
-                id_admision: row.codigo != null ? row.codigo : "",
-                general:
-                    row.general != null &&
-                        row.general[0] != null &&
-                        row.general[0] != ""
-                        ? convertir(row.general, general)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                cabeza:
-                    row.cabeza != null &&
-                        row.cabeza[0] != null &&
-                        row.cabeza[0] != ""
-                        ? convertir(row.cabeza, cabeza)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                ojo:
-                    row.ojo != null && row.ojo[0] != null && row.ojo[0] != ""
-                        ? convertir(row.ojo, ojos)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                otorrino:
-                    row.otorrino != null &&
-                        row.otorrino[0] != null &&
-                        row.otorrino[0] != ""
-                        ? convertir(row.otorrino, otorrino)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                boca:
-                    row.boca != null && row.boca[0] != null && row.boca[0] != ""
-                        ? convertir(row.boca, boca)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                cuello:
-                    row.cuello != null &&
-                        row.cuello[0] != null &&
-                        row.cuello[0] != ""
-                        ? convertir(row.cuello, cuello)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                torax:
-                    row.torax != null &&
-                        row.torax[0] != null &&
-                        row.torax[0] != ""
-                        ? convertir(row.torax, torax)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                corazon:
-                    row.corazon &&
-                        row.corazon[0] != null &&
-                        row.corazon[0] != ""
-                        ? convertir(row.corazon, corazon)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                pulmon:
-                    row.pulmon && row.pulmon[0] != null && row.pulmon[0] != ""
-                        ? convertir(row.pulmon, pulmon)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                abdomen:
-                    row.abdomen &&
-                        row.abdomen[0] != null &&
-                        row.abdomen[0] != ""
-                        ? convertir(row.abdomen, abdomen)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                pelvis:
-                    row.pelvis != null &&
-                        row.pelvis[0] != null &&
-                        row.pelvis[0] != ""
-                        ? convertir(row.pelvis, pelvis)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                rectal:
-                    row.rectal != null &&
-                        row.rectal[0] != null &&
-                        row.rectal[0] != ""
-                        ? convertir(row.rectal, rectal)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                genital:
-                    row.genital != null &&
-                        row.genital[0] != null &&
-                        row.genital[0] != ""
-                        ? convertir(row.genital, genital)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                extremidad:
-                    row.extremidad != null &&
-                        row.extremidad[0] != null &&
-                        row.extremidad[0] != ""
-                        ? convertir(row.extremidad, extremidad)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                neuro:
-                    row.neuro != null &&
-                        row.neuro[0] != null &&
-                        row.neuro[0] != ""
-                        ? convertir(row.neuro, neuro)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                piel:
-                    row.piel != null && row.piel[0] != null && row.piel[0] != ""
-                        ? convertir(row.piel, piel)
-                        : [{ key: 1, value: 1, label: "Normal" }],
-                sintomas: row.sintomas != null ? row.sintomas : "",
-                descripcion_diagnostico:
-                    row.descripcion_diagnostico != null
-                        ? row.descripcion_diagnostico
-                        : "",
-                cod_cie10: row.cod_cie10 != null ? row.cod_cie10 : "",
-                otros: row.otros != null ? row.otros : "",
-                id_estadoalta:
-                    row.id_estadoalta != null ? row.id_estadoalta : "",
-            }));
-            setExamenesSeleccionados(row.examenes);
-            setMedicamentosSeleccionados(row.medicamentos);
-            setIdSalaAtencionMedica(row.id_atencionmedica);
+    const filteredItems1 = admisiones.filter(
+        (item) =>
+        (item.codigo &&
+            item.codigo
+                .toString()
+                .toLowerCase()
+                .includes(filterText1.toLowerCase()))
+    );
 
-            if (!mostrarFormulario) setMostrarFormulario(true);
-        },
-    };
+    const filteredItemsexamselect = examenesSeleccionados.filter(
+        (item) =>
+        (item.id_examen &&
+            item.id_examen
+                .toString()
+                .toLowerCase()
+                .includes(filterTextexamselect.toLowerCase()))
+    );
+
+    const filteredItemsmediselect = medicamentosSeleccionados.filter(
+        (item) =>
+        (item.id_medicamento &&
+            item.id_medicamento
+                .toString()
+                .toLowerCase()
+                .includes(filterTextmediselect.toLowerCase()))
+    );
+
+    const subHeaderComponentexamenes = useMemo(() => {
+        const handleClear1 = () => {
+            if (filterTextexamenes) setFilterTextexamenes('');
+        };
+
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
+
+                    </Stack>
+                </Grid>
+
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear1}
+                        filterText={filterTextexamenes}
+                        onFilter={(e) => setFilterTextexamenes(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterTextexamenes]);
+
+    const subHeaderComponentmedicamentos = useMemo(() => {
+        const handleClear1 = () => {
+            if (filterTextmedicamentos) setFilterTextmedicamentos('');
+        };
+
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
+
+                    </Stack>
+                </Grid>
+
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear1}
+                        filterText={filterTextmedicamentos}
+                        onFilter={(e) => setFilterTextmedicamentos(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterTextmedicamentos]);
+    const subHeaderComponentmediselect = useMemo(() => {
+        const handleClear1 = () => {
+            if (filterTextmediselect) setFilterTextmediselect('');
+        };
+
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
+
+                    </Stack>
+                </Grid>
+
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear1}
+                        filterText={filterTextmediselect}
+                        onFilter={(e) => setFilterTextmediselect(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterTextmediselect]);
+
+    const subHeaderComponent1 = useMemo(() => {
+        const handleClear1 = () => {
+            if (filterText1) setFilterText1('');
+        };
+
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
+
+                    </Stack>
+                </Grid>
+
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear1}
+                        filterText={filterText1}
+                        onFilter={(e) => setFilterText1(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterText1]);
+
+
+
+
+    const handleRowClicked1 = (row) => {
+        setRegistro(row);
+        setForm2((prevState) => ({
+            ...prevState,
+            id_atencionmedica:
+                row.id_atencionmedica != null ? row.id_atencionmedica : "",
+            id_admision: row.codigo != null ? row.codigo : "",
+            general:
+                row.general != null &&
+                    row.general[0] != null &&
+                    row.general[0] != ""
+                    ? convertir(row.general, general)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            cabeza:
+                row.cabeza != null &&
+                    row.cabeza[0] != null &&
+                    row.cabeza[0] != ""
+                    ? convertir(row.cabeza, cabeza)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            ojo:
+                row.ojo != null && row.ojo[0] != null && row.ojo[0] != ""
+                    ? convertir(row.ojo, ojos)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            otorrino:
+                row.otorrino != null &&
+                    row.otorrino[0] != null &&
+                    row.otorrino[0] != ""
+                    ? convertir(row.otorrino, otorrino)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            boca:
+                row.boca != null && row.boca[0] != null && row.boca[0] != ""
+                    ? convertir(row.boca, boca)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            cuello:
+                row.cuello != null &&
+                    row.cuello[0] != null &&
+                    row.cuello[0] != ""
+                    ? convertir(row.cuello, cuello)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            torax:
+                row.torax != null &&
+                    row.torax[0] != null &&
+                    row.torax[0] != ""
+                    ? convertir(row.torax, torax)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            corazon:
+                row.corazon &&
+                    row.corazon[0] != null &&
+                    row.corazon[0] != ""
+                    ? convertir(row.corazon, corazon)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            pulmon:
+                row.pulmon && row.pulmon[0] != null && row.pulmon[0] != ""
+                    ? convertir(row.pulmon, pulmon)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            abdomen:
+                row.abdomen &&
+                    row.abdomen[0] != null &&
+                    row.abdomen[0] != ""
+                    ? convertir(row.abdomen, abdomen)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            pelvis:
+                row.pelvis != null &&
+                    row.pelvis[0] != null &&
+                    row.pelvis[0] != ""
+                    ? convertir(row.pelvis, pelvis)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            rectal:
+                row.rectal != null &&
+                    row.rectal[0] != null &&
+                    row.rectal[0] != ""
+                    ? convertir(row.rectal, rectal)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            genital:
+                row.genital != null &&
+                    row.genital[0] != null &&
+                    row.genital[0] != ""
+                    ? convertir(row.genital, genital)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            extremidad:
+                row.extremidad != null &&
+                    row.extremidad[0] != null &&
+                    row.extremidad[0] != ""
+                    ? convertir(row.extremidad, extremidad)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            neuro:
+                row.neuro != null &&
+                    row.neuro[0] != null &&
+                    row.neuro[0] != ""
+                    ? convertir(row.neuro, neuro)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            piel:
+                row.piel != null && row.piel[0] != null && row.piel[0] != ""
+                    ? convertir(row.piel, piel)
+                    : [{ key: 1, value: 1, label: "Normal" }],
+            sintomas: row.sintomas != null ? row.sintomas : "",
+            descripcion_diagnostico:
+                row.descripcion_diagnostico != null
+                    ? row.descripcion_diagnostico
+                    : "",
+            cod_cie10: row.cod_cie10 != null ? row.cod_cie10 : "",
+            otros: row.otros != null ? row.otros : "",
+            id_estadoalta:
+                row.id_estadoalta != null ? row.id_estadoalta : "",
+        }));
+        setExamenesSeleccionados(row.examenes);
+        setMedicamentosSeleccionados(row.medicamentos);
+        setIdSalaAtencionMedica(row.id_atencionmedica);
+        handleform()
+
+    }
 
     const convertir = (arreglo, arregloDatos) => {
         let arregloNuevo = [];
@@ -436,50 +580,25 @@ function Urgencias() {
     };
 
     const cambioSelect = (e) => {
-        e.persist();
         setFormEgreso((prevState) => ({
             ...prevState,
             [e.target.name]: e.target.value,
         }));
     };
 
-    const contentTable1 = ({ paginationProps, paginationTableProps }) => (
-        <div>
-            <ToolkitProvider
-                keyField="codigo"
-                columns={columns1}
-                data={admisiones}
-                search
-            >
-                {(toolkitprops) => (
-                    <div>
-                        <SearchBar
-                            placeholder={`${t("tabla.buscador")}`}
-                            {...toolkitprops.searchProps}
-                        />
-                        <BootstrapTable
-                            striped
-                            hover
-                            {...toolkitprops.baseProps}
-                            {...paginationTableProps}
-                            noDataIndication={`${t("tabla.sindatos")}`}
-                            selectRow={selectRow1}
-                        />
-                    </div>
-                )}
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
-    );
+    
 
-    const GetAdmisiones = () => {
-        axios
+    const GetAdmisiones = async () => {
+        setOpenLoad(true);
+        await axios
             .get("/api/sala_admision/urgencias")
             .then((response) => {
                 setAdmisiones(response.data);
+                setOpenLoad(false);
                 return response.data;
             })
             .catch((error) => {
+                setOpenLoad(false);
                 return error;
             });
     };
@@ -508,189 +627,56 @@ function Urgencias() {
     };
 
     //TABLA MEDICAMENTOS
-    const optionsMedicamentos = {
-        custom: true,
-        paginationSize: 5,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: medicamentos.length,
-    };
+    
 
-    const columnsMedicamentos = [
+    const columnsMedicamentos = useMemo(() => [
         {
-            dataField: "nombre_medicamento",
-            text: `${t("eclinical.emergencias.datos.nombremedicamento")}`,
-            sort: true,
-        },
-    ];
+            name: `${t("eclinical.emergencias.datos.nombremedicamento")}`,
+            sortable: true,
+            minWidth: '200px',
+            selector: (row) => row.nombre_medicamento,
+        }
+    ])
 
-    const selectRowMedicamentos = {
-        mode: "radio",
-        clickToSelect: true,
-        hideSelectColumn: true,
-        style: { color: "#fff", background: "#0d6efd" },
-        onSelect: (row, isSelect, rowIndex, e) => {
-            setMedicamentosSeleccionado(row);
-        },
-    };
+   
 
-    let contentTableMedicamentos = ({
-        paginationProps,
-        paginationTableProps,
-    }) => (
-        <div>
-            <ToolkitProvider
-                keyField="id_medicamento"
-                columns={columnsMedicamentos}
-                data={medicamentos}
-                search
-            >
-                {(toolkitprops) => (
-                    <div>
-                        <SearchBar
-                            placeholder={`${t("tabla.buscador")}`}
-                            {...toolkitprops.searchProps}
-                            className="mb-3"
-                        />
-                        <Form>
-                            <Form.Group as={Col}>
-                                <Form.Label>
-                                    <strong>Dosis:</strong>
-                                </Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Dosis"
-                                    name="dosis"
-                                    onChange={cambioDosis}
-                                />
-                            </Form.Group>
-                        </Form>
-                        <BootstrapTable
-                            hover
-                            {...toolkitprops.baseProps}
-                            {...paginationTableProps}
-                            noDataIndication={`${t("tabla.sindatos")}`}
-                            selectRow={selectRowMedicamentos}
-                        />
-                    </div>
-                )}
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
-    );
+    
 
     //TABLA EXAMENES
-    const optionsExamenes = {
-        custom: true,
-        paginationSize: 5,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: examenes.length,
-    };
+    
 
-    const columnsExamenes = [
+
+    const columnsExamenes = useMemo(() => [
         {
-            dataField: "nombre_examen",
-            text: `${t("eclinical.emergencias.datos.examenes")}`,
-            sort: true,
-        },
-    ];
+            name: `${t("eclinical.emergencias.datos.examenes")}`,
+            sortable: true,
+            minWidth: '200px',
+            selector: (row) => row.nombre_examen,
+        }
+    ])
 
-    const selectRowExamenes = {
-        mode: "radio",
-        clickToSelect: true,
-        hideSelectColumn: true,
-        style: { color: "#fff", background: "#0d6efd" },
-        onSelect: (row, isSelect, rowIndex, e) => {
-            setExamenesSeleccionado(row);
-        },
-    };
+   
 
-    const contentTableExamenes = ({
-        paginationProps,
-        paginationTableProps,
-    }) => (
-        <div>
-            <ToolkitProvider
-                keyField="id_examen"
-                columns={columnsExamenes}
-                data={examenes}
-                search
-            >
-                {(toolkitprops) => (
-                    <div>
-                        <SearchBar
-                            placeholder={`${t("tabla.buscador")}`}
-                            {...toolkitprops.searchProps}
-                            className="mb-3"
-                        />
-                        <BootstrapTable
-                            hover
-                            {...toolkitprops.baseProps}
-                            {...paginationTableProps}
-                            noDataIndication={`${t("tabla.sindatos")}`}
-                            selectRow={selectRowExamenes}
-                        />
-                    </div>
-                )}
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
-    );
 
-    //TABLA MEDICAMENTOS Seleccionados
-    const optionsMedicamentosSeleccionado = {
-        custom: true,
-        paginationSize: 5,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: medicamentosSeleccionados.length,
-    };
-
-    const columnsMedicamentosSeleccionados = [
+    const columnsMedicamentosSeleccionados = useMemo(() => [
         {
-            dataField: "nombre_medicamento",
-            text: `${t("eclinical.emergencias.datos.medicamentos")}`,
-            sort: true,
+            name: `${t("eclinical.emergencias.datos.medicamentos")}`,
+            sortable: true,
+            minWidth: '100px',
+            selector: (row) => row.nombre_medicamento,
+        }, {
+            name: `${t("eclinical.emergencias.datos.dosis")}`,
+            sortable: true,
+            minWidth: '100px',
+            selector: (row) => row.dosis,
         },
         {
-            dataField: "dosis",
-            text: `${t("eclinical.emergencias.datos.dosis")}`,
-            sort: true,
-        },
-        {
-            text: `${t("eclinical.emergencias.datos.opcion")}`,
-            sort: true,
-            dataField: "11",
-            formatter: (cell, row, rowIndex, extraData) => {
+            name: `${t("eclinical.emergencias.datos.opcion")}`,
+            cell: (row) => {
                 return (
                     <div>
                         <Button
-                            variant="danger"
+                            variant="outlined" color="error"
                             onClick={() => {
                                 let filtredDataMedicamentos =
                                     medicamentosSeleccionados.filter(
@@ -704,82 +690,32 @@ function Urgencias() {
                                 );
                             }}
                         >
-                            <Icofont icon="trash" className="mx-2" o />
+                            <DeleteIcon />
                             Eliminar
                         </Button>
                     </div>
                 );
             },
-        },
-    ];
+        }
+    ])
 
-    const selectRowMedicamentosSeleccionados = {
-        mode: "radio",
-        clickToSelect: true,
-        hideSelectColumn: true,
-        style: { color: "#fff", background: "#0d6efd" },
-        onSelect: (row, isSelect, rowIndex, e) => { },
-    };
 
-    const contentTableMedicamentosSeleccionados = ({
-        paginationProps,
-        paginationTableProps,
-    }) => (
-        <div>
-            <ToolkitProvider
-                keyField="id_medicamento"
-                columns={columnsMedicamentosSeleccionados}
-                data={medicamentosSeleccionados}
-                search
-            >
-                {(toolkitprops) => (
-                    <div>
-                        <BootstrapTable
-                            hover
-                            {...toolkitprops.baseProps}
-                            {...paginationTableProps}
-                            noDataIndication={`${t("tabla.sindatos")}`}
-                            selectRow={selectRowMedicamentosSeleccionados}
-                        />
-                    </div>
-                )}
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
-    );
 
-    //Tabla examenes seleccionados
-    const optionsExamenesSeleccionado = {
-        custom: true,
-        paginationSize: 5,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: examenesSeleccionados.length,
-    };
 
-    const columnsExamenesSeleccionados = [
+    const columnsExamenesSeleccionados = useMemo(() => [
         {
-            dataField: "nombre_examen",
-            text: `${t("eclinical.emergencias.datos.examenes")}`,
-            sort: true,
+            name: `${t("eclinical.emergencias.datos.examenes")}`,
+            sortable: true,
+            minWidth: '100px',
+            selector: (row) => row.nombre_examen,
         },
         {
-            text: `${t("eclinical.emergencias.datos.opcion")}`,
-            sort: true,
-            dataField: "123",
-            formatter: (cell, row, rowIndex, extraData) => {
+            name: `${t("eclinical.emergencias.datos.opcion")}`,
+            cell: (row) => {
                 return (
                     <div>
                         <Button
-                            variant="danger"
+                            variant="outlined" color="error"
                             onClick={() => {
                                 let filtredData = examenesSeleccionados.filter(
                                     (item) => item != row
@@ -788,50 +724,17 @@ function Urgencias() {
                                 setExamenesSeleccionados(filtredData);
                             }}
                         >
-                            <Icofont icon="trash" className="mx-2" />
+                            <DeleteIcon />
                             Eliminar
                         </Button>
                     </div>
                 );
             },
-        },
-    ];
+        }
+    ])
 
-    const selectRowExamenesSeleccionados = {
-        mode: "radio",
-        clickToSelect: true,
-        hideSelectColumn: true,
-        style: { color: "#fff", background: "#0d6efd" },
-        onSelect: (row, isSelect, rowIndex, e) => { },
-    };
 
-    const contentTableExamenesSeleccionados = ({
-        paginationProps,
-        paginationTableProps,
-    }) => (
-        <div>
-            <ToolkitProvider
-                keyField="id_examen"
-                columns={columnsExamenesSeleccionados}
-                data={examenesSeleccionados}
-                search
-            >
-                {(toolkitprops) => (
-                    <div>
-                        <BootstrapTable
-                            hover
-                            {...toolkitprops.baseProps}
-                            {...paginationTableProps}
-                            noDataIndication={`${t("tabla.sindatos")}`}
-                            selectRow={selectRowExamenesSeleccionados}
-                        />
-                    </div>
-                )}
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
-    );
-
+    
     const GetGeneral = () => {
         axios
             .get("/api/cuerpo_general")
@@ -1173,7 +1076,6 @@ function Urgencias() {
     };
 
     const handleChange1 = (e) => {
-        e.persist();
         setForm2((prevState) => ({
             ...prevState,
             [e.target.name]: e.target.value,
@@ -1183,112 +1085,112 @@ function Urgencias() {
     const selecionOtorrino = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            otorrino: e,
+            otorrino: e.target.value,
         }));
     };
 
     const selecionPiel = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            piel: e,
+            piel: e.target.value,
         }));
     };
 
     const selecionNeuro = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            neuro: e,
+            neuro: e.target.value,
         }));
     };
 
     const selecionExtremidad = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            extremidad: e,
+            extremidad: e.target.value,
         }));
     };
 
     const selecionGenital = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            genital: e,
+            genital: e.target.value,
         }));
     };
 
     const selecionRectal = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            rectal: e,
+            rectal: e.target.value,
         }));
     };
 
     const selecionPelvis = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            pelvis: e,
+            pelvis: e.target.value,
         }));
     };
 
     const selecionAbdomen = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            abdomen: e,
+            abdomen: e.target.value,
         }));
     };
 
     const selecionPulmon = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            pulmon: e,
+            pulmon: e.target.value,
         }));
     };
 
     const selecionTorax = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            torax: e,
+            torax: e.target.value,
         }));
     };
 
     const selecionCorazon = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            corazon: e,
+            corazon: e.target.value,
         }));
     };
 
     const selecionBoca = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            boca: e,
+            boca: e.target.value,
         }));
     };
 
     const selecionGeneral = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            general: e,
+            general: e.target.value,
         }));
     };
 
     const selecionCabeza = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            cabeza: e,
+            cabeza: e.target.value,
         }));
     };
 
     const selecionCuello = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            cuello: e,
+            cuello: e.target.value,
         }));
     };
 
     const selecionOjo = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            ojo: e,
+            ojo: e.target.value,
         }));
     };
 
@@ -1610,7 +1512,7 @@ function Urgencias() {
         doc.autoTable(colDoctor, rowsDoctor, { startY: 170 });
         doc.save("orden_Examenes.pdf");
     };
-  
+
     const guardar = () => {
         PostSala();
         PostExamenes();
@@ -1648,531 +1550,1011 @@ function Urgencias() {
         }));
     }, [paciente, idPaciente]);
 
+    
     return (
         <div>
-            <div>
-                <h2>{t("eclinical.emergencias.datos.urgencia")}</h2>
-            </div>
-            <PaginationProvider pagination={paginationFactory(options1)}>
-                {contentTable1}
-            </PaginationProvider>
-            <br></br>
-            <div>
-                <h3>
-                    <Icofont icon="patient-file" className="mx-2" />
-                    {t("eclinical.emergencias.formulario.formulario")}
-                </h3>
-            </div>
-            <br></br>
+            <Backdrop
+                sx={{
+                    color: '#fff',
+                    zIndex: (theme) => theme.zIndex.drawer + 101,
+                }}
+                open={openLoad}
+            >
+                <Stack spacing={1} alignItems="center">
+                    <CircularProgress disableShrink color="inherit" />
+                    <Typography>{textLoad}</Typography>
+                </Stack>
+            </Backdrop>
 
+            <h2>{t("eclinical.emergencias.datos.urgencia")}</h2>
+
+            <Card>
+                <CardContent
+                    sx={{
+                        pb: '0 !important',
+                        '& > header': {
+                            padding: 0,
+                        },
+                        '& .rdt_Table': {
+                            border: 'solid 1px rgba(0, 0, 0, .12)',
+                        },
+                    }}
+                >
+                    <DataTable
+                        striped
+                        columns={columns1}
+                        data={filteredItems1}
+                        onRowClicked={handleRowClicked1}
+                        conditionalRowStyles={common.conditionalRowStyles}
+                        pagination
+                        paginationComponentOptions={
+                            common.paginationComponentOptions
+                        }
+                        subHeader
+                        subHeaderComponent={subHeaderComponent1}
+                        fixedHeader
+                        persistTableHead
+                        fixedHeaderScrollHeight="calc(100vh - 317px)"
+                        customStyles={common.customStyles}
+                        highlightOnHover
+                        noDataComponent={
+                            <Typography sx={{ my: 2 }}>
+                                No existen datos para mostrar
+                            </Typography>
+                        }
+                    />
+                </CardContent>
+            </Card>
+            <br></br>
+            <Typography variant="h5" gutterBottom component="div">
+                <ArticleIcon />
+                {t('formularios.formulario')}
+            </Typography>
+            <br></br>
             {mostrarFormulario && (
-                <Form className={mostrarFormulario ? "show-element" : null}>
-                    <Row className="mb-4">
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.general"
-                                    )}
-                                </strong>
-                            </Form.Label>
+                <Grid
+                    container
+                    noValidate
+                    direction="row"
+                    justifyContent="center"
+                    spacing={3}
+                    sx={{ my: 2 }}
+                    component="form"
+                    autoComplete="off"
+                >
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.general"
+                            )}</InputLabel>
                             <Select
+                                labelId="demo-multiple-chip-label"
+                                multiple
                                 value={form2.general}
-                                closeMenuOnSelect={false}
-                                components={animatedComponents}
-                                isMulti
-                                name="general"
                                 onChange={selecionGeneral}
-                                options={general}
-                            />
-                        </Form.Group>
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.general"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
+                            >
+                                {general.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
 
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.cabeza"
-                                    )}
-                                </strong>
-                            </Form.Label>
+
+                        </FormControl>
+                    </Grid>
+
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.cabeza"
+                            )}</InputLabel>
                             <Select
+                                labelId="demo-multiple-chip-label"
+                                multiple
                                 value={form2.cabeza}
-                                closeMenuOnSelect={false}
-                                components={animatedComponents}
                                 onChange={selecionCabeza}
-                                isMulti
-                                options={cabeza}
-                            />
-                        </Form.Group>
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.cabeza"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
+                            >
+                                {cabeza.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
 
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t("eclinical.emergencias.formulario.ojos")}
-                                </strong>
-                            </Form.Label>
+
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.ojos"
+                            )}</InputLabel>
                             <Select
-                                closeMenuOnSelect={false}
+                                labelId="demo-multiple-chip-label"
+                                multiple
                                 value={form2.ojo}
                                 onChange={selecionOjo}
-                                components={animatedComponents}
-                                isMulti
-                                options={ojos}
-                            />
-                        </Form.Group>
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.otorrino"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Select
-                                value={form2.otorrino}
-                                closeMenuOnSelect={false}
-                                onChange={selecionOtorrino}
-                                components={animatedComponents}
-                                isMulti
-                                options={otorrino}
-                            />
-                        </Form.Group>
-                    </Row>
-
-                    <Row className="mb-4">
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t("eclinical.emergencias.formulario.boca")}
-                                </strong>
-                            </Form.Label>
-                            <Select
-                                value={form2.boca}
-                                closeMenuOnSelect={false}
-                                onChange={selecionBoca}
-                                components={animatedComponents}
-                                isMulti
-                                options={boca}
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.cuello"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Select
-                                value={form2.cuello}
-                                closeMenuOnSelect={false}
-                                onChange={selecionCuello}
-                                components={animatedComponents}
-                                isMulti
-                                options={cuello}
-                            />
-                        </Form.Group>
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.torax"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Select
-                                value={form2.torax}
-                                closeMenuOnSelect={false}
-                                components={animatedComponents}
-                                onChange={selecionTorax}
-                                isMulti
-                                options={torax}
-                            />
-                        </Form.Group>
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.corazon"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Select
-                                value={form2.corazon}
-                                closeMenuOnSelect={false}
-                                onChange={selecionCorazon}
-                                components={animatedComponents}
-                                isMulti
-                                options={corazon}
-                            />
-                        </Form.Group>
-                    </Row>
-
-                    <Row className="mb-4">
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.pulmon"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Select
-                                value={form2.pulmon}
-                                closeMenuOnSelect={false}
-                                onChange={selecionPulmon}
-                                components={animatedComponents}
-                                isMulti
-                                options={pulmon}
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.abdomen"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Select
-                                value={form2.abdomen}
-                                closeMenuOnSelect={false}
-                                onChange={selecionAbdomen}
-                                components={animatedComponents}
-                                isMulti
-                                options={abdomen}
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.pelvis"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Select
-                                value={form2.pelvis}
-                                closeMenuOnSelect={false}
-                                onChange={selecionPelvis}
-                                components={animatedComponents}
-                                isMulti
-                                options={pelvis}
-                            />
-                        </Form.Group>
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.rectal"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Select
-                                value={form2.rectal}
-                                closeMenuOnSelect={false}
-                                onChange={selecionRectal}
-                                components={animatedComponents}
-                                isMulti
-                                options={rectal}
-                            />
-                        </Form.Group>
-                    </Row>
-
-                    <Row className="mb-4">
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.genital"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Select
-                                value={form2.genital}
-                                closeMenuOnSelect={false}
-                                onChange={selecionGenital}
-                                components={animatedComponents}
-                                isMulti
-                                options={genital}
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.extremidad"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Select
-                                value={form2.extremidad}
-                                closeMenuOnSelect={false}
-                                onChange={selecionExtremidad}
-                                components={animatedComponents}
-                                isMulti
-                                options={extremidad}
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.neuro"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Select
-                                value={form2.neuro}
-                                closeMenuOnSelect={false}
-                                onChange={selecionNeuro}
-                                components={animatedComponents}
-                                isMulti
-                                options={neuro}
-                            />
-                        </Form.Group>
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t("eclinical.emergencias.formulario.piel")}
-                                </strong>
-                            </Form.Label>
-                            <Select
-                                value={form2.piel}
-                                closeMenuOnSelect={false}
-                                onChange={selecionPiel}
-                                components={animatedComponents}
-                                isMulti
-                                options={piel}
-                            />
-                        </Form.Group>
-                    </Row>
-
-                    <Row className="mb-2">
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.sintomas"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                as="textarea"
-                                value={form2.sintomas}
-                                placeholder={`${t(
-                                    "eclinical.emergencias.formulario.sintomas"
-                                )}`}
-                                name="sintomas"
-                                onChange={handleChange1}
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.descripcion"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                as="textarea"
-                                value={form2.descripcion_diagnostico}
-                                placeholder={`${t(
-                                    "eclinical.emergencias.formulario.descripcion"
-                                )}`}
-                                name="descripcion_diagnostico"
-                                onChange={handleChange1}
-                            />
-                        </Form.Group>
-                    </Row>
-
-                    <Row className="mb-2">
-                        <Form.Group as={Col}>
-                            <Form.Label column sm={3}>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.cie10"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Col sm={9}>
-                                <InputGroup className="mb-2">
-                                    <Form.Control
-                                        placeholder={`-- ${t(
-                                            "etiquetas.seleccion"
-                                        )} --`}
-                                        disabled
-                                        value={paciente}
-                                        onChange={handleChange1}
-                                        name="cie10"
-                                    />
-
-                                    <InputGroup.Text onClick={handleShow2}>
-                                        <Icofont
-                                            icon="ui-search"
-                                            className="mx-2"
-                                        />
-                                    </InputGroup.Text>
-                                </InputGroup>
-                            </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.otros"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                as="textarea"
-                                value={form2.otros}
-                                placeholder={`${t(
-                                    "eclinical.emergencias.formulario.otros"
-                                )}`}
-                                name="otros"
-                                onChange={handleChange1}
-                            />
-                        </Form.Group>
-                    </Row>
-                    <Row className="mb-2">
-                        <Col>
-                            <Button
-                                variant="primary"
-                                onClick={abrirMedicamentos}
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.ojos"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
                             >
-                                <Icofont icon="ui-add" className="mx-2" />
+                                {ojos.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+
+
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.otorrino"
+                            )}</InputLabel>
+                            <Select
+                                labelId="demo-multiple-chip-label"
+                                multiple
+                                value={form2.otorrino}
+                                onChange={selecionOtorrino}
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.otorrino"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
+                            >
+                                {otorrino.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+
+
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.boca"
+                            )}</InputLabel>
+                            <Select
+                                labelId="demo-multiple-chip-label"
+                                multiple
+                                value={form2.boca}
+                                onChange={selecionBoca}
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.boca"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
+                            >
+                                {boca.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+
+
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.cuello"
+                            )}</InputLabel>
+                            <Select
+                                labelId="demo-multiple-chip-label"
+                                multiple
+                                value={form2.cuello}
+                                onChange={selecionCuello}
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.cuello"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
+                            >
+                                {cuello.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+
+
+                        </FormControl>
+                    </Grid>
+
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.torax"
+                            )}</InputLabel>
+                            <Select
+                                labelId="demo-multiple-chip-label"
+                                multiple
+                                value={form2.torax}
+                                onChange={selecionTorax}
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.torax"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
+                            >
+                                {torax.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+
+
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.corazon"
+                            )}</InputLabel>
+                            <Select
+                                labelId="demo-multiple-chip-label"
+                                multiple
+                                value={form2.corazon}
+                                onChange={selecionCorazon}
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.corazon"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
+                            >
+                                {corazon.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+
+
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.pulmon"
+                            )}</InputLabel>
+                            <Select
+                                labelId="demo-multiple-chip-label"
+                                multiple
+                                value={form2.pulmon}
+                                onChange={selecionPulmon}
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.pulmon"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
+                            >
+                                {pulmon.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+
+
+                        </FormControl>
+                    </Grid>
+
+
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.abdomen"
+                            )}</InputLabel>
+                            <Select
+                                labelId="demo-multiple-chip-label"
+                                multiple
+                                value={form2.abdomen}
+                                onChange={selecionAbdomen}
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.abdomen"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
+                            >
+                                {abdomen.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+
+
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.pelvis"
+                            )}</InputLabel>
+                            <Select
+                                labelId="demo-multiple-chip-label"
+                                multiple
+                                value={form2.pelvis}
+                                onChange={selecionPelvis}
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.pelvis"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
+                            >
+                                {pelvis.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+
+
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.rectal"
+                            )}</InputLabel>
+                            <Select
+                                labelId="demo-multiple-chip-label"
+                                multiple
+                                value={form2.rectal}
+                                onChange={selecionRectal}
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.rectal"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
+                            >
+                                {rectal.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+
+
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.genital"
+                            )}</InputLabel>
+                            <Select
+                                labelId="demo-multiple-chip-label"
+                                multiple
+                                value={form2.genital}
+                                onChange={selecionGenital}
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.genital"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
+                            >
+                                {genital.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+
+
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.extremidad"
+                            )}</InputLabel>
+                            <Select
+                                labelId="demo-multiple-chip-label"
+                                multiple
+                                value={form2.extremidad}
+                                onChange={selecionExtremidad}
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.extremidad"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
+                            >
+                                {extremidad.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+
+
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.neuro"
+                            )}</InputLabel>
+                            <Select
+                                labelId="demo-multiple-chip-label"
+                                multiple
+                                value={form2.neuro}
+                                onChange={selecionNeuro}
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.neuro"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
+                            >
+                                {neuro.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+
+
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={3}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="demo-multiple-chip-label">{t(
+                                "eclinical.emergencias.formulario.piel"
+                            )}</InputLabel>
+                            <Select
+                                labelId="demo-multiple-chip-label"
+                                multiple
+                                value={form2.piel}
+                                onChange={selecionPiel}
+                                input={<OutlinedInput id="select-multiple-chip" label={`${t(
+                                    "eclinical.emergencias.formulario.piel"
+                                )}`} />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value) => (
+                                            <Chip key={value.value} label={value.label} />
+                                        ))}
+                                    </Box>
+                                )}
+                            >
+                                {piel.map((name) => (
+                                    <MenuItem
+                                        key={name.value}
+                                        value={name}
+                                    >
+                                        {name.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+
+
+                        </FormControl>
+                    </Grid>
+
+                    <Grid item xs={12} md={6} lg={6}>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            variant="outlined"
+                            label={`${t(
+                                        "eclinical.emergencias.formulario.sintomas"
+                                    )}`}
+                            multiline
+                            rows={4}
+                            value={form2.sintomas}
+                            onChange={handleChange1}
+                            name="sintomas"
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} md={6} lg={6}>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            variant="outlined"
+                            label={`${t(
+                                "eclinical.emergencias.formulario.descripcion"
+                            )}`}
+                            multiline
+                            rows={4}
+                            value={form2.descripcion_diagnostico}
+                            onChange={handleChange1}
+                            name="descripcion_diagnostico"
+                        />
+                    </Grid>
+
+                    <Grid item xs={6} md={5} lg={5}>
+                        <Stack direction="row">
+
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={`${t(
+                                    "eclinical.emergencias.formulario.cie10"
+                                )}`}
+
+                                value={paciente}
+                                onChange={handleChange1}
+                                name="cie10"
+                                InputProps={{
+                                    readOnly: true,
+                                }}
+
+                            />
+
+                            <Button variant="outlined" onClick={handleShow2}
+                                startIcon={< SearchIcon />}
+                                sx={{
+                                    p: 0,
+                                    minWidth: '40px',
+                                    '& > span.MuiButton-startIcon': { m: 0 },
+                                }} />
+                        </Stack>
+                    </Grid>
+
+                    <Grid item xs={12} md={6} lg={6}>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            variant="outlined"
+                            label={`${t(
+                                "eclinical.emergencias.formulario.otros"
+                            )}`}
+                            multiline
+                            rows={4}
+                            value={form2.otros}
+                            onChange={handleChange1}
+                            name="otros"
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} md={12} lg={6}>
+                        <Stack direction="column" spacing={2}>
+                            <Button
+                                variant="contained"
+                                onClick={abrirMedicamentos}
+                                sx={{
+                                    p: 0,
+                                    height: '40px',
+                                    width: '200px',
+                                    '& > span.MuiButton-startIcon': { m: 0 },
+                                }}
+                            >
+                                <AddIcon />
                                 Medicamentos
                             </Button>
                             {medicamentosSeleccionados.length > 0 && (
                                 <Button
-                                    variant="primary"
+                                    variant="contained"
                                     onClick={generatePDFMedicamentos}
+                                    sx={{
+                                        p: 0,
+                                        height: '40px',
+                                        width: '200px',
+                                        '& > span.MuiButton-startIcon': { m: 0 },
+                                    }}
                                 >
-                                    <Icofont icon="printer" className="mx-2" />
+                                    <PrintIcon />
                                     {t(
                                         "eclinical.emergencias.formulario.ordenmedicamentos"
                                     )}
                                 </Button>
                             )}
-                        </Col>
-
-                        <Col>
-                            <Button variant="primary" onClick={abrirExamenes}>
-                                <Icofont icon="ui-add" className="mx-2" />
+                            <Card>
+                                <CardContent
+                                    sx={{
+                                        pb: '0 !important',
+                                        '& > header': {
+                                            padding: 0,
+                                        },
+                                        '& .rdt_Table': {
+                                            border: 'solid 1px rgba(0, 0, 0, .12)',
+                                        },
+                                    }}
+                                >
+                                    <DataTable
+                                        striped
+                                        columns={columnsMedicamentosSeleccionados}
+                                        data={filteredItemsmediselect}
+                                        conditionalRowStyles={common.conditionalRowStyles}
+                                        pagination
+                                        paginationComponentOptions={
+                                            common.paginationComponentOptions
+                                        }
+                                        subHeader
+                                        fixedHeader
+                                        persistTableHead
+                                        fixedHeaderScrollHeight="calc(100vh - 317px)"
+                                        customStyles={common.customStyles}
+                                        highlightOnHover
+                                        noDataComponent={
+                                            <Typography sx={{ my: 2 }}>
+                                                No existen datos para mostrar
+                                            </Typography>
+                                        }
+                                    />
+                                </CardContent>
+                            </Card>
+                        </Stack>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={6}>
+                        <Stack direction="column" spacing={2}>
+                            <Button variant="contained" onClick={abrirExamenes} sx={{
+                                p: 0,
+                                height: '40px',
+                                width: '200px',
+                                '& > span.MuiButton-startIcon': { m: 0 },
+                            }}>
+                                <AddIcon />
                                 {t("eclinical.emergencias.formulario.examenes")}
                             </Button>
                             {examenesSeleccionados.length > 0 && (
                                 <Button
-                                    variant="primary"
+                                    variant="contained"
                                     onClick={generatePDFExamenes}
+                                    sx={{
+                                        p: 0,
+                                        height: '40px',
+                                        width: '200px',
+                                        '& > span.MuiButton-startIcon': { m: 0 },
+                                    }}
                                 >
-                                    <Icofont icon="printer" className="mx-2" />
+                                    <PrintIcon />
                                     {t(
                                         "eclinical.emergencias.formulario.ordenexamenes"
                                     )}
                                 </Button>
                             )}
-                        </Col>
-                    </Row>
-                    <Row className="mb-2">
-                        <Col>
-                            <PaginationProvider
-                                pagination={paginationFactory(
-                                    optionsMedicamentosSeleccionado
-                                )}
-                            >
-                                {contentTableMedicamentosSeleccionados}
-                            </PaginationProvider>
-                        </Col>
-                        <Col>
-                            <PaginationProvider
-                                pagination={paginationFactory(
-                                    optionsExamenesSeleccionado
-                                )}
-                            >
-                                {contentTableExamenesSeleccionados}
-                            </PaginationProvider>
-                        </Col>
-                    </Row>
-                    <Button
-                        variant="primary"
-                        onClick={() => {
-                            guardar();
+                            <Card>
+                                <CardContent
+                                    sx={{
+                                        pb: '0 !important',
+                                        '& > header': {
+                                            padding: 0,
+                                        },
+                                        '& .rdt_Table': {
+                                            border: 'solid 1px rgba(0, 0, 0, .12)',
+                                        },
+                                    }}
+                                >
+                                    <DataTable
+                                        striped
+                                        columns={columnsExamenesSeleccionados}
+                                        data={filteredItemsexamselect}
+                                        conditionalRowStyles={common.conditionalRowStyles}
+                                        pagination
+                                        paginationComponentOptions={
+                                            common.paginationComponentOptions
+                                        }
+                                        subHeader
+                                        fixedHeader
+                                        persistTableHead
+                                        fixedHeaderScrollHeight="calc(100vh - 317px)"
+                                        customStyles={common.customStyles}
+                                        highlightOnHover
+                                        noDataComponent={
+                                            <Typography sx={{ my: 2 }}>
+                                                No existen datos para mostrar
+                                            </Typography>
+                                        }
+                                    />
+                                </CardContent>
+                            </Card>
+                        </Stack>
+                    </Grid>
+                    <Grid item xs={12}>
+
+                        <Button variant="outlined" onClick={guardar}>
+                            {t("etiquetas.guardar")}
+                        </Button>
+
+                    </Grid>
+                </Grid>
+
+
+            )}
+            <Dialog
+                fullWidth
+                maxWidth="lg"
+                open={show2}
+                onClose={handleClose2}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
                         }}
                     >
-                        {t("etiquetas.guardar")}
-                    </Button>
-                </Form>
-            )}
-            <Modal show={show2} onHide={handleClose2} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>
-                        {t("eclinical.emergencias.formulario.seleccioncie10")}
-                    </Modal.Title>
-                </Modal.Header>
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t("eclinical.emergencias.formulario.seleccioncie10")}
+                        </Typography>
 
-                <Modal.Body>
-                    <PaginationProvider pagination={paginationFactory(options)}>
-                        {contentTable}
-                    </PaginationProvider>
-                </Modal.Body>
-
-                <Modal.Footer>
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={handleClose2}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    <Card>
+                        <CardContent
+                            sx={{
+                                pb: '0 !important',
+                                '& > header': {
+                                    padding: 0,
+                                },
+                                '& .rdt_Table': {
+                                    border: 'solid 1px rgba(0, 0, 0, .12)',
+                                },
+                            }}
+                        >
+                            <DataTable
+                                striped
+                                columns={columns}
+                                data={filteredItems}
+                                onRowClicked={(row) => {
+                                    setPacienteTemp(row.diagnostico);
+                                    setIdPacienteTemp(row.codigo_cie);
+                                }}
+                                conditionalRowStyles={common.conditionalRowStyles}
+                                pagination
+                                paginationComponentOptions={
+                                    common.paginationComponentOptions
+                                }
+                                subHeader
+                                subHeaderComponent={subHeaderComponent}
+                                fixedHeader
+                                persistTableHead
+                                fixedHeaderScrollHeight="calc(100vh - 317px)"
+                                customStyles={common.customStyles}
+                                highlightOnHover
+                                noDataComponent={
+                                    <Typography sx={{ my: 2 }}>
+                                        No existen datos para mostrar
+                                    </Typography>
+                                }
+                            />
+                        </CardContent>
+                    </Card>
+                </DialogContent>
+                <DialogActions sx={{ mb: 1 }}>
                     <Button
-                        variant="primary"
+                        variant="contained"
                         onClick={() => {
                             setPaciente(pacienteTemp);
                             setIdPaciente(idPacienteTemp);
                             handleClose2();
                         }}
                     >
-                        {t("etiquetas.seleccionar")}
+                        {t('etiquetas.seleccionar')}
                     </Button>
+
                     <Button
-                        variant="secondary"
+                        variant="outlined"
                         onClick={() => {
                             handleClose2();
                         }}
                     >
-                        {t("etiquetas.cancelar")}
+                        {t('etiquetas.cancelar')}
                     </Button>
-                </Modal.Footer>
-            </Modal>
+                </DialogActions>
+            </Dialog>
 
-            <Modal
-                show={ventanaMedicamentos}
-                onHide={cerrarMedicamentos}
-                size="lg"
+            <Dialog
+                fullWidth
+                maxWidth="lg"
+                open={ventanaMedicamentos}
+                onClose={cerrarMedicamentos}
             >
-                <Modal.Header closeButton>
-                    <Modal.Title>
-                        {t("eclinical.emergencias.formulario.selecciondosis")}
-                    </Modal.Title>
-                </Modal.Header>
-
-                <Modal.Body>
-                    <PaginationProvider
-                        pagination={paginationFactory(optionsMedicamentos)}
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
                     >
-                        {contentTableMedicamentos}
-                    </PaginationProvider>
-                </Modal.Body>
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t("eclinical.emergencias.formulario.seleccioncie10")}
+                        </Typography>
 
-                <Modal.Footer>
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={cerrarMedicamentos}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    <Card>
+                        <CardContent
+                            sx={{
+                                pb: '0 !important',
+                                '& > header': {
+                                    padding: 0,
+                                },
+                                '& .rdt_Table': {
+                                    border: 'solid 1px rgba(0, 0, 0, .12)',
+                                },
+                            }}
+                        >
+                            <DataTable
+                                striped
+                                columns={columnsMedicamentos}
+                                data={filteredItemsmedicamentos}
+                                onRowClicked={(row) => { setMedicamentosSeleccionado(row) }}
+                                conditionalRowStyles={common.conditionalRowStyles}
+                                pagination
+                                paginationComponentOptions={
+                                    common.paginationComponentOptions
+                                }
+                                subHeader
+                                subHeaderComponent={subHeaderComponentmedicamentos}
+                                fixedHeader
+                                persistTableHead
+                                fixedHeaderScrollHeight="calc(100vh - 317px)"
+                                customStyles={common.customStyles}
+                                highlightOnHover
+                                noDataComponent={
+                                    <Typography sx={{ my: 2 }}>
+                                        No existen datos para mostrar
+                                    </Typography>
+                                }
+                            />
+                        </CardContent>
+                    </Card>
+                </DialogContent>
+                <DialogActions sx={{ mb: 1 }}>
                     <Button
-                        variant="primary"
+                        variant="contained"
                         onClick={() => {
                             medicamentosSeleccionado.dosis =
                                 dosisMedicamentoSeleccionado;
@@ -2196,36 +2578,89 @@ function Urgencias() {
                             cerrarMedicamentos();
                         }}
                     >
-                        {t("etiquetas.seleccionar")}
+                        {t('etiquetas.seleccionar')}
                     </Button>
+
                     <Button
-                        variant="secondary"
+                        variant="outlined"
                         onClick={() => {
                             cerrarMedicamentos();
                         }}
                     >
-                        {t("etiquetas.cancelar")}
+                        {t('etiquetas.cancelar')}
                     </Button>
-                </Modal.Footer>
-            </Modal>
-            <Modal show={ventanaExamenes} onHide={cerrarExamenes} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>
-                        {t("eclinical.emergencias.formulario.seleccionexamen")}
-                    </Modal.Title>
-                </Modal.Header>
+                </DialogActions>
+            </Dialog>
 
-                <Modal.Body>
-                    <PaginationProvider
-                        pagination={paginationFactory(optionsExamenes)}
+            <Dialog
+                fullWidth
+                maxWidth="lg"
+                open={ventanaExamenes}
+                onClose={cerrarExamenes}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
                     >
-                        {contentTableExamenes}
-                    </PaginationProvider>
-                </Modal.Body>
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t("eclinical.emergencias.formulario.seleccionexamen")}
+                        </Typography>
 
-                <Modal.Footer>
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={cerrarExamenes}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    <Card>
+                        <CardContent
+                            sx={{
+                                pb: '0 !important',
+                                '& > header': {
+                                    padding: 0,
+                                },
+                                '& .rdt_Table': {
+                                    border: 'solid 1px rgba(0, 0, 0, .12)',
+                                },
+                            }}
+                        >
+                            <DataTable
+                                striped
+                                columns={columnsExamenes}
+                                data={filteredItemsexamenes}
+                                onRowClicked={(row) => { setExamenesSeleccionado(row); }}
+                                conditionalRowStyles={common.conditionalRowStyles}
+                                pagination
+                                paginationComponentOptions={
+                                    common.paginationComponentOptions
+                                }
+                                subHeader
+                                subHeaderComponent={subHeaderComponentexamenes}
+                                fixedHeader
+                                persistTableHead
+                                fixedHeaderScrollHeight="calc(100vh - 317px)"
+                                customStyles={common.customStyles}
+                                highlightOnHover
+                                noDataComponent={
+                                    <Typography sx={{ my: 2 }}>
+                                        No existen datos para mostrar
+                                    </Typography>
+                                }
+                            />
+                        </CardContent>
+                    </Card>
+                </DialogContent>
+                <DialogActions sx={{ mb: 1 }}>
                     <Button
-                        variant="primary"
+                        variant="contained"
                         onClick={() => {
                             if (
                                 examenesSeleccionados.indexOf(
@@ -2246,62 +2681,84 @@ function Urgencias() {
                             cerrarExamenes();
                         }}
                     >
-                        {t("etiquetas.seleccionar")}
+                        {t('etiquetas.seleccionar')}
                     </Button>
+
                     <Button
-                        variant="secondary"
+                        variant="outlined"
                         onClick={() => {
                             cerrarExamenes();
                         }}
                     >
-                        {t("etiquetas.cancelar")}
+                        {t('etiquetas.cancelar')}
                     </Button>
-                </Modal.Footer>
-            </Modal>
-            <Modal show={ventanaEgreso} onHide={cerrarEgreso} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>
-                        {t("eclinical.emergencias.formulario.seleccionexamen")}
-                    </Modal.Title>
-                </Modal.Header>
+                </DialogActions>
+            </Dialog>
 
-                <Modal.Body>
-                    <Form>
-                        <Form.Group as={Col} controlId="id_estadoalta">
-                            <Form.Label>
-                                <strong>
-                                    {t(
-                                        "eclinical.emergencias.formulario.disposicion"
-                                    )}
-                                </strong>
-                            </Form.Label>
-                            <Col sm={9}>
-                                <Form.Control
-                                    as="select"
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={ventanaEgreso}
+                onClose={cerrarEgreso}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t("eclinical.emergencias.formulario.seleccionexamen")}
+                        </Typography>
+
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={cerrarEgreso}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    <Grid
+                        container
+                        noValidate
+                        direction="row"
+                        justifyContent="center"
+                        spacing={3}
+                        sx={{ my: 2 }}
+                        component="form"
+                        autoComplete="off"
+                    >
+                        <Grid item xs={12} >
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="label_tipo3">{t(
+                                    "eclinical.emergencias.formulario.disposicion"
+                                )}</InputLabel>
+                                <Select
+                                    labelId="label_tipo3"
                                     value={formEgreso.id_estadoalta}
                                     onChange={cambioSelect}
                                     name="id_estadoalta"
+                                    label={`${t(
+                                        "eclinical.emergencias.formulario.disposicion"
+                                    )}`}
                                 >
-                                    <option value="" id="defAcc">
-                                        {`-- ${t("etiquetas.seleccion")} --`}
-                                    </option>
-                                    {salaEstadoAlta.map((tipo) => (
-                                        <option
-                                            key={tipo.id_estadoalta}
-                                            value={tipo.id_estadoalta}
-                                        >
-                                            {tipo.estado_alta}
-                                        </option>
-                                    ))}
-                                </Form.Control>
-                            </Col>
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
 
-                <Modal.Footer>
+                                    {salaEstadoAlta.map((tipo) => (
+                                        <MenuItem value={tipo.id_estadoalta} key={tipo.id_estadoalta}>{tipo.estado_alta}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions sx={{ mb: 1 }}>
                     <Button
-                        variant="primary"
+                        variant="contained"
                         onClick={() => {
                             PostEgreso();
                             GetAdmisiones();
@@ -2309,10 +2766,21 @@ function Urgencias() {
                             cerrarEgreso();
                         }}
                     >
-                        {t("etiquetas.aceptar")}
+                        {t('etiquetas.seleccionar')}
                     </Button>
-                </Modal.Footer>
-            </Modal>
+
+                    <Button
+                        variant="outlined"
+                        onClick={() => {
+                            cerrarEgreso();
+                        }}
+                    >
+                        {t('etiquetas.cancelar')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+
         </div>
     );
 }

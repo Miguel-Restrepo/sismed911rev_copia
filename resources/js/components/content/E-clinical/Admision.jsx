@@ -402,11 +402,11 @@ function Admision() {
 
     const filteredItems = pacientes.filter(
         (item) =>
-            (item.codigo &&
-                item.codigo
-                    .toString()
-                    .toLowerCase()
-                    .includes(filterText.toLowerCase()))
+        (item.codigo &&
+            item.codigo
+                .toString()
+                .toLowerCase()
+                .includes(filterText.toLowerCase()))
     );
 
     const mostarError = (texto) => {
@@ -514,14 +514,14 @@ function Admision() {
                     noValidate
                     direction="row"
                     justifyContent="center"
-                    spacing={3}
+                    spacing={5}
                     sx={{ my: 2 }}
                     component="form"
                     autoComplete="off"
                 >
 
 
-                    <Grid item xs={6} md={3} lg={4}>
+                    <Grid item xs={6}>
                         <FormControl fullWidth size="small">
                             <InputLabel id="label_tipo">{t('eclinical.admision.datos.tipoingreso')}</InputLabel>
                             <Select
@@ -538,8 +538,9 @@ function Admision() {
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={6} md={3} lg={3}>
-                        {mostrarSelect && (
+                    {mostrarSelect && (
+                        <Grid item xs={6} md={4} lg={4}>
+
                             <FormControl fullWidth size="small">
                                 <TextField
                                     id="outlined-textarea"
@@ -550,9 +551,10 @@ function Admision() {
                                     multiline
                                 />
                             </FormControl>
-                        )}
-                    </Grid>
-                    <Grid item xs={6} md={3} lg={5}>
+
+                        </Grid>
+                    )}
+                    <Grid item xs={6}>
                         <Stack direction="row">
 
                             <TextField
@@ -563,6 +565,9 @@ function Admision() {
                                 value={paciente}
                                 onChange={handleChange}
                                 name="id_paciente"
+                                InputProps={{
+                                    readOnly: true,
+                                  }}
 
                             />
 
@@ -570,14 +575,14 @@ function Admision() {
                                 startIcon={< SearchIcon />}
                                 sx={{
                                     p: 0,
-                                    minWidth: '30px',
+                                    minWidth: '40px',
                                     '& > span.MuiButton-startIcon': { m: 0 },
                                 }} />
                             <Button variant="outlined" onClick={showForm}
                                 startIcon={< AddIcon />}
                                 sx={{
                                     p: 0,
-                                    minWidth: '30px',
+                                    minWidth: '40px',
                                     '& > span.MuiButton-startIcon': { m: 0 },
                                 }} />
                         </Stack>
@@ -648,7 +653,7 @@ function Admision() {
                 {t('formularios.formulario')}
             </Typography>
 
-            
+
             <Dialog
                 fullWidth
                 maxWidth="lg"
@@ -689,7 +694,7 @@ function Admision() {
                                 },
                             }}
                         >
-                           <DataTable
+                            <DataTable
                                 striped
                                 columns={columns}
                                 data={filteredItems}

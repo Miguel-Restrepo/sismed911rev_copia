@@ -6,9 +6,52 @@ import Formularios from "../InterHospital/Formularios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Icofont from 'react-icofont';
 import { faMapMarkedAlt, faClinicMedical } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState } from "react";
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import DataTable from 'react-data-table-component';
+import { green } from '@mui/material/colors';
+import FolderIcon from '@mui/icons-material/Folder';
+import AddIcon from '@mui/icons-material/Add';
+import PrintIcon from '@mui/icons-material/Print';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import {
+    InputLabel,
+    MenuItem,
+    FormControl,
+    OutlinedInput,
+    Box,
+    Stack,
+    Chip,
+    Checkbox,
+    FormGroup,
+    Item,
+    Grid,
+    TextField,
+    Typography,
+    Dialog,
+    DialogContent,
+    DialogActions,
+    AppBar,
+    NativeSelect,
+    Toolbar,
+    Card,
+    CardContent,
+    Radio,
+    FormControlLabel,
+    FormLabel,
+    Backdrop,
+    RadioGroup,
+    Button,
+    CircularProgress,
+    IconButton,
+} from '@mui/material';
+
+import common from '../../../common';
+import ArticleIcon from '@mui/icons-material/Article';
+import SearchIcon from '@mui/icons-material/Search';
+import { useEffect, useMemo, useState } from 'react';
 import Modal from 'react-bootstrap/Modal'
-import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
@@ -42,6 +85,9 @@ function FormularioKamban(params) {
     const [procedimientos, setProcedimientos] = useState([]);
     const [camas, setCama] = useState([]);
     const [especialidades, setEspecialidades] = useState([]);
+
+    const [filterText, setFilterText] = useState('');
+
     const [c1, setC1] = useState(false);
     const [c2, setC2] = useState(false);
     const [c3, setC3] = useState(false);
@@ -96,7 +142,6 @@ function FormularioKamban(params) {
 
 
     const handleChange1 = e => {
-        e.persist();
         setForm2(
             prevState => ({
                 ...prevState,
@@ -136,28 +181,28 @@ function FormularioKamban(params) {
     }
 
     const notificarExitoCaso = (idcaso) =>
-    toast.success(`${t("mensajes.mscasoid")} ${idcaso} ${t("mensajes.msexito")}`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored"
-    });;
+        toast.success(`${t("mensajes.mscasoid")} ${idcaso} ${t("mensajes.msexito")}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored"
+        });;
 
-const notificarErrorCaso = () =>
-    toast.error(`${t("mensajes.mscreacionerror")}`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored"
-    });;
+    const notificarErrorCaso = () =>
+        toast.error(`${t("mensajes.mscreacionerror")}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored"
+        });;
     const PostKamban = () => {
         let necesidades = "{";
         if (c1) {
@@ -207,7 +252,7 @@ const notificarErrorCaso = () =>
             })
             .catch(error => {
                 notificarErrorCaso();
-               return error.response.data;
+                return error.response.data;
             })
     }
     useEffect(() => {
@@ -270,280 +315,314 @@ const notificarErrorCaso = () =>
 
     }, [params.monitoreo]);
 
-    const { SearchBar } = Search;
-    //TABLA especialidades
-    const columns =
-        [{
-            dataField: 'id_especialidad',
-            text: `${t("formularios.formkamban.codigo")}`,
-            sort: true
+    const columns = useMemo(() => [
+        {
+            name: `${t("formularios.formkamban.codigo")}`,
+            sortable: true,
+            minWidth: '100px',
+            selector: (row) => row.id_especialidad,
         }, {
-            dataField: 'nombre_especialidad',
-            text: `${t("formularios.formkamban.necesidad")}`,
-            sort: true
-        }];
-    const options = {
-        custom: true,
-        paginationSize: 3,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: especialidades.length
-    };
-    const selectRow = {
-        mode: 'radio',
-        clickToSelect: true,
-        hideSelectColumn: true,
-        style: { color: "#fff", background: "#0d6efd" },
-        onSelect: (row, isSelect, rowIndex, e) => {
-
-
-            setEspecialidadTemp(row.nombre_especialidad);
-            setIdEspecialidadTemp(row.id_especialidad);
+            name: `${t("formularios.formkamban.necesidad")}`,
+            sortable: true,
+            minWidth: '300px',
+            selector: (row) => row.nombre_especialidad,
         }
-    };
+    ])
+    //TABLA especialidades
 
-    const contentTable = ({ paginationProps, paginationTableProps }) => (
-        <div>
-            <ToolkitProvider
-                keyField="id_especialidad"
-                columns={columns}
-                data={especialidades}
-                search
-            >
-                {
-                    toolkitprops => (
-                        <div>
-                            <SearchBar placeholder={`${t("tabla.buscador")}`}  {...toolkitprops.searchProps} className="mb-3" />
-                            <BootstrapTable
-                                hover
-                                {...toolkitprops.baseProps}
-                                {...paginationTableProps}
-                                noDataIndication={`${t("tabla.sindatos")}`}
-                                selectRow={selectRow}
-                            />
-                        </div>
-                    )
-                }
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
-
+    const filteredItems = especialidades.filter(
+        (item) =>
+        (item.id_especialidad &&
+            item.id_especialidad
+                .toString()
+                .toLowerCase()
+                .includes(filterText.toLowerCase()))
     );
+
+    const subHeaderComponent = useMemo(() => {
+        const handleClear = () => {
+            if (filterText) setFilterText('');
+        };
+
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
+
+                    </Stack>
+                </Grid>
+
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear}
+                        filterText={filterText}
+                        onFilter={(e) => setFilterText(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterText]);
+
     return (
         <div>
             <div>
                 <h2>{t("formularios.formkamban.titulo")}</h2>
 
             </div>
-            <div>
-                <Form >
-
-                    <Row className="mb-2">
-
-                        <Form.Group as={Col} >
-                            <Form.Label><strong>{t("formularios.formkamban.necesidad")}</strong></Form.Label>
-                            <Form.Control as="select"
-                                value={form2.necesidad} placeholder={`-- ${t("etiquetas.seleccion")} --`}
-                                name="necesidad" onChange={handleChange1}>
-
-                                <option value="">
-                                    {`-- ${t("etiquetas.seleccionopcion")} --`}
-                                </option>
-                                <option key="Cuidado intermedio" value="Cuidado intermedio">
-                                    {t("formularios.formkamban.cuidadointer")}
-                                </option>
-                                <option key="Cuidado mínimo" value="Cuidado mínimo">
-                                    {t("formularios.formkamban.cuidadomin")}
-                                </option>
-                                <option key="Cuidado intensivo" value="Cuidado intensivo">
-                                    {t("formularios.formkamban.cuidadoten")}
-                                </option>
-                            </Form.Control>
-                        </Form.Group>
-
-                        <Form.Group as={Col}  >
-                            <Form.Label required><strong>{t("formularios.formkamban.hptlz30")}</strong></Form.Label>
-                            <Col sm={9}>
-
-                                <Form.Check
-                                    type="radio"
-                                    checked={form2.hospitalizado_reciente == 1}
-                                    label="Si"
-                                    key={1}
-                                    name="hospitalizado_reciente"
-                                    id={1}
-                                    value={1}
-                                    onChange={handleChange1}
-                                />
-                                <Form.Check
-                                    type="radio"
-                                    checked={form2.hospitalizado_reciente == 2}
-                                    label="No"
-                                    key={2}
-                                    name="hospitalizado_reciente"
-                                    id={2}
-                                    value={2}
-                                    onChange={handleChange1}
-                                />
-
-                            </Col>
 
 
-                        </Form.Group>
-                    </Row>
+            <Grid
+                container
+                noValidate
+                direction="row"
+                justifyContent="center"
+                spacing={3}
+                sx={{ my: 2 }}
+                component="form"
+                autoComplete="off"
+            >
+                <Grid item xs={12} md={12} lg={6}>
+                    <FormControl fullWidth size="small">
+                        <InputLabel id="label_tipo1">{t("formularios.formkamban.necesidad")}</InputLabel>
+                        <Select
+                            labelId="label_tipo1"
+                            value={form2.necesidad}
+                            onChange={handleChange1}
+                            name="necesidad"
+                            label={`${t("formularios.formkamban.necesidad")}`}
+                        >
 
-                    <Row className="mb-2">
-                        <Form.Group as={Col} >
-                            <Form.Label><strong>{t("formularios.formkamban.tieneriesgo")}</strong></Form.Label>
-                            <br></br>
-                            <Form.Label>
-                                <input
-                                    name="isGoing"
-                                    label="riesgo de febrite"
-                                    type="checkbox"
-                                    checked={c1}
-                                    onChange={handleInputChangeC1} />
-                                {t("formularios.formkamban.flebite")}
-                            </Form.Label>
-                            <br></br>
-                            <Form.Label>
-                                <input
-                                    name="isGoing"
-                                    label="riesgo de febrite"
-                                    type="checkbox"
-                                    checked={c2}
-                                    onChange={handleInputChangeC2} />
-                                {t("formularios.formkamban.caida")}
-                            </Form.Label>
-                            <br></br>
-                            <Form.Label>
-                                <input
-                                    name="isGoing"
-                                    label="riesgo de febrite"
-                                    type="checkbox"
-                                    checked={c3}
-                                    onChange={handleInputChangeC3} />
-                                {t("formularios.formkamban.exaccidente")}
-                            </Form.Label>
-                            <br></br>
-                            <Form.Label>
-                                <input
-                                    name="isGoing"
-                                    label="riesgo de febrite"
-                                    type="checkbox"
-                                    checked={c4}
-                                    onChange={handleInputChangeC4} />
-                                {t("formularios.formkamban.ulcera")}
-                            </Form.Label>
-                            <br></br>
-                            <Form.Label>
-                                <input
-                                    name="isGoing"
-                                    label="riesgo de febrite"
-                                    type="checkbox"
-                                    checked={c5}
-                                    onChange={handleInputChangeC5} />
-                                {t("formularios.formkamban.exsonda")}
-                            </Form.Label>
-                        </Form.Group>
+                            <MenuItem key="Cuidado intermedio" value="Cuidado intermedio">
+                                {t("formularios.formkamban.cuidadointer")}
+                            </MenuItem>
+                            <MenuItem key="Cuidado mínimo" value="Cuidado mínimo">
+                                {t("formularios.formkamban.cuidadomin")}
+                            </MenuItem>
+                            <MenuItem key="Cuidado intensivo" value="Cuidado intensivo">
+                                {t("formularios.formkamban.cuidadoten")}
+                            </MenuItem>
 
-                        <Form.Group as={Col} >
-                            <Form.Label required><strong>{t("formularios.formkamban.nocama")}</strong></Form.Label>
+                        </Select>
+                    </FormControl>
+                </Grid>
+                <Grid item xs={12} md={12} lg={6}>
+                    <FormControl>
+                        <FormLabel id="demo-radio-buttons-group-label">{t("formularios.formkamban.hptlz30")}</FormLabel>
+                        <RadioGroup
+                            aria-labelledby="demo-radio-buttons-group-label"
+                            name="hospitalizado_reciente"
+                        >
+                            <FormControlLabel value="1" control={<Radio onChange={handleChange1} checked={form2.hospitalizado_reciente == 1} />} label="Si" />
+                            <FormControlLabel value="2" control={<Radio onChange={handleChange1} checked={form2.hospitalizado_reciente == 2} />} label="No" />
+                        </RadioGroup>
+                    </FormControl>
+                </Grid>
+                <Grid item xs={12} md={12} lg={6}>
+                    <FormGroup>
+                        <FormControlLabel control={
+                            <Checkbox
+                                checked={c1}
+                                onChange={handleInputChangeC1} />}
+                            label={`${t("formularios.formkamban.flebite")}`} />
+                        <FormControlLabel control={
+                            <Checkbox
+                                checked={c2}
+                                onChange={handleInputChangeC2} />}
+                            label={`${t("formularios.formkamban.caida")}`} />
+                        <FormControlLabel control={
+                            <Checkbox
+                                checked={c3}
+                                onChange={handleInputChangeC3} />}
+                            label={`${t("formularios.formkamban.exaccidente")}`} />
+                        <FormControlLabel control={
+                            <Checkbox
+                                checked={c4}
+                                onChange={handleInputChangeC4} />}
+                            label={`${t("formularios.formkamban.ulcera")}`} />
+                        <FormControlLabel control={
+                            <Checkbox
+                                checked={c5}
+                                onChange={handleInputChangeC5} />}
+                            label={`${t("formularios.formkamban.exsonda")}`} />
 
-                            <InputGroup className="mb-2" >
-                                <Form.Control as="select" value={form2.no_cama}
-                                    placeholder={`-- ${t("etiquetas.seleccion")} --`} name="no_cama" onChange={handleChange1}>
-                                    <option value="">{`-- ${t("etiquetas.seleccion")} --`}</option>
-                                    {camas.map(elemento => (
-                                        <option key={elemento.id_sala_camas} value={elemento.id_sala_camas}>
-                                            {elemento.id_sala_camas}</option>
-                                    ))}
-                                </Form.Control>
-                                <InputGroup.Text onClick={abrirVentanaCamas}>
-                                    <Icofont icon="ui-add" className="mx-2" />
-                                </InputGroup.Text>
-                            </InputGroup>
-                        </Form.Group>
+                    </FormGroup>
+                </Grid>
 
-                    </Row>
+                <Grid item xs={12} md={12} lg={6}>
+                    <Stack direction="row">
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="label_tipo1">{t("formularios.formkamban.nocama")}</InputLabel>
+                            <Select
+                                labelId="label_tipo1"
+                                value={form2.no_cama}
+                                onChange={handleChange1}
+                                name="no_cama"
+                                label={`${t("formularios.formkamban.nocama")}`}
+                            >
 
-
-                    <Row className="mb-2">
-                        <Form.Group as={Col} >
-                            <Form.Label><strong>{t("formularios.formkamban.especial")}</strong></Form.Label>
-                            <InputGroup className="mb-2">
-                                <Form.Control id="inlineFormInputGroup"
-                                    placeholder={`${t("formularios.formkamban.especial")}`}
-                                    value={Especialidad || form2.especialidad}
-                                    name="especialidad" disabled
-                                    onChange={handleChange1} />
-                                <InputGroup.Text onClick={handleShow2}>
-                                    <Icofont icon="ui-search" className="mx-2" />
-                                </InputGroup.Text>
-                            </InputGroup>
-                        </Form.Group>
-
-                        <Form.Group as={Col} >
-                            <Form.Label><strong>{t("formularios.formkamban.procedimientos")}</strong></Form.Label>
-                            <Form.Control as="select" value={form2.procedimientos_sala}
-                                placeholder={`-- ${t("etiquetas.seleccion")} --`} name="procedimientos_sala"
-                                onChange={handleChange1}>
-                                <option value="">{`-- ${t("etiquetas.seleccion")} --`}</option>
-                                {procedimientos.map(elemento => (
-                                    <option key={elemento.id_sala_procedimiento} value={elemento.id_sala_procedimiento}>{elemento.nombre_procedimiento}</option>
+                                {camas.map((tipo) => (
+                                    <MenuItem value={tipo.id_sala_camas} key={tipo.id_sala_camas}>{tipo.id_sala_camas}</MenuItem>
                                 ))}
-                            </Form.Control>
-                        </Form.Group>
 
+                            </Select>
+                        </FormControl>
+                        <Button variant="outlined" onClick={abrirVentanaCamas}
+                            startIcon={< AddIcon />}
+                            sx={{
+                                p: 0,
+                                minWidth: '40px',
+                                '& > span.MuiButton-startIcon': { m: 0 },
+                            }} />
+                    </Stack>
+                </Grid>
+                <Grid item xs={12} md={12} lg={6}>
+                    <Stack direction="row">
 
-                    </Row>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            variant="outlined"
+                            label={`${t("eclinical.monitoreo.datos.especial")}`}
 
+                            value={Especialidad || form2.especialidad}
+                            name="especialidad"
+                            onChange={handleChange1}
+                            InputProps={{
+                                readOnly: true,
+                            }}
 
-                    <Button variant="primary" onClick={PostKamban}>
+                        />
+                        <Button variant="outlined" onClick={handleShow2}
+                            startIcon={< SearchIcon />}
+                            sx={{
+                                p: 0,
+                                minWidth: '40px',
+                                '& > span.MuiButton-startIcon': { m: 0 },
+                            }} />
+                    </Stack>
+                </Grid>
+                <Grid item xs={12} md={12} lg={6}>
+                    <FormControl fullWidth size="small">
+                        <InputLabel id="label_tipo1">{t("formularios.formkamban.procedimientos")}</InputLabel>
+                        <Select
+                            labelId="label_tipo1"
+                            value={form2.procedimientos_sala}
+                            onChange={handleChange1}
+                            name="procedimientos_sala"
+                            label={`${t("formularios.formkamban.procedimientos")}`}
+                        >
+
+                            {procedimientos.map((tipo) => (
+                                <MenuItem value={tipo.id_sala_procedimiento} key={tipo.id_sala_procedimiento}>{tipo.nombre_procedimiento}</MenuItem>
+                            ))}
+
+                        </Select>
+                    </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+
+                    <Button variant="outlined" onClick={PostKamban}>
                         {t("etiquetas.guardar")}
                     </Button>
 
-                </Form>
-            </div>
-            <Modal show={show2} onHide={handleClose2} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>{t("formularios.formkamban.select")}</Modal.Title>
-                </Modal.Header>
+                </Grid>
+            </Grid>
+            <Dialog
+                fullWidth
+                maxWidth="md"
+                open={show2}
+                onClose={handleClose2}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                        {t("formularios.formkamban.select")}
+                        </Typography>
 
-                <Modal.Body>
-                    <PaginationProvider pagination={paginationFactory(options)}>
-                        {contentTable}
-                    </PaginationProvider>
-                </Modal.Body>
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={handleClose2}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    <Card>
+                        <CardContent
+                            sx={{
+                                pb: '0 !important',
+                                '& > header': {
+                                    padding: 0,
+                                },
+                                '& .rdt_Table': {
+                                    border: 'solid 1px rgba(0, 0, 0, .12)',
+                                },
+                            }}
+                        >
+                            <DataTable
+                                striped
+                                columns={columns}
+                                data={filteredItems}
+                                onRowClicked={(row) => {
+                                    setEspecialidadTemp(row.nombre_especialidad);
+                                    setIdEspecialidadTemp(row.id_especialidad);
+                                }}
+                                conditionalRowStyles={common.conditionalRowStyles}
+                                pagination
+                                paginationComponentOptions={
+                                    common.paginationComponentOptions
+                                }
+                                subHeader
+                                subHeaderComponent={subHeaderComponent}
+                                fixedHeader
+                                persistTableHead
+                                fixedHeaderScrollHeight="calc(100vh - 317px)"
+                                customStyles={common.customStyles}
+                                highlightOnHover
+                                noDataComponent={
+                                    <Typography sx={{ my: 2 }}>
+                                        No existen datos para mostrar
+                                    </Typography>
+                                }
+                            />
+                        </CardContent>
+                    </Card>
+                </DialogContent>
+                <DialogActions sx={{ mb: 1 }}>
+                    <Button
+                        variant="contained"
+                        onClick={() => {
+                            setEspecialidad(EspecialidadTemp);
+                            setForm2(
+                                prevState => ({
+                                    ...prevState,
+                                    especialidad: idEspecialidadTemp
+                                })
+                            );
+                            handleClose2();
+                        }}
+                    >
+                        {t('etiquetas.seleccionar')}
+                    </Button>
 
-                <Modal.Footer>
-                    <Button variant="primary" onClick={() => {
-                        setEspecialidad(EspecialidadTemp);
-                        setForm2(
-                            prevState => ({
-                                ...prevState,
-                                especialidad: idEspecialidadTemp
-                            })
-                        );
-                        handleClose2();
-                    }}>
-                        {t("etiquetas.seleccionar")}
+                    <Button
+                        variant="outlined"
+                        onClick={() => {
+                            handleClose2();
+                        }}
+                    >
+                        {t('etiquetas.cancelar')}
                     </Button>
-                    <Button variant="secondary" onClick={() => {
-                        handleClose2();
-                    }}>
-                        {t("etiquetas.cancelar")}
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+                </DialogActions>
+            </Dialog>
         </div>
 
     );
