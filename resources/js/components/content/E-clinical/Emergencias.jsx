@@ -2377,7 +2377,7 @@ function Emergencias() {
 
                             </Grid>
                         </Grid>
-
+<br /><br />
                         <FormularioKamban
                             monitoreo={monitoreo}
                             codigo={registro.codigo}

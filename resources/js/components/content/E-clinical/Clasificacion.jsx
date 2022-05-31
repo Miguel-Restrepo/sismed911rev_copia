@@ -255,9 +255,8 @@ function Clasificacion() {
 
     const handleRowClicked = (row) => {
         let select = row;
+        
         if (!selectedData) {
-            setIdAdmision(row.codigo);
-
             setSelectedData(row);
             const updatedData = admisiones.map((item) => {
                 if (row.codigo !== item.codigo) {
@@ -270,6 +269,7 @@ function Clasificacion() {
                 };
             });
 
+            setIdAdmision(row.codigo);
             setFormAdmision((prevState) => ({
                 ...prevState,
                 id_ingreso: row.id_ingreso,
@@ -337,6 +337,7 @@ function Clasificacion() {
                         toggleSelected: false,
                     };
                 });
+                setIdAdmision(row.codigo);
                 setFormAdmision((prevState) => ({
                     ...prevState,
                     id_ingreso: row.id_ingreso,
@@ -407,6 +408,7 @@ function Clasificacion() {
                         toggleSelected: true,
                     };
                 });
+                setIdAdmision(row.codigo);
                 setFormAdmision((prevState) => ({
                     ...prevState,
                     id_ingreso: row.id_ingreso,
@@ -463,9 +465,9 @@ function Clasificacion() {
             }
         }
         setMostrarFormulario(select !== null);
-    };
+    }; 
 
-
+    
 
     const closeDialog = () => {
         setOpenDialog(false);
@@ -583,7 +585,6 @@ function Clasificacion() {
             .get("/api/sala_localizaciontrauma")
             .then((response) => {
                 setLocalizacion(response.data);
-                console.log(response.data)
                 return response.data;
             })
             .catch((error) => {
@@ -618,7 +619,7 @@ function Clasificacion() {
     const seleccionColor = (e) => {
         setFormAdmision((prevState) => ({
             ...prevState,
-            clasificacion_admision: e.value,
+            clasificacion_admision: e.target.value,
         }));
     };
 
@@ -1004,14 +1005,14 @@ function Clasificacion() {
                                 defaultValue="Amarillo"
                             >
 
-                                
-                                    <MenuItem value="Rojo" ><CircleIcon sx={{ color: red[500] }} /> Rojo
-                                    </MenuItem>
-                                    <MenuItem value="Naranja" ><CircleIcon sx={{ color: orange[500] }} /> Naranja</MenuItem>
-                                    <MenuItem value="Amarillo" ><CircleIcon sx={{ color: yellow[500] }} /> Amarillo</MenuItem>
-                                    <MenuItem value="Azul" ><CircleIcon sx={{ color: blue[500] }} /> Azul</MenuItem>
-                                    <MenuItem value="Verde" ><CircleIcon sx={{ color: green[500] }} /> Verde</MenuItem>
-                                
+
+                                <MenuItem value="Rojo" ><CircleIcon sx={{ color: red[500] }} /> Rojo
+                                </MenuItem>
+                                <MenuItem value="Naranja" ><CircleIcon sx={{ color: orange[500] }} /> Naranja</MenuItem>
+                                <MenuItem value="Amarillo" ><CircleIcon sx={{ color: yellow[500] }} /> Amarillo</MenuItem>
+                                <MenuItem value="Azul" ><CircleIcon sx={{ color: blue[500] }} /> Azul</MenuItem>
+                                <MenuItem value="Verde" ><CircleIcon sx={{ color: green[500] }} /> Verde</MenuItem>
+
                             </Select>
                         </FormControl>
                     </Grid>
@@ -1074,13 +1075,13 @@ function Clasificacion() {
                                 size="small"
                                 variant="outlined"
                                 label={`${t("eclinical.clasificacion.datos.signos")}`}
-                                
+
                                 value={paciente}
                                 onChange={handleChange}
                                 name="id_signos"
                                 InputProps={{
                                     readOnly: true,
-                                  }}
+                                }}
 
                             />
 
@@ -1134,97 +1135,97 @@ function Clasificacion() {
                 </Grid>
 
 
-    )
-}
+            )
+            }
 
-<Dialog
-    fullWidth
-    maxWidth="lg"
-    open={show2}
-    onClose={handleClose2}
->
-    <AppBar sx={{ position: 'relative' }}>
-        <Toolbar
-            variant="dense"
-            sx={{
-                justifyContent: 'space-between',
-            }}
-        >
-            <Typography sx={{ fontSize: '1.3rem' }}>
-                {t('etiquetas.seleccionpcte')}
-            </Typography>
-
-            <IconButton
-                edge="end"
-                color="inherit"
-                onClick={handleClose2}
-                aria-label="Cerrar"
+            <Dialog
+                fullWidth
+                maxWidth="lg"
+                open={show2}
+                onClose={handleClose2}
             >
-                <CloseRoundedIcon />
-            </IconButton>
-        </Toolbar>
-    </AppBar>
-    <DialogContent dividers>
-        <Card>
-            <CardContent
-                sx={{
-                    pb: '0 !important',
-                    '& > header': {
-                        padding: 0,
-                    },
-                    '& .rdt_Table': {
-                        border: 'solid 1px rgba(0, 0, 0, .12)',
-                    },
-                }}
-            >
-                <DataTable
-                    striped
-                    columns={columns}
-                    data={filteredItems1}
-                    onRowClicked={handleRowClicked1}
-                    conditionalRowStyles={common.conditionalRowStyles}
-                    pagination
-                    paginationComponentOptions={
-                        common.paginationComponentOptions
-                    }
-                    subHeader
-                    subHeaderComponent={subHeaderComponent1}
-                    fixedHeader
-                    persistTableHead
-                    fixedHeaderScrollHeight="calc(100vh - 317px)"
-                    customStyles={common.customStyles}
-                    highlightOnHover
-                    noDataComponent={
-                        <Typography sx={{ my: 2 }}>
-                            No existen casos para mostrar
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t('etiquetas.seleccionpcte')}
                         </Typography>
-                    }
-                />
-            </CardContent>
-        </Card>
-    </DialogContent>
-    <DialogActions sx={{ mb: 1 }}>
-        <Button
-            variant="contained"
-            onClick={() => {
-                setPaciente(pacienteTemp);
-                setIdPaciente(idPacienteTemp);
-                handleClose2();
-            }}
-        >
-            {t('etiquetas.seleccionar')}
-        </Button>
 
-        <Button
-            variant="outlined"
-            onClick={() => {
-                handleClose2();
-            }}
-        >
-            {t('etiquetas.cancelar')}
-        </Button>
-    </DialogActions>
-</Dialog>
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={handleClose2}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    <Card>
+                        <CardContent
+                            sx={{
+                                pb: '0 !important',
+                                '& > header': {
+                                    padding: 0,
+                                },
+                                '& .rdt_Table': {
+                                    border: 'solid 1px rgba(0, 0, 0, .12)',
+                                },
+                            }}
+                        >
+                            <DataTable
+                                striped
+                                columns={columns}
+                                data={filteredItems1}
+                                onRowClicked={handleRowClicked1}
+                                conditionalRowStyles={common.conditionalRowStyles}
+                                pagination
+                                paginationComponentOptions={
+                                    common.paginationComponentOptions
+                                }
+                                subHeader
+                                subHeaderComponent={subHeaderComponent1}
+                                fixedHeader
+                                persistTableHead
+                                fixedHeaderScrollHeight="calc(100vh - 317px)"
+                                customStyles={common.customStyles}
+                                highlightOnHover
+                                noDataComponent={
+                                    <Typography sx={{ my: 2 }}>
+                                        No existen casos para mostrar
+                                    </Typography>
+                                }
+                            />
+                        </CardContent>
+                    </Card>
+                </DialogContent>
+                <DialogActions sx={{ mb: 1 }}>
+                    <Button
+                        variant="contained"
+                        onClick={() => {
+                            setPaciente(pacienteTemp);
+                            setIdPaciente(idPacienteTemp);
+                            handleClose2();
+                        }}
+                    >
+                        {t('etiquetas.seleccionar')}
+                    </Button>
+
+                    <Button
+                        variant="outlined"
+                        onClick={() => {
+                            handleClose2();
+                        }}
+                    >
+                        {t('etiquetas.cancelar')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div >
     );
 }

@@ -250,7 +250,7 @@ function Admision() {
 
     const calcularEdadForm = (value) => {
         let end = DateTime.fromISO(DateTime.now());
-        let start = DateTime.fromISO(value);
+        let start = DateTime.fromISO(value.format('YYYY-MM-DD'));
         if (end.diff(start, 'years').years >= 1) {
             setForm2((prevState) => ({
                 ...prevState,
@@ -273,16 +273,13 @@ function Admision() {
     };
 
     const calcularEdad = (e) => {
-        e.persist();
-        calcularEdadForm(e.target.value);
         setForm2((prevState) => ({
             ...prevState,
-            [e.target.name]: e.target.value,
+            fecha_nacido: e.format('YYYY-MM-DD'),
         }));
     };
 
     const handleChange = (e) => {
-        e.persist();
         setForm((prevState) => ({
             ...prevState,
             [e.target.name]: e.target.value,
@@ -290,7 +287,6 @@ function Admision() {
     };
 
     const handleChange1 = (e) => {
-        e.persist();
         setForm2((prevState) => ({
             ...prevState,
             [e.target.name]: e.target.value,
@@ -339,7 +335,6 @@ function Admision() {
                                     token: response.data,
                                 })
                                 .then((response) => {
-                                    console.log(response.data);
                                     if (response.data.valido) {
                                         let genero = 1;
                                         if (response.data.sexo === 'F')
@@ -567,7 +562,7 @@ function Admision() {
                                 name="id_paciente"
                                 InputProps={{
                                     readOnly: true,
-                                  }}
+                                }}
 
                             />
 
@@ -851,9 +846,9 @@ function Admision() {
                                     okText={t('etiquetas.aceptar')}
                                     cancelText={t('etiquetas.cancelar')}
                                     todayText={t('etiquetas.hoy')}
-                                    value={moment(handleChange1.fecha_nacido)}
-                                    onAccept={calcularEdad}
-                                    onChange={handleChangeFormNuevoFechaNacido}
+                                    value={moment(form2.fecha_nacido)}
+                                    onAccept={calcularEdadForm}
+                                    onChange={calcularEdad}
                                     maxDate={moment()}
                                     renderInput={(params) => (
                                         <TextField {...params} size="small" />
@@ -1103,7 +1098,15 @@ function Admision() {
                                 onChange={handleChange1}
                             />
                         </Grid>
+                        <Grid item xs={12}>
+                            {form2.num_doc != '' && (
+                                <Button variant="outlined" onClick={PostPaciente}>
+                                    {t('etiquetas.guardar')}
+                                </Button>
+                            )}
+                        </Grid>
                     </Grid>
+
                 )
             }
 
