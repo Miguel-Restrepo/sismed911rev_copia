@@ -7,10 +7,13 @@ use App\Models\Departamento;
 use App\Models\Distrito_reniec;
 use App\Models\Especialidad;
 use App\Models\Evolucion;
+use App\Models\Hospitalesgeneral;
 use App\Models\Pacientegeneral;
 use App\Models\Procedimientos;
 use App\Models\Provincias;
 use App\Models\Sala_admission;
+use App\Models\Sala_atencionmedica_examen;
+use App\Models\Sala_atencionmedica_medicamentos;
 use App\Models\Sala_estadoalta;
 use App\Models\Tipo_edad;
 use App\Models\Tipo_genero;
@@ -29,6 +32,7 @@ class PacientegeneralController extends Controller
             ->leftJoin('departamento', 'departamento.cod_dpto', '=', 'pacientegeneral.dpto_pte')
             ->leftJoin('provincias', 'provincias.cod_provincia', '=', 'pacientegeneral.provin_pte')
             ->leftJoin('distrito_reniec', 'distrito_reniec.cod_distrito', '=', 'pacientegeneral.distrito_pte')
+            ->leftJoin('hospitalesgeneral', 'hospitalesgeneral.id_hospital', '=', 'admision_hospital')
             ->select(
                 'pacientegeneral.id_paciente as codigo',
                 'pacientegeneral.*',
@@ -37,7 +41,8 @@ class PacientegeneralController extends Controller
                 'tipo_genero.*',
                 'departamento.*',
                 'provincias.*',
-                'distrito_reniec.*'
+                'distrito_reniec.*',
+                'hospitalesgeneral.*'
             )
             ->get();
         foreach ($objeto as $post) {
@@ -61,24 +66,47 @@ class PacientegeneralController extends Controller
                 ->where('sala_admission.id_paciente', $post->codigo)
                 ->first();
 
-            $post->monitoreo=null;
-            if($post->admision!=null){
+            $post->monitoreo = null;
+            if ($post->admision != null) {
                 $post->monitoreo = Monitoreo::where('id_salaatencionmedica', $post->admision->codigo)->first();
                 if ($post->monitoreo == null) {
                     $post->monitoreo = new Monitoreo();
                     $post->monitoreo->id_salaatencionmedica = $post->codigo;
-                    
-                }else{
-                    $post->monitoreo->especialidad= Especialidad::where('id_especialidad',$post->monitoreo->especialidad)->first();
+                } else {
+                    $post->monitoreo->especialidad = Especialidad::where('id_especialidad', $post->monitoreo->especialidad)->first();
                     $post->evoluciones = Evolucion::where('id_monitoreo', $post->monitoreo->id)->get();
                     $post->procedimiento = Procedimientos::find($post->monitoreo->procedimientos_sala);
                 }
 
-                $post->alta= Sala_estadoalta::where('id_estadoalta', $post->admision->id_estadoalta)->first();
-            }
-           
-        }
+                $post->alta = Sala_estadoalta::where('id_estadoalta', $post->admision->id_estadoalta)->first();
 
+
+
+                $post->admision->general = explode(",", substr($post->admision->general, 1, -1));
+                $post->admision->cabeza = explode(",", substr($post->admision->cabeza, 1, -1));
+                $post->admision->ojo = explode(",", substr($post->admision->ojo, 1, -1));
+                $post->admision->otorrino = explode(",", substr($post->admision->otorrino, 1, -1));
+                $post->admision->boca = explode(",", substr($post->admision->boca, 1, -1));
+                $post->admision->cuello = explode(",", substr($post->admision->cuello, 1, -1));
+                $post->admision->torax = explode(",", substr($post->admision->torax, 1, -1));
+                $post->admision->corazon = explode(",", substr($post->admision->corazon, 1, -1));
+                $post->admision->pulmon = explode(",", substr($post->admision->pulmon, 1, -1));
+                $post->admision->abdomen = explode(",", substr($post->admision->abdomen, 1, -1));
+                $post->admision->pelvis = explode(",", substr($post->admision->pelvis, 1, -1));
+                $post->admision->rectal = explode(",", substr($post->admision->rectal, 1, -1));
+                $post->admision->genital = explode(",", substr($post->admision->genital, 1, -1));
+                $post->admision->extremidad = explode(",", substr($post->admision->extremidad, 1, -1));
+                $post->admision->neuro = explode(",", substr($post->admision->neuro, 1, -1));
+                $post->admision->piel = explode(",", substr($post->admision->piel, 1, -1));
+
+                $post->admision->medicamentos = Sala_atencionmedica_medicamentos::where('id_atencionmedica', $post->admision->id_atencionmedica)
+                    ->leftjoin('medicamentos', 'medicamentos.id_medicamento', '=', 'sala_atencionmedica_medicamentos.id_medicamentos')
+                    ->get();
+                $post->admision->examenes = Sala_atencionmedica_examen::where('id_atencionmedica', $post->admision->id_atencionmedica)
+                    ->leftjoin('sala_examen', 'sala_examen.id_examen', '=', 'sala_atencionmedica_examen.id_examen')
+                    ->get();
+            }
+        }
         return $objeto;
     }
     public function show($id)
