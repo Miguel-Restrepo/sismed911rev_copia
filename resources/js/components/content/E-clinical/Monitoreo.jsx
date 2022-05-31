@@ -600,7 +600,7 @@ const Monitoreo = () => {
             selector: (row) => row.nombre_especialidad,
         }
     ])
-    
+
 
 
 
@@ -770,6 +770,56 @@ const Monitoreo = () => {
                                     onRowClicked={(row) => {
                                         setEspecialidadTemp(row.nombre_especialidad);
                                         setIdEspecialidadTemp(row.id_especialidad);
+                                        let select = row;
+                                        if (!idEspecialidadTemp) {
+                                            setIdEspecialidadTemp(row.id_especialidad);
+                                            const updatedData = especialidades.map((item) => {
+                                                if (row.id_especialidad !== item.id_especialidad) {
+                                                    return item;
+                                                }
+
+                                                return {
+                                                    ...item,
+                                                    toggleSelected: true,
+                                                };
+                                            });
+
+                                            setEspecialidades(updatedData);
+                                        } else {
+                                            if (row.id_especialidad === idAdmision) {
+                                                select = null;
+                                                setIdEspecialidadTemp(row.id_especialidad);
+                                                const updatedData = especialidades.map((item) => {
+                                                    if (row.id_especialidad !== item.id_especialidad) {
+                                                        return item;
+                                                    }
+
+                                                    return {
+                                                        ...item,
+                                                        toggleSelected: false,
+                                                    };
+                                                });
+                                                setEspecialidades(updatedData);
+                                            } else {
+                                                setIdEspecialidadTemp(row.id_especialidad);
+                                                const updatedData = especialidades.map((item) => {
+                                                    if (idEspecialidadTemp === item.id_especialidad) {
+                                                        return {
+                                                            ...item,
+                                                            toggleSelected: false,
+                                                        };
+                                                    } else if (row.id_especialidad !== item.id_especialidad) {
+                                                        return item;
+                                                    }
+
+                                                    return {
+                                                        ...item,
+                                                        toggleSelected: true,
+                                                    };
+                                                });
+                                                setEspecialidades(updatedData);
+                                            }
+                                        }
                                     }}
                                     conditionalRowStyles={common.conditionalRowStyles}
                                     pagination
@@ -1237,7 +1287,7 @@ const Monitoreo = () => {
                                 </Typography>
                             </Grid>
 
-                
+
                         </Grid>
                     </DialogContent>
                     <DialogActions sx={{ mb: 1 }}>
@@ -1249,7 +1299,7 @@ const Monitoreo = () => {
                                 setLine('')
                             }
                             }>
-                                {t("etiquetas.hecho")}
+                            {t("etiquetas.hecho")}
                         </Button>
                     </DialogActions>
                 </Dialog>

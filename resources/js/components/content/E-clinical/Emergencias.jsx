@@ -2,6 +2,16 @@ import React from "react";
 import Form from "react-bootstrap/Form";
 import Icofont from "react-icofont";
 
+import LocalHospitalRoundedIcon from '@mui/icons-material/LocalHospitalRounded';
+import MapRoundedIcon from '@mui/icons-material/MapRounded';
+import AccessTimeRoundedIcon from '@mui/icons-material/AccessTimeRounded';
+import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
+import BadgeRoundedIcon from '@mui/icons-material/BadgeRounded';
+import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
+import ManRoundedIcon from '@mui/icons-material/ManRounded';
+import MonitorHeartRoundedIcon from '@mui/icons-material/MonitorHeartRounded';
+import DomainRoundedIcon from '@mui/icons-material/DomainRounded';
+import TaxiAlertRoundedIcon from '@mui/icons-material/TaxiAlertRounded';
 
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DataTable from 'react-data-table-component';
@@ -38,6 +48,8 @@ import {
     Button,
     CircularProgress,
     IconButton,
+    Tab,
+    Tabs,
 } from '@mui/material';
 
 import common from '../../../common';
@@ -72,8 +84,6 @@ import filterFactory, { textFilter } from "react-bootstrap-table2-filter";
 import PhoneInput from "react-phone-input-2";
 import makeAnimated from "react-select/animated";
 import "./eclinical.css";
-import Tabs from "react-bootstrap/Tabs";
-import Tab from "react-bootstrap/Tab";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import FormularioKamban from "./FormularioKamban";
@@ -585,8 +595,58 @@ function Emergencias() {
         setExamenesSeleccionados(row.examenes);
         setMedicamentosSeleccionados(row.medicamentos);
         setIdSalaAtencionMedica(row.id_atencionmedica);
-        handleform()
+        handleform();
 
+        let select = row;
+        if (!registro) {
+            setRegistro(row);
+            const updatedData = admisiones.map((item) => {
+                if (row !== item) {
+                    return item;
+                }
+
+                return {
+                    ...item,
+                    toggleSelected: true,
+                };
+            });
+
+            setAdmisiones(updatedData);
+        } else {
+            if (row.codigo === registro) {
+                select = null;
+                setRegistro(row);
+                const updatedData = admisiones.map((item) => {
+                    if (row !== item) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: false,
+                    };
+                });
+                setAdmisiones(updatedData);
+            } else {
+                setRegistro(row);
+                const updatedData = admisiones.map((item) => {
+                    if (registro === item) {
+                        return {
+                            ...item,
+                            toggleSelected: false,
+                        };
+                    } else if (row !== item) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: true,
+                    };
+                });
+                setAdmisiones(updatedData);
+            }
+        }
     }
 
     const convertir = (arreglo, arregloDatos) => {
@@ -1590,11 +1650,56 @@ function Emergencias() {
             </Typography>
             <br></br>
             {mostrarFormulario && (
-                <Box sx={{ width: '100%' }}>
-                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                            <Tab label="Item One" {...common.a11yProps(0)} />
-                            <Tab label="Item Two" {...common.a11yProps(1)} />
+                <Box
+                sx={{
+                    my: 2,
+                    width: '100%',
+                    border: 'solid 1px rgba(0, 0, 0, .12)',
+                }}
+            >
+                <Box
+                    sx={{
+                        '& .MuiTab-root': {
+                            minHeight: '46px',
+                        },
+                        '& .Mui-selected': {
+                            color: '#fff !important',
+                            backgroundColor: '#1976d2',
+                        },
+                    }}
+                >
+                        <Tabs
+                            value={value}
+                            onChange={handleChange}
+                            aria-label="basic tabs example"
+                            sx={{
+                                borderBottom: 'solid 1px rgba(0, 0, 0, .12)',
+                                '& span.span': {
+                                    overflow: 'hidden',
+                                    whiteSpace: 'nowrap',
+                                    textOverflow: 'ellipsis',
+                                },
+                            }}>
+
+                            <Tab
+                                sx={{ textTransform: 'none' }}
+                                icon={<ManRoundedIcon />}
+                                iconPosition="start"
+                                label={
+                                    <span className="span">
+                                        {t('eclinical.emergencias.titulo')}
+                                    </span>
+                                }
+                                {...common.a11yProps(0)}/>
+                            <Tab
+                               sx={{ textTransform: 'none' }}
+                               icon={<MonitorHeartRoundedIcon />}
+                               iconPosition="start"
+                               label={
+                                   <span className="span">
+                                       {t('formularios.formkamban.titulo')}
+                                   </span>
+                               } {...common.a11yProps(1)} />
                         </Tabs>
                     </Box>
                     <common.TabPanel value={value} index={0}>
@@ -2377,11 +2482,7 @@ function Emergencias() {
 
                             </Grid>
                         </Grid>
-<br /><br />
-                        <FormularioKamban
-                            monitoreo={monitoreo}
-                            codigo={registro.codigo}
-                        ></FormularioKamban>
+                      
                     </common.TabPanel>
                     <common.TabPanel value={value} index={1}>
                         <FormularioKamban
@@ -2439,6 +2540,56 @@ function Emergencias() {
                                 onRowClicked={(row) => {
                                     setPacienteTemp(row.diagnostico);
                                     setIdPacienteTemp(row.codigo_cie);
+                                    let select = row;
+                                    if (!idAdmision) {
+                                        setIdPacienteTemp(row.codigo_cie);
+                                        const updatedData = pacientes.map((item) => {
+                                            if (row.codigo_cie !== item.codigo_cie) {
+                                                return item;
+                                            }
+
+                                            return {
+                                                ...item,
+                                                toggleSelected: true,
+                                            };
+                                        });
+
+                                        setPacientes(updatedData);
+                                    } else {
+                                        if (row.codigo === idPacienteTemp) {
+                                            select = null;
+                                            setIdPacienteTemp(row.id_signos);
+                                            const updatedData = pacientes.map((item) => {
+                                                if (row.codigo_cie !== item.codigo_cie) {
+                                                    return item;
+                                                }
+
+                                                return {
+                                                    ...item,
+                                                    toggleSelected: false,
+                                                };
+                                            });
+                                            setPacientes(updatedData);
+                                        } else {
+                                            setIdPacienteTemp(row.codigo_cie);
+                                            const updatedData = pacientes.map((item) => {
+                                                if (idPacienteTemp === item.codigo_cie) {
+                                                    return {
+                                                        ...item,
+                                                        toggleSelected: false,
+                                                    };
+                                                } else if (row.codigo_cie !== item.codigo_cie) {
+                                                    return item;
+                                                }
+
+                                                return {
+                                                    ...item,
+                                                    toggleSelected: true,
+                                                };
+                                            });
+                                            setPacientes(updatedData);
+                                        }
+                                    }
                                 }}
                                 conditionalRowStyles={common.conditionalRowStyles}
                                 pagination
@@ -2528,7 +2679,55 @@ function Emergencias() {
                                 striped
                                 columns={columnsMedicamentos}
                                 data={filteredItemsmedicamentos}
-                                onRowClicked={(row) => { setMedicamentosSeleccionado(row) }}
+                                onRowClicked={(row) => {
+                                    setMedicamentosSeleccionado(row);
+                                    if (!medicamentosSeleccionado) {
+                                        const updatedData = medicamentos.map((item) => {
+                                            if (row !== item) {
+                                                return item;
+                                            }
+
+                                            return {
+                                                ...item,
+                                                toggleSelected: true,
+                                            };
+                                        });
+
+                                        setMedicamentos(updatedData);
+                                    } else {
+                                        if (row.codigo === medicamentosSeleccionado) {
+
+                                            const updatedData = medicamentos.map((item) => {
+                                                if (row !== item) {
+                                                    return item;
+                                                }
+
+                                                return {
+                                                    ...item,
+                                                    toggleSelected: false,
+                                                };
+                                            });
+                                            setMedicamentos(updatedData);
+                                        } else {
+                                            const updatedData = medicamentos.map((item) => {
+                                                if (medicamentosSeleccionado === item) {
+                                                    return {
+                                                        ...item,
+                                                        toggleSelected: false,
+                                                    };
+                                                } else if (row !== item) {
+                                                    return item;
+                                                }
+
+                                                return {
+                                                    ...item,
+                                                    toggleSelected: true,
+                                                };
+                                            });
+                                            setMedicamentos(updatedData);
+                                        }
+                                    }
+                                }}
                                 conditionalRowStyles={common.conditionalRowStyles}
                                 pagination
                                 paginationComponentOptions={
@@ -2634,7 +2833,54 @@ function Emergencias() {
                                 striped
                                 columns={columnsExamenes}
                                 data={filteredItemsexamenes}
-                                onRowClicked={(row) => { setExamenesSeleccionado(row); }}
+                                onRowClicked={(row) => {
+                                    setExamenesSeleccionado(row);
+                                    if (!examenesSeleccionado) {
+                                        const updatedData = examenes.map((item) => {
+                                            if (row !== item) {
+                                                return item;
+                                            }
+
+                                            return {
+                                                ...item,
+                                                toggleSelected: true,
+                                            };
+                                        });
+
+                                        setExamenes(updatedData);
+                                    } else {
+                                        if (row === examenesSeleccionado) {
+                                            const updatedData = examenes.map((item) => {
+                                                if (row.codigo !== item.codigo) {
+                                                    return item;
+                                                }
+
+                                                return {
+                                                    ...item,
+                                                    toggleSelected: false,
+                                                };
+                                            });
+                                            setExamenes(updatedData);
+                                        } else {
+                                            const updatedData = pacientes.map((item) => {
+                                                if (examenesSeleccionado === item) {
+                                                    return {
+                                                        ...item,
+                                                        toggleSelected: false,
+                                                    };
+                                                } else if (row != item) {
+                                                    return item;
+                                                }
+
+                                                return {
+                                                    ...item,
+                                                    toggleSelected: true,
+                                                };
+                                            });
+                                            setExamenes(updatedData);
+                                        }
+                                    }
+                                }}
                                 conditionalRowStyles={common.conditionalRowStyles}
                                 pagination
                                 paginationComponentOptions={
@@ -2777,6 +3023,8 @@ function Emergencias() {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+           
         </div>
     );
 }

@@ -157,14 +157,63 @@ export default () => {
                 setOpenLoad(false);
             })
             .catch((error) => {
-                
+
                 setOpenLoad(false);
             });
     };
 
     const handleRowClicked = (row) => {//Aca se pone el evento click
         setSelectedData(row);
-     
+        let select = row;
+        if (!idAdmision) {
+            setSelectedData(row);
+            const updatedData = data.map((item) => {
+                if (row !== item) {
+                    return item;
+                }
+
+                return {
+                    ...item,
+                    toggleSelected: true,
+                };
+            });
+
+            setData(updatedData);
+        } else {
+            if (row.codigo === idAdmision) {
+                select = null;
+                setSelectedData(row);
+                const updatedData = data.map((item) => {
+                    if (row !== item) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: false,
+                    };
+                });
+                setData(updatedData);
+            } else {
+                setSelectedData(row);
+                const updatedData = data.map((item) => {
+                    if (selectedData === item) {
+                        return {
+                            ...item,
+                            toggleSelected: false,
+                        };
+                    } else if (row !== item) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: true,
+                    };
+                });
+                setData(updatedData);
+            }
+        }
     };
 
 
@@ -175,14 +224,14 @@ export default () => {
 
     //PDF
     const generatePDFEpicrisis = (row) => {
-   
+
         let img = new Image();
         img.src = 'assets/image.jpg';
         let doc = new jsPDF("p", "pt");
         doc.setFont("helvetica", "bold");
         doc.setFontSize(9);
         img.onload = function () {
-            
+
             doc.addImage(img, 'JPEG', 35, 25, 109, 34);
             //doc.setFont("bold");
             doc.text(250, 35, 'SERVICIO NACIONAL DE SALUD');
@@ -261,10 +310,10 @@ export default () => {
             if (row.admision != null) { doc.text(32, 220, (row.admision.fecha_admision + ' ').replace('null', '')); }
             doc.text(122, 220, '');//NO se toma en ningun lado
             doc.text(212, 220, '');//Sin la fecha en que salio no es posible capturar
-            if(row.monitoreo!=null){
+            if (row.monitoreo != null) {
                 if (row.monitoreo.especialidad != null) { doc.text(302, 220, row.monitoreo.especialidad.nombre_especialidad + ' '); }
             }
-            
+
             if (row.alta != null) {
                 doc.text(392, 220, (row.alta.estado_alta + ' ').replace('null', ''));
             }
@@ -330,7 +379,7 @@ export default () => {
             //doc.text(10,10,'Hello world!');
             doc.setFont("helvetica", "bold");
             doc.text(30, 68, 'Num. Historia Clinica');
-            doc.text(100, 68, row.codigo+' ');
+            doc.text(100, 68, row.codigo + ' ');
             doc.setFont("helvetica", "normal");
             doc.save('Epicrisis.pdf');
         }
@@ -863,7 +912,7 @@ export default () => {
                         break;
                     default:
                         doc.text(62, 610, 'X');
-                        doc.text(90, 616, (row.alta.estado_alta+' ').replace('null', ''));
+                        doc.text(90, 616, (row.alta.estado_alta + ' ').replace('null', ''));
                         break;
                 }
             }

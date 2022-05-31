@@ -541,7 +541,7 @@ function FormularioKamban(params) {
                         }}
                     >
                         <Typography sx={{ fontSize: '1.3rem' }}>
-                        {t("formularios.formkamban.select")}
+                            {t("formularios.formkamban.select")}
                         </Typography>
 
                         <IconButton
@@ -574,6 +574,56 @@ function FormularioKamban(params) {
                                 onRowClicked={(row) => {
                                     setEspecialidadTemp(row.nombre_especialidad);
                                     setIdEspecialidadTemp(row.id_especialidad);
+                                    let select = row;
+                                    if (!idEspecialidadTemp) {
+                                        setIdEspecialidadTemp(row.id_especialidad);
+                                        const updatedData = especialidades.map((item) => {
+                                            if (row.id_especialidad !== item.id_especialidad) {
+                                                return item;
+                                            }
+
+                                            return {
+                                                ...item,
+                                                toggleSelected: true,
+                                            };
+                                        });
+
+                                        setEspecialidades(updatedData);
+                                    } else {
+                                        if (row.id_especialidad === idAdmision) {
+                                            select = null;
+                                            setIdEspecialidadTemp(row.id_especialidad);
+                                            const updatedData = especialidades.map((item) => {
+                                                if (row.id_especialidad !== item.id_especialidad) {
+                                                    return item;
+                                                }
+
+                                                return {
+                                                    ...item,
+                                                    toggleSelected: false,
+                                                };
+                                            });
+                                            setEspecialidades(updatedData);
+                                        } else {
+                                            setIdEspecialidadTemp(row.id_especialidad);
+                                            const updatedData = especialidades.map((item) => {
+                                                if (idEspecialidadTemp === item.id_especialidad) {
+                                                    return {
+                                                        ...item,
+                                                        toggleSelected: false,
+                                                    };
+                                                } else if (row.id_especialidad !== item.id_especialidad) {
+                                                    return item;
+                                                }
+
+                                                return {
+                                                    ...item,
+                                                    toggleSelected: true,
+                                                };
+                                            });
+                                            setEspecialidades(updatedData);
+                                        }
+                                    }
                                 }}
                                 conditionalRowStyles={common.conditionalRowStyles}
                                 pagination

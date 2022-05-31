@@ -250,12 +250,62 @@ function Clasificacion() {
     const handleRowClicked1 = (row) => {
         setPacienteTemp(row.sintomas_signos);
         setIdPacienteTemp(row.id_signos);
+        let select = row;
+        if (!idPacienteTemp) {
+            setIdPacienteTemp(row.id_signos);
+            const updatedData = pacientes.map((item) => {
+                if (row.id_signos !== item.id_signos) {
+                    return item;
+                }
+
+                return {
+                    ...item,
+                    toggleSelected: true,
+                };
+            });
+
+            setPacientes(updatedData);
+        } else {
+            if (row.id_signos === idPacienteTemp) {
+                select = null;
+                setIdPacienteTemp(row.id_signos);
+                const updatedData = pacientes.map((item) => {
+                    if (row.id_signos !== item.id_signos) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: false,
+                    };
+                });
+                setPacientes(updatedData);
+            } else {
+                setIdPacienteTemp(row.id_signos);
+                const updatedData = pacientes.map((item) => {
+                    if (idPacienteTemp === item.id_signos) {
+                        return {
+                            ...item,
+                            toggleSelected: false,
+                        };
+                    } else if (row.id_signos !== item.id_signos) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: true,
+                    };
+                });
+                setPacientes(updatedData);
+            }
+        }
     };
 
 
     const handleRowClicked = (row) => {
         let select = row;
-        
+
         if (!selectedData) {
             setSelectedData(row);
             const updatedData = admisiones.map((item) => {
@@ -514,9 +564,9 @@ function Clasificacion() {
                 setAdmisiones(updatedData);
             }
         }
-    }; 
+    };
 
-    
+
 
     const closeDialog = () => {
         setOpenDialog(false);
@@ -645,6 +695,7 @@ function Clasificacion() {
         axios
             .get("/api/sala_causatrauma")
             .then((response) => {
+                console.log(response.data)
                 setCausa(response.data);
                 return response.data;
             })
@@ -889,7 +940,7 @@ function Clasificacion() {
                                         )}`}
                                     >
 
-                                        {sistemas.map((tipo) => (
+                                        {causas.map((tipo) => (
                                             <MenuItem value={tipo.id_salaCausa} key={tipo.id_salaCausa}>{tipo.nombre_causaTrauma}</MenuItem>
                                         ))}
                                     </Select>
