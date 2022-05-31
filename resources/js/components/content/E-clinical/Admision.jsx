@@ -177,6 +177,56 @@ function Admision() {
     const handleRowClicked = (row) => {
         setPacienteTemp(row.nombre1);
         setIdPacienteTemp(row.codigo);
+        let select = row;
+        if (!idPacienteTemp) {
+            setIdPacienteTemp(row.codigo);
+            const updatedData = pacientes.map((item) => {
+                if (row.codigo !== item.codigo) {
+                    return item;
+                }
+
+                return {
+                    ...item,
+                    toggleSelected: true,
+                };
+            });
+
+            setPacientes(updatedData);
+        } else {
+            if (row.codigo === idPacienteTemp) {
+                select = null;
+                setIdPacienteTemp(row.codigo);
+                const updatedData = pacientes.map((item) => {
+                    if (row.codigo !== item.codigo) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: false,
+                    };
+                });
+                setPacientes(updatedData);
+            } else {
+                setIdPacienteTemp(row.codigo);
+                const updatedData = pacientes.map((item) => {
+                    if (idPacienteTemp === item.codigo) {
+                        return {
+                            ...item,
+                            toggleSelected: false,
+                        };
+                    } else if (row.codigo !== item.codigo) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: true,
+                    };
+                });
+                setPacientes(updatedData);
+            }
+        }
     };
 
 

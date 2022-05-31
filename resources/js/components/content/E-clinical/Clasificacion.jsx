@@ -465,6 +465,55 @@ function Clasificacion() {
             }
         }
         setMostrarFormulario(select !== null);
+        if (!idAdmision) {
+            setIdAdmision(row.codigo);
+            const updatedData = admisiones.map((item) => {
+                if (row.codigo !== item.codigo) {
+                    return item;
+                }
+
+                return {
+                    ...item,
+                    toggleSelected: true,
+                };
+            });
+
+            setAdmisiones(updatedData);
+        } else {
+            if (row.codigo === idAdmision) {
+                select = null;
+                setIdAdmision(row.codigo);
+                const updatedData = admisiones.map((item) => {
+                    if (row.codigo !== item.codigo) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: false,
+                    };
+                });
+                setAdmisiones(updatedData);
+            } else {
+                setIdAdmision(row.codigo);
+                const updatedData = admisiones.map((item) => {
+                    if (idAdmision === item.codigo) {
+                        return {
+                            ...item,
+                            toggleSelected: false,
+                        };
+                    } else if (row.codigo !== item.codigo) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: true,
+                    };
+                });
+                setAdmisiones(updatedData);
+            }
+        }
     }; 
 
     
