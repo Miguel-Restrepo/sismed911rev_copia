@@ -561,7 +561,56 @@ function Urgencias() {
         setMedicamentosSeleccionados(row.medicamentos);
         setIdSalaAtencionMedica(row.id_atencionmedica);
         handleform()
+        let select = row;
+        if (!registro) {
+            setRegistro(row);
+            const updatedData = admisiones.map((item) => {
+                if (row.codigo !== item.codigo) {
+                    return item;
+                }
 
+                return {
+                    ...item,
+                    toggleSelected: true,
+                };
+            });
+
+            setAdmisiones(updatedData);
+        } else {
+            if (row.codigo === registro.codigo) {
+                select = null;
+                setRegistro(row);
+                const updatedData = admisiones.map((item) => {
+                    if (row.codigo !== item.codigo) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: false,
+                    };
+                });
+                setAdmisiones(updatedData);
+            } else {
+                setRegistro(row);
+                const updatedData = admisiones.map((item) => {
+                    if (registro.codigo === item.codigo) {
+                        return {
+                            ...item,
+                            toggleSelected: false,
+                        };
+                    } else if (row.codigo !== item.codigo) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: true,
+                    };
+                });
+                setAdmisiones(updatedData);
+            }
+        }
     }
 
     const convertir = (arreglo, arregloDatos) => {
@@ -2440,6 +2489,56 @@ function Urgencias() {
                                 onRowClicked={(row) => {
                                     setPacienteTemp(row.diagnostico);
                                     setIdPacienteTemp(row.codigo_cie);
+                                    let select = row;
+                                    if (!idPacienteTemp) {
+                                        setIdPacienteTemp(row.codigo_cie);
+                                        const updatedData = pacientes.map((item) => {
+                                            if (row.codigo_cie !== item.codigo_cie) {
+                                                return item;
+                                            }
+
+                                            return {
+                                                ...item,
+                                                toggleSelected: true,
+                                            };
+                                        });
+
+                                        setPacientes(updatedData);
+                                    } else {
+                                        if (row.codigo === idPacienteTemp) {
+                                            select = null;
+                                            setIdPacienteTemp(row.id_signos);
+                                            const updatedData = pacientes.map((item) => {
+                                                if (row.codigo_cie !== item.codigo_cie) {
+                                                    return item;
+                                                }
+
+                                                return {
+                                                    ...item,
+                                                    toggleSelected: false,
+                                                };
+                                            });
+                                            setPacientes(updatedData);
+                                        } else {
+                                            setIdPacienteTemp(row.codigo_cie);
+                                            const updatedData = pacientes.map((item) => {
+                                                if (idPacienteTemp === item.codigo_cie) {
+                                                    return {
+                                                        ...item,
+                                                        toggleSelected: false,
+                                                    };
+                                                } else if (row.codigo_cie !== item.codigo_cie) {
+                                                    return item;
+                                                }
+
+                                                return {
+                                                    ...item,
+                                                    toggleSelected: true,
+                                                };
+                                            });
+                                            setPacientes(updatedData);
+                                        }
+                                    }
                                 }}
                                 conditionalRowStyles={common.conditionalRowStyles}
                                 pagination
@@ -2553,7 +2652,55 @@ function Urgencias() {
                                 striped
                                 columns={columnsMedicamentos}
                                 data={filteredItemsmedicamentos}
-                                onRowClicked={(row) => { setMedicamentosSeleccionado(row) }}
+                                onRowClicked={(row) => {
+                                    setMedicamentosSeleccionado(row);
+                                    if (!medicamentosSeleccionado) {
+                                        const updatedData = medicamentos.map((item) => {
+                                            if (row.id_medicamento !== item.id_medicamento) {
+                                                return item;
+                                            }
+
+                                            return {
+                                                ...item,
+                                                toggleSelected: true,
+                                            };
+                                        });
+
+                                        setMedicamentos(updatedData);
+                                    } else {
+                                        if (row.id_medicamento === medicamentosSeleccionado.id_medicamento) {
+
+                                            const updatedData = medicamentos.map((item) => {
+                                                if (row.id_medicamento !== item.id_medicamento) {
+                                                    return item;
+                                                }
+
+                                                return {
+                                                    ...item,
+                                                    toggleSelected: false,
+                                                };
+                                            });
+                                            setMedicamentos(updatedData);
+                                        } else {
+                                            const updatedData = medicamentos.map((item) => {
+                                                if (medicamentosSeleccionado.id_medicamento === item.id_medicamento) {
+                                                    return {
+                                                        ...item,
+                                                        toggleSelected: false,
+                                                    };
+                                                } else if (row.id_medicamento !== item.id_medicamento) {
+                                                    return item;
+                                                }
+
+                                                return {
+                                                    ...item,
+                                                    toggleSelected: true,
+                                                };
+                                            });
+                                            setMedicamentos(updatedData);
+                                        }
+                                    }
+                                }}
                                 conditionalRowStyles={common.conditionalRowStyles}
                                 pagination
                                 paginationComponentOptions={
@@ -2659,7 +2806,54 @@ function Urgencias() {
                                 striped
                                 columns={columnsExamenes}
                                 data={filteredItemsexamenes}
-                                onRowClicked={(row) => { setExamenesSeleccionado(row); }}
+                                onRowClicked={(row) => {
+                                    setExamenesSeleccionado(row);
+                                    if (!examenesSeleccionado) {
+                                        const updatedData = examenes.map((item) => {
+                                            if (row.id_examen !== item.id_examen) {
+                                                return item;
+                                            }
+
+                                            return {
+                                                ...item,
+                                                toggleSelected: true,
+                                            };
+                                        });
+
+                                        setExamenes(updatedData);
+                                    } else {
+                                        if (row.id_examen === examenesSeleccionado.id_examen) {
+                                            const updatedData = examenes.map((item) => {
+                                                if (row.id_examen !== item.id_examen) {
+                                                    return item;
+                                                }
+
+                                                return {
+                                                    ...item,
+                                                    toggleSelected: false,
+                                                };
+                                            });
+                                            setExamenes(updatedData);
+                                        } else {
+                                            const updatedData = examenes.map((item) => {
+                                                if (examenesSeleccionado.id_examen === item.id_examen) {
+                                                    return {
+                                                        ...item,
+                                                        toggleSelected: false,
+                                                    };
+                                                } else if (row.id_examen != item.id_examen) {
+                                                    return item;
+                                                }
+
+                                                return {
+                                                    ...item,
+                                                    toggleSelected: true,
+                                                };
+                                            });
+                                            setExamenes(updatedData);
+                                        }
+                                    }
+                                }}
                                 conditionalRowStyles={common.conditionalRowStyles}
                                 pagination
                                 paginationComponentOptions={

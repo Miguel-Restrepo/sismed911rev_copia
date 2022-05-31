@@ -165,10 +165,10 @@ export default () => {
     const handleRowClicked = (row) => {//Aca se pone el evento click
         setSelectedData(row);
         let select = row;
-        if (!idAdmision) {
+        if (!selectedData) {
             setSelectedData(row);
             const updatedData = data.map((item) => {
-                if (row !== item) {
+                if (row.codigo !== item.codigo) {
                     return item;
                 }
 
@@ -180,11 +180,11 @@ export default () => {
 
             setData(updatedData);
         } else {
-            if (row.codigo === idAdmision) {
+            if (row.codigo === selectedData.codigo) {
                 select = null;
                 setSelectedData(row);
                 const updatedData = data.map((item) => {
-                    if (row !== item) {
+                    if (row.codigo !== item.codigo) {
                         return item;
                     }
 
@@ -197,12 +197,12 @@ export default () => {
             } else {
                 setSelectedData(row);
                 const updatedData = data.map((item) => {
-                    if (selectedData === item) {
+                    if (selectedData.codigo === item.codigo) {
                         return {
                             ...item,
                             toggleSelected: false,
                         };
-                    } else if (row !== item) {
+                    } else if (row.codigo !== item.codigo) {
                         return item;
                     }
 

@@ -768,6 +768,7 @@ const Monitoreo = () => {
                                     columns={columnsesp}
                                     data={filteredItemsesp}
                                     onRowClicked={(row) => {
+                                        console.log(row);
                                         setEspecialidadTemp(row.nombre_especialidad);
                                         setIdEspecialidadTemp(row.id_especialidad);
                                         let select = row;

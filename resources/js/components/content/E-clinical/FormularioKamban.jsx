@@ -366,7 +366,7 @@ function FormularioKamban(params) {
     return (
         <div>
             <div>
-                <h2>{t("formularios.formkamban.titulo")}</h2>
+                
 
             </div>
 
