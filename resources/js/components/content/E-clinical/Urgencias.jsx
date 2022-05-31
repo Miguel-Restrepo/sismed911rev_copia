@@ -215,7 +215,7 @@ function Urgencias() {
         );
     }, [filterText]);
 
-    
+
 
     //TABLA CIE10
     const columns = useMemo(() => [
@@ -233,7 +233,7 @@ function Urgencias() {
         }
     ])
 
-    
+
     //TABLA PRINCIPAL
     const columns1 = useMemo(() => [
         {
@@ -586,7 +586,7 @@ function Urgencias() {
         }));
     };
 
-    
+
 
     const GetAdmisiones = async () => {
         setOpenLoad(true);
@@ -627,7 +627,7 @@ function Urgencias() {
     };
 
     //TABLA MEDICAMENTOS
-    
+
 
     const columnsMedicamentos = useMemo(() => [
         {
@@ -638,12 +638,12 @@ function Urgencias() {
         }
     ])
 
-   
 
-    
+
+
 
     //TABLA EXAMENES
-    
+
 
 
     const columnsExamenes = useMemo(() => [
@@ -655,7 +655,7 @@ function Urgencias() {
         }
     ])
 
-   
+
 
 
     const columnsMedicamentosSeleccionados = useMemo(() => [
@@ -734,7 +734,7 @@ function Urgencias() {
     ])
 
 
-    
+
     const GetGeneral = () => {
         axios
             .get("/api/cuerpo_general")
@@ -1195,7 +1195,6 @@ function Urgencias() {
     };
 
     const cambioDosis = (e) => {
-        e.persist();
         setdosisMedicamentoSeleccionado(e.target.value);
     };
 
@@ -1550,7 +1549,7 @@ function Urgencias() {
         }));
     }, [paciente, idPaciente]);
 
-    
+
     return (
         <div>
             <Backdrop
@@ -2177,8 +2176,8 @@ function Urgencias() {
                             size="small"
                             variant="outlined"
                             label={`${t(
-                                        "eclinical.emergencias.formulario.sintomas"
-                                    )}`}
+                                "eclinical.emergencias.formulario.sintomas"
+                            )}`}
                             multiline
                             rows={4}
                             value={form2.sintomas}
@@ -2488,7 +2487,7 @@ function Urgencias() {
 
             <Dialog
                 fullWidth
-                maxWidth="lg"
+                maxWidth="md"
                 open={ventanaMedicamentos}
                 onClose={cerrarMedicamentos}
             >
@@ -2500,7 +2499,7 @@ function Urgencias() {
                         }}
                     >
                         <Typography sx={{ fontSize: '1.3rem' }}>
-                            {t("eclinical.emergencias.formulario.seleccioncie10")}
+                            {t("eclinical.emergencias.formulario.selecciondosis")}
                         </Typography>
 
                         <IconButton
@@ -2514,6 +2513,30 @@ function Urgencias() {
                     </Toolbar>
                 </AppBar>
                 <DialogContent dividers>
+
+                    <Grid
+                        container
+                        noValidate
+                        direction="row"
+                        justifyContent="center"
+                        spacing={3}
+                        sx={{ my: 2 }}
+                        component="form"
+                        autoComplete="off"
+                    >
+                        <Grid item xs={6}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={`Dosis`}
+                                value={dosisMedicamentoSeleccionado}
+                                onChange={cambioDosis}
+                                name="dosis"
+
+                            />
+                        </Grid>
+                    </Grid>
                     <Card>
                         <CardContent
                             sx={{
