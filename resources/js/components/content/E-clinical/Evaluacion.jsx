@@ -965,6 +965,7 @@ const Evaluacion = () => {
                                 data={filteredItemsesp}
                                 onRowClicked={(row) => {
                                     setEspecialidadTemp(row.nombre_especialidad);
+                                    console.log(row)
                                     setIdEspecialidadTemp(row.id_especialidad);
                                     let select = row;
                                     if (!idEspecialidadTemp) {
@@ -999,12 +1000,12 @@ const Evaluacion = () => {
                                         } else {
                                             setIdEspecialidadTemp(row.id_especialidad);
                                             const updatedData = especialidades.map((item) => {
-                                                if (idAdmision === item.codigo) {
+                                                if (idEspecialidadTemp === item.id_especialidad) {
                                                     return {
                                                         ...item,
                                                         toggleSelected: false,
                                                     };
-                                                } else if (row.codigo !== item.codigo) {
+                                                } else if (row.id_especialidad !== item.id_especialidad) {
                                                     return item;
                                                 }
 

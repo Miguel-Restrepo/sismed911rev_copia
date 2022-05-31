@@ -175,7 +175,7 @@ function Admision() {
     ]);
 
     const handleRowClicked = (row) => {
-        setPacienteTemp(row.nombre1);
+        setPacienteTemp(row.descripcion+" "+row.codigo+" "+row.nombre1+ " "+ row.nombre_genero+ " "+row.fecha_nacido);
         setIdPacienteTemp(row.codigo);
         let select = row;
         if (!idPacienteTemp) {

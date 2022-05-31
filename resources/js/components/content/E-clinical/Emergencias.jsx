@@ -601,7 +601,7 @@ function Emergencias() {
         if (!registro) {
             setRegistro(row);
             const updatedData = admisiones.map((item) => {
-                if (row !== item) {
+                if (row.codigo !== item.codigo) {
                     return item;
                 }
 
@@ -613,11 +613,11 @@ function Emergencias() {
 
             setAdmisiones(updatedData);
         } else {
-            if (row.codigo === registro) {
+            if (row.codigo === registro.codigo) {
                 select = null;
                 setRegistro(row);
                 const updatedData = admisiones.map((item) => {
-                    if (row !== item) {
+                    if (row.codigo !== item.codigo) {
                         return item;
                     }
 
@@ -630,12 +630,12 @@ function Emergencias() {
             } else {
                 setRegistro(row);
                 const updatedData = admisiones.map((item) => {
-                    if (registro === item) {
+                    if (registro.codigo === item.codigo) {
                         return {
                             ...item,
                             toggleSelected: false,
                         };
-                    } else if (row !== item) {
+                    } else if (row.codigo !== item.codigo) {
                         return item;
                     }
 
@@ -1651,23 +1651,23 @@ function Emergencias() {
             <br></br>
             {mostrarFormulario && (
                 <Box
-                sx={{
-                    my: 2,
-                    width: '100%',
-                    border: 'solid 1px rgba(0, 0, 0, .12)',
-                }}
-            >
-                <Box
                     sx={{
-                        '& .MuiTab-root': {
-                            minHeight: '46px',
-                        },
-                        '& .Mui-selected': {
-                            color: '#fff !important',
-                            backgroundColor: '#1976d2',
-                        },
+                        my: 2,
+                        width: '100%',
+                        border: 'solid 1px rgba(0, 0, 0, .12)',
                     }}
                 >
+                    <Box
+                        sx={{
+                            '& .MuiTab-root': {
+                                minHeight: '46px',
+                            },
+                            '& .Mui-selected': {
+                                color: '#fff !important',
+                                backgroundColor: '#1976d2',
+                            },
+                        }}
+                    >
                         <Tabs
                             value={value}
                             onChange={handleChange}
@@ -1690,16 +1690,16 @@ function Emergencias() {
                                         {t('eclinical.emergencias.titulo')}
                                     </span>
                                 }
-                                {...common.a11yProps(0)}/>
+                                {...common.a11yProps(0)} />
                             <Tab
-                               sx={{ textTransform: 'none' }}
-                               icon={<MonitorHeartRoundedIcon />}
-                               iconPosition="start"
-                               label={
-                                   <span className="span">
-                                       {t('formularios.formkamban.titulo')}
-                                   </span>
-                               } {...common.a11yProps(1)} />
+                                sx={{ textTransform: 'none' }}
+                                icon={<MonitorHeartRoundedIcon />}
+                                iconPosition="start"
+                                label={
+                                    <span className="span">
+                                        {t('formularios.formkamban.titulo')}
+                                    </span>
+                                } {...common.a11yProps(1)} />
                         </Tabs>
                     </Box>
                     <common.TabPanel value={value} index={0}>
@@ -2482,7 +2482,7 @@ function Emergencias() {
 
                             </Grid>
                         </Grid>
-                      
+
                     </common.TabPanel>
                     <common.TabPanel value={value} index={1}>
                         <FormularioKamban
@@ -2541,7 +2541,7 @@ function Emergencias() {
                                     setPacienteTemp(row.diagnostico);
                                     setIdPacienteTemp(row.codigo_cie);
                                     let select = row;
-                                    if (!idAdmision) {
+                                    if (!idPacienteTemp) {
                                         setIdPacienteTemp(row.codigo_cie);
                                         const updatedData = pacientes.map((item) => {
                                             if (row.codigo_cie !== item.codigo_cie) {
@@ -2683,7 +2683,7 @@ function Emergencias() {
                                     setMedicamentosSeleccionado(row);
                                     if (!medicamentosSeleccionado) {
                                         const updatedData = medicamentos.map((item) => {
-                                            if (row !== item) {
+                                            if (row.id_medicamento !== item.id_medicamento) {
                                                 return item;
                                             }
 
@@ -2695,10 +2695,10 @@ function Emergencias() {
 
                                         setMedicamentos(updatedData);
                                     } else {
-                                        if (row.codigo === medicamentosSeleccionado) {
+                                        if (row.id_medicamento === medicamentosSeleccionado.id_medicamento) {
 
                                             const updatedData = medicamentos.map((item) => {
-                                                if (row !== item) {
+                                                if (row.id_medicamento !== item.id_medicamento) {
                                                     return item;
                                                 }
 
@@ -2710,12 +2710,12 @@ function Emergencias() {
                                             setMedicamentos(updatedData);
                                         } else {
                                             const updatedData = medicamentos.map((item) => {
-                                                if (medicamentosSeleccionado === item) {
+                                                if (medicamentosSeleccionado.id_medicamento === item.id_medicamento) {
                                                     return {
                                                         ...item,
                                                         toggleSelected: false,
                                                     };
-                                                } else if (row !== item) {
+                                                } else if (row.id_medicamento !== item.id_medicamento) {
                                                     return item;
                                                 }
 
@@ -2837,7 +2837,7 @@ function Emergencias() {
                                     setExamenesSeleccionado(row);
                                     if (!examenesSeleccionado) {
                                         const updatedData = examenes.map((item) => {
-                                            if (row !== item) {
+                                            if (row.id_examen !== item.id_examen) {
                                                 return item;
                                             }
 
@@ -2849,9 +2849,9 @@ function Emergencias() {
 
                                         setExamenes(updatedData);
                                     } else {
-                                        if (row === examenesSeleccionado) {
+                                        if (row.id_examen === examenesSeleccionado.id_examen) {
                                             const updatedData = examenes.map((item) => {
-                                                if (row.codigo !== item.codigo) {
+                                                if (row.id_examen !== item.id_examen) {
                                                     return item;
                                                 }
 
@@ -2862,13 +2862,13 @@ function Emergencias() {
                                             });
                                             setExamenes(updatedData);
                                         } else {
-                                            const updatedData = pacientes.map((item) => {
-                                                if (examenesSeleccionado === item) {
+                                            const updatedData = examenes.map((item) => {
+                                                if (examenesSeleccionado.id_examen === item.id_examen) {
                                                     return {
                                                         ...item,
                                                         toggleSelected: false,
                                                     };
-                                                } else if (row != item) {
+                                                } else if (row.id_examen != item.id_examen) {
                                                     return item;
                                                 }
 
@@ -3024,7 +3024,7 @@ function Emergencias() {
                 </DialogActions>
             </Dialog>
 
-           
+
         </div>
     );
 }
