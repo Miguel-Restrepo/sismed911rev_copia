@@ -573,20 +573,65 @@ const Monitoreo = () => {
 
     const filteredItems = tablas.filter(
         (item) =>
-        (item.id &&
-            item.id
-                .toString()
-                .toLowerCase()
-                .includes(filterText.toLowerCase()))
+            (item.id &&
+                item.id
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.no_cama &&
+                item.no_cama
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.paciente.expendiente &&
+                item.paciente.expendiente
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.paciente.nombre1 &&
+                item.paciente.nombre1
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.paciente.nombre2 &&
+                item.paciente.nombre2
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.paciente.apellido1 &&
+                item.paciente.apellido1
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.paciente.apellido2 &&
+                item.paciente.apellido2
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.necesidad &&
+                item.necesidad
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase()))
     );
 
     const filteredItemsesp = especialidades.filter(
         (item) =>
-        (item.id_especialidad &&
-            item.id_especialidad
-                .toString()
-                .toLowerCase()
-                .includes(filterText1.toLowerCase()))
+            (item.id_especialidad &&
+                item.id_especialidad
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText1.toLowerCase())) ||
+            (item.nombre_especialidad &&
+                item.nombre_especialidad
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText1.toLowerCase()))
     );
 
 

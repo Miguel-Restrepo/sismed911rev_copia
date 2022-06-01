@@ -311,51 +311,63 @@ function Urgencias() {
     ])
     const filteredItemsmedicamentos = medicamentos.filter(
         (item) =>
-        (item.id_medicamento &&
-            item.id_medicamento
-                .toString()
-                .toLowerCase()
-                .includes(filterTextmedicamentos.toLowerCase()))
+            (item.id_medicamento &&
+                item.id_medicamento
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterTextmedicamentos.toLowerCase())) ||
+            (item.nombre_medicamento &&
+                item.nombre_medicamento
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterTextmedicamentos.toLowerCase()))
     );
 
     const filteredItemsexamenes = examenes.filter(
         (item) =>
-        (item.id_examen &&
-            item.id_examen
-                .toString()
-                .toLowerCase()
-                .includes(filterTextexamenes.toLowerCase()))
+            (item.id_examen &&
+                item.id_examen
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterTextexamenes.toLowerCase())) ||
+            (item.nombre_examen &&
+                item.nombre_examen
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterTextexamenes.toLowerCase()))
     );
 
     const filteredItems1 = admisiones.filter(
         (item) =>
-        (item.codigo &&
-            item.codigo
-                .toString()
-                .toLowerCase()
-                .includes(filterText1.toLowerCase())) || 
-                (item.nombre1 &&
-                    item.nombre1
-                        .toString()
-                        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                        .toLowerCase()
-                        .includes(filterText1.toLowerCase())) ||
-                        (item.nombre_motivoatencion &&
-                            item.nombre_motivoatencion
-                                .toString()
-                                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                                .toLowerCase()
-                                .includes(filterText1.toLowerCase())) ||
-                                (item.fecha_admision &&
-                                    item.fecha_admision
-                                        .toString()
-                                        .toLowerCase()
-                                        .includes(filterText1.toLowerCase())) || 
-                                        (item.clasificacion_admision &&
-                                            item.clasificacion_admision
-                                                .toString()
-                                                .toLowerCase()
-                                                .includes(filterText1.toLowerCase())) 
+            (item.codigo &&
+                item.codigo
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText1.toLowerCase())) ||
+            (item.nombre1 &&
+                item.nombre1
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterText1.toLowerCase())) ||
+            (item.nombre_motivoatencion &&
+                item.nombre_motivoatencion
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterText1.toLowerCase())) ||
+            (item.fecha_admision &&
+                item.fecha_admision
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText1.toLowerCase())) ||
+            (item.clasificacion_admision &&
+                item.clasificacion_admision
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText1.toLowerCase()))
     );
 
     const filteredItemsexamselect = examenesSeleccionados.filter(

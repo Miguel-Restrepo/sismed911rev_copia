@@ -575,20 +575,83 @@ const Evaluacion = () => {
 
     const filteredItems = evaluaciones.filter(
         (item) =>
-        (item.id &&
-            item.id
-                .toString()
-                .toLowerCase()
-                .includes(filterText.toLowerCase()))
+            (item.id &&
+                item.id
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.fecha_creacion &&
+                item.fecha_creacion
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.procedimiento &&
+                item.procedimiento
+                    .toString()
+                    .toLowerCase()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .includes(filterText.toLowerCase())) ||
+            (item.examen &&
+                item.examen
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.nota_examen &&
+                item.nota_examen
+                    .toString()
+                    .toLowerCase()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .includes(filterText.toLowerCase())) ||
+            (item.complicacion &&
+                item.complicacion
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.nota_complicacion &&
+                item.nota_complicacion
+                    .toString()
+                    .toLowerCase()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .includes(filterText.toLowerCase())) ||
+            (item.especialidad &&
+                item.especialidad
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.diagnostico &&
+                item.diagnostico
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.motivo_estancia &&
+                item.motivo_estancia
+                    .toString()
+                    .toLowerCase()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .includes(filterText.toLowerCase())) ||
+            (item.no_cama &&
+                item.no_cama
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase()))
     );
 
     const filteredItemsesp = especialidades.filter(
         (item) =>
-        (item.id_especialidad &&
-            item.id_especialidad
-                .toString()
-                .toLowerCase()
-                .includes(filterText1.toLowerCase()))
+            (item.id_especialidad &&
+                item.id_especialidad
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText1.toLowerCase())) ||
+            (item.nombre_especialidad &&
+                item.nombre_especialidad
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText1.toLowerCase()))
     );
 
     const Post = async () => {

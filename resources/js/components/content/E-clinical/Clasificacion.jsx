@@ -183,20 +183,62 @@ function Clasificacion() {
 
     const filteredItems = admisiones.filter(
         (item) =>
-        (item.codigo &&
-            item.codigo
-                .toString()
-                .toLowerCase()
-                .includes(filterText.toLowerCase()))
+            (item.codigo &&
+                item.codigo
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.fecha_admision &&
+                item.fecha_admision
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.expediente &&
+                item.expediente
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.nombre1 &&
+                item.nombre1
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.nombre_ingreso &&
+                item.nombre_ingreso
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.cod911 &&
+                item.cod911
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.nombre_genero &&
+                item.nombre_genero
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.acompañante &&
+                item.acompañante
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase()))
     );
 
     const filteredItems1 = pacientes.filter(
         (item) =>
-        (item.id_signos &&
-            item.id_signos
-                .toString()
-                .toLowerCase()
-                .includes(filterText1.toLowerCase()))
+            (item.id_signos &&
+                item.id_signos
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText1.toLowerCase())) ||
+            (item.sintomas_signos &&
+                item.sintomas_signos
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText1.toLowerCase()))
     );
 
     const subHeaderComponent = useMemo(() => {
