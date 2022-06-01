@@ -333,7 +333,29 @@ function Urgencias() {
             item.codigo
                 .toString()
                 .toLowerCase()
-                .includes(filterText1.toLowerCase()))
+                .includes(filterText1.toLowerCase())) || 
+                (item.nombre1 &&
+                    item.nombre1
+                        .toString()
+                        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                        .toLowerCase()
+                        .includes(filterText1.toLowerCase())) ||
+                        (item.nombre_motivoatencion &&
+                            item.nombre_motivoatencion
+                                .toString()
+                                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                                .toLowerCase()
+                                .includes(filterText1.toLowerCase())) ||
+                                (item.fecha_admision &&
+                                    item.fecha_admision
+                                        .toString()
+                                        .toLowerCase()
+                                        .includes(filterText1.toLowerCase())) || 
+                                        (item.clasificacion_admision &&
+                                            item.clasificacion_admision
+                                                .toString()
+                                                .toLowerCase()
+                                                .includes(filterText1.toLowerCase())) 
     );
 
     const filteredItemsexamselect = examenesSeleccionados.filter(
