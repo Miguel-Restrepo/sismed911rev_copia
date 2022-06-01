@@ -299,26 +299,26 @@ function Emergencias() {
         {
             name: `${t("eclinical.emergencias.datos.fechaclasi")}`,
             sortable: true,
-            width: '100px',
-            selector: (row) => row.codigo,
+            width: '180px',
+            selector: (row) => row.fecha_admision,
         },
         {
             name: `${t("eclinical.emergencias.datos.hc")}`,
             sortable: true,
-            width: '160px',
-            selector: (row) => row.fecha_admision,
+            width: '80px',
+            selector: (row) => row.expediente,
         },
         {
             name: `${t("eclinical.emergencias.datos.paciente")}`,
             sortable: true,
             width: '160px',
-            selector: (row) => row.expediente,
+            selector: (row) => row.nombre1,
         },
         {
             name: `${t("eclinical.emergencias.datos.urgencia")}`,
             sortable: true,
             width: '160px',
-            selector: (row) => row.nombre1,
+            selector: (row) => row.nombre_motivoatencion,
         },
         {
             name: `${t("eclinical.emergencias.datos.alta")}`,
@@ -2637,7 +2637,7 @@ function Emergencias() {
 
             <Dialog
                 fullWidth
-                maxWidth="lg"
+                maxWidth="md"
                 open={ventanaMedicamentos}
                 onClose={cerrarMedicamentos}
             >
@@ -2649,7 +2649,7 @@ function Emergencias() {
                         }}
                     >
                         <Typography sx={{ fontSize: '1.3rem' }}>
-                            {t("eclinical.emergencias.formulario.seleccioncie10")}
+                            {t("eclinical.emergencias.formulario.selecciondosis")}
                         </Typography>
 
                         <IconButton
@@ -2663,6 +2663,30 @@ function Emergencias() {
                     </Toolbar>
                 </AppBar>
                 <DialogContent dividers>
+
+                    <Grid
+                        container
+                        noValidate
+                        direction="row"
+                        justifyContent="center"
+                        spacing={3}
+                        sx={{ my: 2 }}
+                        component="form"
+                        autoComplete="off"
+                    >
+                        <Grid item xs={6}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={`Dosis`}
+                                value={dosisMedicamentoSeleccionado}
+                                onChange={cambioDosis}
+                                name="dosis"
+
+                            />
+                        </Grid>
+                    </Grid>
                     <Card>
                         <CardContent
                             sx={{

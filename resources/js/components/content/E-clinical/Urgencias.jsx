@@ -273,26 +273,26 @@ function Urgencias() {
         {
             name: `${t("eclinical.emergencias.datos.fechaclasi")}`,
             sortable: true,
-            width: '100px',
-            selector: (row) => row.codigo,
+            width: '180px',
+            selector: (row) => row.fecha_admision,
         },
         {
             name: `${t("eclinical.emergencias.datos.hc")}`,
             sortable: true,
-            width: '160px',
-            selector: (row) => row.fecha_admision,
+            width: '80px',
+            selector: (row) => row.expediente,
         },
         {
             name: `${t("eclinical.emergencias.datos.paciente")}`,
             sortable: true,
             width: '160px',
-            selector: (row) => row.expediente,
+            selector: (row) => row.nombre1,
         },
         {
             name: `${t("eclinical.emergencias.datos.urgencia")}`,
             sortable: true,
             width: '160px',
-            selector: (row) => row.nombre1,
+            selector: (row) => row.nombre_motivoatencion,
         },
         {
             name: `${t("eclinical.emergencias.datos.alta")}`,
