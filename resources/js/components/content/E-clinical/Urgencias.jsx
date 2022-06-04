@@ -1379,7 +1379,12 @@ function Urgencias() {
                             ...prevState,
                             id_atencionmedica: response.data.id_atencionmedica,
                         }));
-                        notificarExitoCaso(response.data.id_atencionmedica);
+                        //notificarExitoCaso(response.data.id_atencionmedica);
+                        if(response.data.id_atencionmedica!=null){
+                            notificarExitoCaso(response.data.id_atencionmedica);
+                        }else{
+                            notificarErrorCaso();
+                        }
                         GetAdmisiones();
                         return response.data;
                     })

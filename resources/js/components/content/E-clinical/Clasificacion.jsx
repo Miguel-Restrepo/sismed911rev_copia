@@ -628,7 +628,7 @@ function Clasificacion() {
             selector: (row) => row.fecha_admision,
         },
         {
-            name: `${t("eclinical.clasificacion.datos.hc")}`,
+            name: `${t("eclinical.clasificacion.datos.expediente")}`,
             sortable: true,
             width: '160px',
             selector: (row) => row.expediente,
@@ -737,7 +737,7 @@ function Clasificacion() {
         axios
             .get("/api/sala_causatrauma")
             .then((response) => {
-                console.log(response.data)
+                //console.log(response.data)
                 setCausa(response.data);
                 return response.data;
             })
@@ -816,7 +816,13 @@ function Clasificacion() {
             .put(`/api/sala_admision/${idAdmision}`, formAdmision)
             .then((response) => {
                 GetAdmisiones();
-                notificarExitoCaso(idAdmision, formAdmision.clasificacion_admision);
+                if(formAdmision.clasificacion_admision!="")
+                {
+                    notificarExitoCaso(idAdmision, formAdmision.clasificacion_admision);    
+                }else{
+                    notificarExitoCaso(idAdmision, "Amarillo");    
+                }
+                
                 setMostrarFormulario(false);
                 return response.data;
             })
@@ -841,7 +847,22 @@ function Clasificacion() {
             id_signos: idPaciente,
         }));
     }, [paciente, idPaciente]);
-
+    useEffect(() => {
+        if(formAdmision.glasgow_admision>15){
+            setFormAdmision((prevState) => ({
+                ...prevState,
+                glasgow_admision: 15,
+            }));
+        }
+        if(formAdmision.so2_admision>100){
+            setFormAdmision((prevState) => ({
+                ...prevState,
+                glasgow_admision: 100,
+            }));
+        }
+      
+    }, [formAdmision.glasgow_admision, formAdmision.so2_admision]);
+    
     return (
         <div>
             <Backdrop
@@ -974,9 +995,9 @@ function Clasificacion() {
                                     )}</InputLabel>
                                     <Select
                                         labelId="label_tipo2"
-                                        value={formAdmision.id_salaCausa}
+                                        value={formAdmision.id_causatrauma}
                                         onChange={handleChange}
-                                        name="id_salaCausa"
+                                        name="id_causatrauma"
                                         label={`${t(
                                             "eclinical.clasificacion.datos.causatrauma"
                                         )}`}
@@ -1268,7 +1289,13 @@ function Clasificacion() {
                     <Grid item xs={12}>
                         {formAdmision.id_motivoatencion != "" &&
                             formAdmision.dolor != "" &&
-                            formAdmision.temp_admision != "" && (
+                            formAdmision.temp_admision != "" &&
+                            formAdmision.glasgow_admision != "" &&
+                            formAdmision.pas_admision != "" &&
+                            formAdmision.fc_admision != "" &&
+                            formAdmision.so2_admision != "" &&
+                            formAdmision.fr_admision != "" &&
+                          (
                                 <Button variant="outlined" onClick={PostAdmision}>
                                     {t("etiquetas.enviar")}
                                 </Button>
