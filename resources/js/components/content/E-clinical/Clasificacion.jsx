@@ -628,7 +628,7 @@ function Clasificacion() {
             selector: (row) => row.fecha_admision,
         },
         {
-            name: `${t("eclinical.clasificacion.datos.expediente")}`,
+            name: `${t('formularios.formpacientes.expediente')}`,
             sortable: true,
             width: '160px',
             selector: (row) => row.expediente,
@@ -637,7 +637,7 @@ function Clasificacion() {
             name: `${t("eclinical.clasificacion.datos.paciente")}`,
             sortable: true,
             minWidth: '160px',
-            selector: (row) => row.nombre1,
+            selector: (row) => row.nombre1+" "+row.apellido1,
         },
         {
             name: `${t("eclinical.clasificacion.datos.tipoingreso")}`,
@@ -854,15 +854,24 @@ function Clasificacion() {
                 glasgow_admision: 15,
             }));
         }
-        if(formAdmision.so2_admision>100){
+    
+      
+    }, [formAdmision.glasgow_admision]);
+    const handleChanges02 = (e) => {
+        let num=e.target.value.split(" ");
+        if(num[0]>100){
             setFormAdmision((prevState) => ({
                 ...prevState,
-                glasgow_admision: 100,
+                so2_admision: "100 %",
+            }));
+        }else{
+            setFormAdmision((prevState) => ({
+                ...prevState,
+                so2_admision: e.target.value,
             }));
         }
       
-    }, [formAdmision.glasgow_admision, formAdmision.so2_admision]);
-    
+    };
     return (
         <div>
             <Backdrop
@@ -1106,7 +1115,7 @@ function Clasificacion() {
                         <InputMask
                             mask="999 %"
                             value={formAdmision.so2_admision}
-                            onChange={handleChange}
+                            onChange={handleChanges02}
                         >
                             <TextField
                                 fullWidth
