@@ -185,11 +185,17 @@ function Urgencias() {
 
     const filteredItems = pacientes.filter(
         (item) =>
-        (item.codigo_cie &&
-            item.codigo_cie
-                .toString()
-                .toLowerCase()
-                .includes(filterText.toLowerCase()))
+            (item.codigo_cie &&
+                item.codigo_cie
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.diagnostico &&
+                item.diagnostico
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase()))
     );
     const subHeaderComponent = useMemo(() => {
         const handleClear = () => {
