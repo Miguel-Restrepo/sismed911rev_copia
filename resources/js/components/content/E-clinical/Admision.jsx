@@ -110,7 +110,7 @@ function Admision() {
         apodo: '',
         nacionalidad: '',
         telefono: '',
-        aseguradro: '',
+        nss: '',
         direccion: '',
         observacion: '',
     });
@@ -143,39 +143,64 @@ function Admision() {
         {
             name: `${t('eclinical.admision.datos.id')}`,
             sortable: true,
-            width: '100px',
+            width: '80px',
             selector: (row) => row.codigo,
         },
         {
-            name: `${t('eclinical.admision.datos.nombre1')}`,
+            name: `${t('formularios.formpacientes.docid')}`,
             sortable: true,
-            width: '160px',
+            minWidth: '180px',
+            selector: (row) => row.descripcion,
+        },
+        {
+            name: `${t('formularios.formpacientes.numero')}`,
+            sortable: true,
+            minWidth: '120px',
+            selector: (row) => row.num_doc,
+        },
+        {
+            name: `${t('formularios.formpacientes.expediente')}`,
+            sortable: true,
+            minWidth: '110px',
+            selector: (row) => row.expendiente,
+        },
+        {
+            name: `${t('formularios.formpacientes.fechanac')}`,
+            sortable: true,
+            minWidth: '180px',
+            selector: (row) => row.fecha_nacido,
+        },
+        {
+            name: `${t('formularios.formpacientes.nombre1')}`,
+            sortable: true,
+            width: '130px',
             selector: (row) => row.nombre1,
         },
+
         {
-            name: `${t('eclinical.admision.datos.nombre2')}`,
-            sortable: true,
-            minWidth: '200px',
-            selector: (row) => row.nombre2,
-        },
-        {
-            name: `${t('eclinical.admision.datos.apellido1')}`,
+            name: `${t('formularios.formpacientes.apellido1')}`,
             wrap: true,
             sortable: true,
-            minWidth: '200px',
+            minWidth: '130px',
             selector: (row) => row.apellido1,
         },
         {
-            name: `${t('eclinical.admision.datos.apellido2')}`,
+            name: `${t('formularios.formpacientes.genero')}`,
             wrap: true,
             sortable: true,
-            minWidth: '200px',
-            selector: (row) => row.apellido2,
+            minWidth: '130px',
+            selector: (row) => row.nombre_genero,
+        },
+        {
+            name: `${t('formularios.formpacientes.nacionalidad')}`,
+            sortable: true,
+            minWidth: '150px',
+            selector: (row) => row.nacionalidad,
         }
     ]);
 
     const handleRowClicked = (row) => {
-        setPacienteTemp(row.descripcion+" "+row.codigo+" "+row.nombre1+ " "+ row.nombre_genero+ " "+row.fecha_nacido);
+        setPacienteTemp(row.descripcion + " " + row.num_doc + " " + row.nombre1 + " " + row.apellido1 + " " + row.nombre_genero + " " + row.fecha_nacido);
         setIdPacienteTemp(row.codigo);
         let select = row;
         if (!idPacienteTemp) {
@@ -236,6 +261,7 @@ function Admision() {
             .get('/api/pacientegeneral')
             .then((response) => {
                 setPacientes(response.data);
+                //console.log(response.data);
                 return response.data;
             })
             .catch((error) => {
@@ -447,11 +473,53 @@ function Admision() {
 
     const filteredItems = pacientes.filter(
         (item) =>
-        (item.codigo &&
-            item.codigo
-                .toString()
-                .toLowerCase()
-                .includes(filterText.toLowerCase()))
+            (item.codigo &&
+                item.codigo
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.descripcion &&
+                item.descripcion
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.num_doc &&
+                item.num_doc
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.expendiente &&
+                item.expendiente
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.fecha_nacido &&
+                item.fecha_nacido
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.nombre1 &&
+                item.nombre1
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.apellido1 &&
+                item.apellido1
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase()))
+            ||
+            (item.nombre_genero &&
+                item.nombre_genero
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase()))
+            ||
+            (item.nacionalidad &&
+                item.nacionalidad
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase()))
     );
 
     const mostarError = (texto) => {
@@ -589,7 +657,7 @@ function Admision() {
                             <FormControl fullWidth size="small">
                                 <TextField
                                     id="outlined-textarea"
-                                    label={`${t('eclinical.admision.datos.nombre1')}`}
+                                    label={`${t('eclinical.admision.datos.id')} 911`}
                                     placeholder={`${t('formularios.ambulancia')}`}
                                     value={form.cod911} onChange={handleChange}
                                     name="cod911"
@@ -1115,8 +1183,8 @@ function Admision() {
                                     'formularios.formpacientes.segurosocial'
                                 )}:`}
                                 variant="outlined"
-                                name="aseguradro"
-                                value={form2.aseguradro}
+                                name="nss"
+                                value={form2.nss}
                                 onChange={handleChange1}
                             />
                         </Grid>

@@ -1353,8 +1353,8 @@ function Urgencias() {
         });
 
     const PostSala = () => {
-        if (form2.id_admision != "") {
-            if (form2.id_atencionmedica == "") {
+        if (form2.id_admision != "" && form2.id_admision != null) {
+            if (form2.id_atencionmedica == "" || form2.id_atencionmedica == null) {
                 axios
                     .post(`/api/sala_atencionmedica/`, {
                         id_admision: form2.id_admision,
@@ -1385,7 +1385,12 @@ function Urgencias() {
                             ...prevState,
                             id_atencionmedica: response.data.id_atencionmedica,
                         }));
-                        notificarExitoCaso(response.data.id_atencionmedica);
+                        //notificarExitoCaso(response.data.id_atencionmedica);
+                        if(response.data.id_atencionmedica!=null){
+                            notificarExitoCaso(response.data.id_atencionmedica);
+                        }else{
+                            notificarErrorCaso();
+                        }
                         GetAdmisiones();
                         return response.data;
                     })
@@ -1445,6 +1450,7 @@ function Urgencias() {
                     notificarExitoCaso(
                         response.data.id_atencionmedica_medicamentos
                     );
+                    
                     return response.data;
                 })
                 .catch((error) => {
@@ -2607,6 +2613,7 @@ function Urgencias() {
                         onClick={() => {
                             setPaciente(pacienteTemp);
                             setIdPaciente(idPacienteTemp);
+                            
                             handleClose2();
                         }}
                     >
@@ -2785,6 +2792,17 @@ function Urgencias() {
                                     dosis: medicamentosSeleccionado.dosis,
                                 }));
                             }
+                            setFilterTextmedicamentos('');
+                            setdosisMedicamentoSeleccionado("");
+                            const updatedData = medicamentos.map((item) => {
+
+
+                                return {
+                                    ...item,
+                                    toggleSelected: false,
+                                };
+                            });
+                            setMedicamentos(updatedData);
                             cerrarMedicamentos();
                         }}
                     >
@@ -2935,6 +2953,17 @@ function Urgencias() {
                                     id_examen: examenesSeleccionado.id_examen,
                                 }));
                             }
+                            setFilterTextexamenes('');
+                            const updatedData = examenes.map((item) => {
+
+
+                                return {
+                                    ...item,
+                                    toggleSelected: false,
+                                };
+                            });
+                            setExamenes(updatedData);
+                            
                             cerrarExamenes();
                         }}
                     >
