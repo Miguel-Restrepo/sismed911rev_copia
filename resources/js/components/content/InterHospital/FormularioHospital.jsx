@@ -1,303 +1,197 @@
-import React from 'react';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Icofont from 'react-icofont';
-import Modal from 'react-bootstrap/Modal';
-import BootstrapTable from 'react-bootstrap-table-next';
-import paginationFactory, {
-    PaginationProvider,
-    PaginationListStandalone,
-} from 'react-bootstrap-table2-paginator';
+import {
+    Autocomplete,
+    Backdrop,
+    Box,
+    Button,
+    CircularProgress,
+    Grid,
+    Stack,
+    TextField,
+    Typography,
+} from '@mui/material';
+
+import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
-import ToolkitProvider, {
-    Search,
-} from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit';
-import 'react-datepicker/dist/react-datepicker.css';
-import 'rc-picker/assets/index.css';
-import DatePicker from 'react-datepicker';
 import { useTranslation } from 'react-i18next';
 
-const FormularioHospital = (params) => {
+toast.configure();
+
+const moment = require('moment');
+
+export default ({ caso, dataHospitales, actualizar }) => {
     const [t, i18n] = useTranslation('global');
-    const [show2, setShow2] = useState(false);
-    const handleClose2 = () => setShow2(false);
-    const handleShow2 = () => setShow2(true);
-    const [hospital, sethospital] = useState('');
-    const [idhospital, setIdhospital] = useState('');
-    const [hospitalTemp, sethospitalTemp] = useState('');
-    const [idhospitalTemp, setIdhospitalTemp] = useState('');
-    const [startDate, setStartDate] = useState(
-        params.formHospital.hora_seleccion_hospital
-    );
+    const [openLoad, setOpenLoad] = useState(false);
+    const [hospital, setHospital] = useState(null);
 
-    const { SearchBar } = Search;
-    //TABLA hospital
-    const columns = [
-        {
-            dataField: 'nombre_hospital',
-            text: `${t('formularios.formhospital.hospital')}`,
-            sort: true,
-        },
-    ];
+    const [form, setForm] = useState({
+        hospital_destinointerh: '',
+        hora_seleccion_hospital: '',
+        nombre_recibe: '',
+        telefonointerh: '',
+    });
 
-    const options = {
-        custom: true,
-        paginationSize: 3,
-        pageStartIndex: 1,
-        firstPageText: `${t('tabla.primera')}`,
-        prePageText: `${t('tabla.anterior')}`,
-        nextPageText: `${t('tabla.sgte')}`,
-        lastPageText: `${t('tabla.ultima')}`,
-        nextPageTitle: `${t('tabla.sgtepag')}`,
-        prePageTitle: `${t('tabla.anteriorpag')}`,
-        firstPageTitle: `${t('tabla.primerapag')}`,
-        lastPageTitle: `${t('tabla.ultimapag')}`,
-        showTotal: true,
-        totalSize: params.hospitales.length,
-    };
-
-    const selectRow = {
-        mode: 'radio',
-        clickToSelect: true,
-        hideSelectColumn: true,
-        style: { color: '#fff', background: '#0d6efd' },
-        onSelect: (row, isSelect, rowIndex, e) => {
-            sethospitalTemp(row.nombre_hospital);
-            setIdhospitalTemp(row.id_hospital);
-        },
-    };
-
-    const contentTable = ({ paginationProps, paginationTableProps }) => (
-        <div>
-            <ToolkitProvider
-                keyField="id_hospital"
-                columns={columns}
-                data={params.hospitales}
-                search
-            >
-                {(toolkitprops) => (
-                    <div>
-                        <SearchBar
-                            placeholder={`${t('tabla.buscador')}`}
-                            {...toolkitprops.searchProps}
-                            className="mb-3"
-                        />
-                        <BootstrapTable
-                            hover
-                            {...toolkitprops.baseProps}
-                            {...paginationTableProps}
-                            noDataIndication={`${t('tabla.sindatos')}`}
-                            selectRow={selectRow}
-                        />
-                    </div>
-                )}
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
-    );
-
-    const handleChangeHospital = (e) => {
-        e.persist();
-        params.setFormHospital((prevState) => ({
+    const handleChangeForm = (e) => {
+        setForm((prevState) => ({
             ...prevState,
             [e.target.name]: e.target.value,
         }));
     };
 
-    useEffect(() => {
-        sethospital('');
-        params.hospitales.map((hospital) => {
-            if (
-                params.formHospital.hospital_destinointerh ==
-                hospital.id_hospital
-            ) {
-                // sethospital(hospital.nombre_hospital+" region: "+",  provincia: "+", distrito: ");
-                let pertenece = '';
-                if (hospital.nombre_dpto != null) {
-                    pertenece = ' Región: ' + hospital.nombre_dpto + ',';
-                }
-                if (hospital.nombre_provincia != null) {
-                    pertenece =
-                        pertenece +
-                        ' Provincia: ' +
-                        hospital.nombre_provincia +
-                        ',';
-                }
-                if (hospital.nombre_provincia != null) {
-                    pertenece =
-                        pertenece +
-                        ' Distrito: ' +
-                        hospital.nombre_provincia +
-                        ',';
-                }
-                if (
-                    hospital.nombre_dpto != null ||
-                    hospital.nombre_provincia != null ||
-                    hospital.nombre_provincia != null
-                ) {
-                    pertenece = pertenece.substring(0, pertenece.length - 1);
-                    sethospital(hospital.nombre_hospital + pertenece);
-                } else {
-                    sethospital(hospital.nombre_hospital);
-                }
-            }
+    const PutHospitales = async () => {
+        setOpenLoad(true);
+        await axios
+            .put(`/api/interh_maestro/${caso.codigo}`, form)
+            .then((response) => {
+                mostarSuccess(t('mensajes.mshexito'));
+                actualizar();
+            })
+            .catch((error) => {
+                setOpenLoad(false);
+                mostarError(t('mensajes.mshrror'));
+            });
+    };
+
+    const mostarSuccess = (texto) => {
+        toast.success(texto, {
+            position: 'top-right',
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'colored',
         });
+    };
 
-        if (
-            params.formHospital.hora_seleccion_hospital != null &&
-            params.formHospital.hora_seleccion_hospital != ''
-        ) {
-            setStartDate(new Date(params.formHospital.hora_seleccion_hospital));
-        }
-    }, [params.formHospital.hospital_destinointerh]);
+    const mostarError = (texto) => {
+        toast.error(texto, {
+            position: 'top-right',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'colored',
+        });
+    };
 
     useEffect(() => {
-        params.setFormHospital((prevState) => ({
+        if (caso.hospital_destinointerh) {
+            const index = dataHospitales.findIndex(
+                (item) => item.id_hospital === caso.hospital_destinointerh
+            );
+            if (index !== -1) setHospital(dataHospitales[index]);
+        }
+
+        setForm((prevState) => ({
             ...prevState,
-            hora_seleccion_hospital: startDate,
+            hospital_destinointerh: caso.hospital_destinointerh
+                ? caso.hospital_destinointerh
+                : '',
+            hora_seleccion_hospital: caso.hora_seleccion_hospital
+                ? caso.hora_seleccion_hospital
+                : '',
+            nombre_recibe: caso.nombre_recibe ? caso.nombre_recibe : '',
+            telefonointerh: caso.telefonointerh ? caso.telefonointerh : '',
         }));
-    }, [startDate]);
+    }, [caso]);
 
     return (
-        <div>
-            {params.formHospital.cod_casointerh != '' ? (
-                <Form>
-                    <Col xs="auto">
-                        <Form.Label htmlFor="inlineFormInputGroup">
-                            <strong>
-                                {' '}
-                                {t('formularios.formhospital.hptldestino')}
-                            </strong>
-                        </Form.Label>
+        <Box sx={{ m: 2 }}>
+            <Backdrop
+                sx={{
+                    color: '#fff',
+                    zIndex: (theme) => theme.zIndex.drawer + 101,
+                }}
+                open={openLoad}
+            >
+                <Stack spacing={1} alignItems="center">
+                    <CircularProgress disableShrink color="inherit" />
+                    <Typography>{t('etiquetas.cargando')}</Typography>
+                </Stack>
+            </Backdrop>
 
-                        <InputGroup className="mb-2">
-                            <Form.Control
-                                id="inlineFormInputGroup"
-                                placeholder={`${t(
-                                    'formularios.formhospital.hptldestino'
-                                )}`}
-                                name="hospital_destinointerh"
-                                disabled
-                                value={hospital}
-                                onChange={handleChangeHospital}
-                            />
-                            <InputGroup.Text onClick={handleShow2}>
-                                <Icofont icon="ui-search" className="mx-2" />
-                            </InputGroup.Text>
-                        </InputGroup>
-                    </Col>
-                    <Form.Group as={Col} xs="auto">
-                        <Row>
-                            <Col>
-                                <Form.Label>
-                                    <strong>
-                                        {t(
-                                            'formularios.formhospital.hasignacion'
-                                        )}
-                                    </strong>
-                                </Form.Label>
-                            </Col>
-                        </Row>
-                        <InputGroup className="mb-2">
-                            <div>
-                                <DatePicker
-                                    selected={startDate}
-                                    disabled
-                                    onChange={(date) => setStartDate(date)}
-                                    timeInputLabel={`${t('etiquetas.hora')}`}
-                                    dateFormat="yyyy/MM/dd h:mm:ss"
-                                    showTimeInput
-                                    customInput={<Form.Control />}
-                                    name="hora_seleccion_hospital"
+            <Grid container spacing={2} sx={{ mb: 2 }}>
+                <Grid item xs={12}>
+                    <Stack direction="row" sx={{ alignItems: 'flex-start' }}>
+                        <Autocomplete
+                            fullWidth
+                            size="small"
+                            value={hospital}
+                            disableClearable
+                            options={dataHospitales}
+                            getOptionLabel={(option) => option.nombre_hospital}
+                            onChange={(event, newValue) => {
+                                setHospital(newValue);
+                                setForm((prevState) => ({
+                                    ...prevState,
+                                    hospital_destinointerh:
+                                        newValue.id_hospital,
+                                    hora_seleccion_hospital: moment().format(
+                                        'YYYY/MM/DD HH:mm:ss'
+                                    ),
+                                }));
+                            }}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label={`${t(
+                                        'formularios.formhospital.hptldestino'
+                                    )}:`}
                                 />
-                            </div>
-                        </InputGroup>
-                    </Form.Group>
+                            )}
+                        />
+                    </Stack>
+                </Grid>
 
-                    <Row className="mb-3">
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formhospital.nombremedico')}
-                                </strong>
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder={`${t(
-                                    'formularios.formhospital.nombremedico'
-                                )}`}
-                                value={params.formHospital.nombre_recibe}
-                                name="nombre_recibe"
-                                onChange={handleChangeHospital}
-                            />
-                        </Form.Group>
+                <Grid item xs={12} md={4}>
+                    <TextField
+                        disabled
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        value={form.hora_seleccion_hospital}
+                        label={`${t('formularios.formhospital.hasignacion')}:`}
+                    />
+                </Grid>
 
-                        <Form.Group as={Col}>
-                            <Form.Label>
-                                <strong>
-                                    {t('formularios.formhospital.telmedico')}
-                                </strong>
-                            </Form.Label>
-                            <Form.Control
-                                type="number"
-                                placeholder={`${t(
-                                    'formularios.formhospital.telmedico'
-                                )}`}
-                                value={params.formHospital.telefonointerh}
-                                name="telefonointerh"
-                                onChange={handleChangeHospital}
-                            />
-                        </Form.Group>
-                    </Row>
-                </Form>
-            ) : (
-                ''
-            )}
+                <Grid item xs={12} md={4}>
+                    <TextField
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        name="nombre_recibe"
+                        value={form.nombre_recibe}
+                        onChange={handleChangeForm}
+                        label={`${t('formularios.formhospital.nombremedico')}:`}
+                    />
+                </Grid>
 
-            <Modal show={show2} onHide={handleClose2} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>
-                        {t('formularios.formhospital.selechptl')}
-                    </Modal.Title>
-                </Modal.Header>
+                <Grid item xs={12} md={4}>
+                    <TextField
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        name="telefonointerh"
+                        value={form.telefonointerh}
+                        onChange={handleChangeForm}
+                        label={`${t('formularios.formhospital.telmedico')}:`}
+                    />
+                </Grid>
+            </Grid>
 
-                <Modal.Body>
-                    <PaginationProvider pagination={paginationFactory(options)}>
-                        {contentTable}
-                    </PaginationProvider>
-                </Modal.Body>
-
-                <Modal.Footer>
-                    <Button
-                        variant="primary"
-                        onClick={() => {
-                            sethospital(hospitalTemp);
-                            setIdhospital(idhospitalTemp);
-                            params.setFormHospital((prevState) => ({
-                                ...prevState,
-                                hospital_destinointerh: idhospitalTemp,
-                            }));
-                            setStartDate(new Date());
-                            handleClose2();
-                        }}
-                    >
-                        {t('etiquetas.seleccionar')}
-                    </Button>
-                    <Button
-                        variant="secondary"
-                        onClick={() => {
-                            handleClose2();
-                        }}
-                    >
-                        {t('etiquetas.cancelar')}
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-        </div>
+            <Stack direction="row" justifyContent="end">
+                <Button
+                    variant="contained"
+                    sx={{ flexGrow: 0 }}
+                    color={'primary'}
+                    onClick={PutHospitales}
+                >
+                    {t('etiquetas.guardar')}
+                </Button>
+            </Stack>
+        </Box>
     );
 };
-
-export default FormularioHospital;

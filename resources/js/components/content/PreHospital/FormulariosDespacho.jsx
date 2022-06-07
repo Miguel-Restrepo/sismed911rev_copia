@@ -1,6 +1,6 @@
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
-import FormularioAmbulancia from './FormularioAmbulancia';
+import FormularioAmbulancia from './FormularioAmbulancia_';
 import Icofont from 'react-icofont';
 import { useTranslation } from 'react-i18next';
 

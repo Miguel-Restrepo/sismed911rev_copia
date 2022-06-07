@@ -1344,7 +1344,7 @@ function Emergencias() {
         if (form2.id_admision != "" && form2.id_admision != null) {
             if (form2.id_atencionmedica == "" || form2.id_atencionmedica == null) {
                 axios
-                    .post(`/api/sala_atencionmedica/`, {
+                    .post(`/api/sala_atencionmedica`, {
                         id_admision: form2.id_admision,
                         general: cambio(form2.general),
                         cabeza: cambio(form2.cabeza),

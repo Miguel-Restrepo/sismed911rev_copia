@@ -186,10 +186,16 @@ function Urgencias() {
     const filteredItems = pacientes.filter(
         (item) =>
         (item.codigo_cie &&
-            item.codigo_cie
-                .toString()
-                .toLowerCase()
-                .includes(filterText.toLowerCase()))
+                item.codigo_cie
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.diagnostico &&
+                item.diagnostico
+                    .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase()))
     );
     const subHeaderComponent = useMemo(() => {
         const handleClear = () => {
@@ -1350,7 +1356,7 @@ function Urgencias() {
         if (form2.id_admision != "" && form2.id_admision != null) {
             if (form2.id_atencionmedica == "" || form2.id_atencionmedica == null) {
                 axios
-                    .post(`/api/sala_atencionmedica/`, {
+                    .post(`/api/sala_atencionmedica`, {
                         id_admision: form2.id_admision,
                         general: cambio(form2.general),
                         cabeza: cambio(form2.cabeza),

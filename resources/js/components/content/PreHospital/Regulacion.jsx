@@ -1,56 +1,670 @@
-import Tabla from './Tabla';
-import Formularios from './Formularios';
+import {
+    AppBar,
+    Autocomplete,
+    Backdrop,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    FormControl,
+    FormControlLabel,
+    FormHelperText,
+    FormLabel,
+    Grid,
+    IconButton,
+    InputLabel,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+    ListSubheader,
+    MenuItem,
+    Radio,
+    RadioGroup,
+    Select,
+    Stack,
+    Tab,
+    Tabs,
+    TextField,
+    Toolbar,
+    Typography,
+} from '@mui/material';
 
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Alert from 'react-bootstrap/Alert';
+import common from '../../../common';
+
+import { toast } from 'react-toastify';
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import LocalHospitalRoundedIcon from '@mui/icons-material/LocalHospitalRounded';
+import MapRoundedIcon from '@mui/icons-material/MapRounded';
+import AccessTimeRoundedIcon from '@mui/icons-material/AccessTimeRounded';
+import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
+import BadgeRoundedIcon from '@mui/icons-material/BadgeRounded';
+import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
+import ManRoundedIcon from '@mui/icons-material/ManRounded';
+import MonitorHeartRoundedIcon from '@mui/icons-material/MonitorHeartRounded';
+import DomainRoundedIcon from '@mui/icons-material/DomainRounded';
+import TaxiAlertRoundedIcon from '@mui/icons-material/TaxiAlertRounded';
+
+import DataTable from 'react-data-table-component';
 import PhoneInput from 'react-phone-input-2';
 
-import { DateTime } from 'luxon';
-import { toast } from 'react-toastify';
-import { useTranslation } from 'react-i18next';
-import { useEffect, useState } from 'react';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-    faMapMarkedAlt,
-    faClinicMedical,
-} from '@fortawesome/free-solid-svg-icons';
-
-import axios from 'axios';
-import ServiceConfig from '../config/service';
-
-//import 'react-phone-input-2/lib/style.css';
-import 'react-toastify/dist/ReactToastify.css';
+import FormularioPaciente from './FormularioPaciente';
+import FormularioEvaluacion from './FormularioEvaluacion';
+import FormularioHospital from './FormularioHospital';
 
 toast.configure();
 
-const Regulacion = () => {
+const moment = require('moment');
+
+const dataPreh = {
+    telefono_confirma: '',
+    llamada_fallida: 0,
+    fecha: moment().format('YYYY-MM-DD HH:mm:ss'),
+    quepasa: '',
+    incidente: '',
+    direccion: '',
+    nombre_reporta: '',
+    prioridad: '',
+    accion: '',
+    caso_multiple: '',
+};
+
+export default () => {
     const [t, i18n] = useTranslation('global');
-    const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
-    const [showModalExito, setShowModalExito] = useState(false);
-    const handleCloseModalExito = () => setShowModalExito(false);
-    const handleShowModalExito = () => setShowModalExito(true);
-    const [showModalError, setShowModalError] = useState(false);
-    const handleCloseModalError = () => setShowModalError(false);
-    const handleShowModalError = () => setShowModalError(true);
-    const [acciones, setAcciones] = useState([]);
-    const [incidentes, setIncidentes] = useState([]);
-    const [prioridades, setPrioridades] = useState([]);
-    const [archivo, setArchivo] = useState(null);
+    const [openLoad, setOpenLoad] = useState(false);
+    const [textLoad, setTextLoad] = useState('Cargando ...');
+
+    const [data, setData] = useState([]);
+    const [dataHospitales, setDataHospitales] = useState([]);
+    const [dataAcciones, setDataAcciones] = useState([]);
+    const [dataLlamadas, setDataLlamadas] = useState([]);
+    const [dataIncidentes, setDataIncidentes] = useState([]);
+    const [dataPrioridades, setDataPrioridades] = useState([]);
+    const [dataTipoCierre, setDataTipoCierre] = useState([]);
+    const [dataCIE10, setDataCIE10] = useState([]);
+    const [dataTipos, setDataTipos] = useState([]);
+
+    const [openDialog, setOpenDialog] = useState(false);
+    const [openDialogSeg, setOpenDialogSeg] = useState(false);
+    const [openDialogArch, setOpenDialogArch] = useState(false);
+    const [openDialogDesp, setOpenDialogDesp] = useState(false);
+    const [openDialogCC, setOpenDialogCC] = useState(false);
+
+    const [filterText, setFilterText] = useState('');
+    const [selectedData, setSelectedData] = useState(null);
+    const [showForms, setShowForms] = useState(null);
+    const [value, setValue] = useState(0);
+    const [paciente, setPaciente] = useState('');
+    const [hospital, setHospital] = useState(null);
+    const [contenidoIncidente, setContenidoIncidente] = useState('');
+
     const [archivos, setArchivos] = useState([]);
-    const [llamadas, setLlamadas] = useState([]);
-    const [contenido_Incidente, setContenido_Incidente] = useState('');
-    const [ultimo, setUltimo] = useState('');
-    const [datos, setDatos] = useState([]);
+    const [archivosNC, setArchivosNC] = useState([]);
+
+    const [seguimiento, setSeguimiento] = useState('');
+    const [nombrecierre, setNombrecierre] = useState('');
+    const [nota, setNota] = useState('');
+
+    const [errorCierre, setErrorCierre] = useState(false);
+    const [helpCierre, setHelpCierre] = useState('');
+
+    const filteredItems = data.filter(
+        (item) =>
+            (item.codigo &&
+                item.codigo
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.fecha &&
+                item.fecha.toLowerCase().includes(filterText.toLowerCase())) ||
+            (item.nombres_pacientes &&
+                item.nombres_pacientes
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.direccion_preh &&
+                item.direccion_preh
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.nombre_es &&
+                item.nombre_es
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.nombre_prioridad &&
+                item.nombre_prioridad
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.nombre_hospital &&
+                item.nombre_hospital
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.nombre_medico &&
+                item.nombre_medico
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.telefono &&
+                item.telefono.toLowerCase().includes(filterText.toLowerCase()))
+    );
+
+    const subHeaderComponent = useMemo(() => {
+        const handleClear = () => {
+            if (filterText) setFilterText('');
+        };
+
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
+                        <Button
+                            variant="outlined"
+                            startIcon={<LocalHospitalRoundedIcon />}
+                            onClick={() => setOpenDialog(true)}
+                        >
+                            {t('etiquetas.nuevocaso')}
+                        </Button>
+
+                        <Button
+                            variant="outlined"
+                            startIcon={<MapRoundedIcon />}
+                        >
+                            {t('etiquetas.mapa')}
+                        </Button>
+                    </Stack>
+                </Grid>
+
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear}
+                        filterText={filterText}
+                        onFilter={(e) => setFilterText(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterText]);
+
+    const columns = useMemo(() => [
+        {
+            name: `${t('unificado.tabla.datos.ncaso')}`,
+            width: '105px',
+            sortable: true,
+            center: true,
+            selector: (row) => row.codigo,
+        },
+        {
+            name: `${t('unificado.tabla.datos.fecha')}`,
+            width: '165px',
+            sortable: true,
+            selector: (row) => row.fecha,
+        },
+        {
+            name: `${t('unificado.tabla.datos.tiempo')}`,
+            width: '160px',
+            cell: (row) => (
+                <Box
+                    sx={{ color: '#d32f2f' }}
+                    onClick={() => handleRowClicked(row)}
+                >
+                    <AccessTimeRoundedIcon />{' '}
+                    {`${Math.floor(
+                        Math.abs(Date.parse(row.fecha) - new Date()) / 1000 / 60
+                    )} MIN`}
+                </Box>
+            ),
+        },
+        {
+            name: `${t('unificado.unido.formulario.pacientes')}`,
+            wrap: true,
+            sortable: true,
+            minWidth: '200px',
+            selector: (row) => row.nombres_pacientes,
+        },
+        {
+            name: `${t('unificado.unido.formulario.direccion')}`,
+            wrap: true,
+            sortable: true,
+            minWidth: '200px',
+            selector: (row) => row.direccion_preh,
+        },
+        {
+            name: `${t('unificado.unido.formulario.incidente')}`,
+            wrap: true,
+            sortable: true,
+            minWidth: '200px',
+            selector: (row) => row.nombre_es,
+        },
+        {
+            name: `${t('interhospital.tabla.datos.prioridad')}`,
+            wrap: true,
+            sortable: true,
+            width: '120px',
+            selector: (row) => row.nombre_prioridad,
+        },
+        {
+            name: `${t('unificado.tabla.datos.hptldestino')}`,
+            wrap: true,
+            sortable: true,
+            minWidth: '200px',
+            selector: (row) => row.nombre_hospital,
+        },
+        {
+            name: `${t('unificado.unido.formulario.nombremedico')}`,
+            wrap: true,
+            sortable: true,
+            minWidth: '150px',
+            selector: (row) => row.nombre_medico,
+        },
+        {
+            name: `${t('unificado.unido.formulario.telmedico')}`,
+            wrap: true,
+            sortable: true,
+            minWidth: '180px',
+            selector: (row) => row.telefono,
+        },
+        {
+            name: `${t('unificado.tabla.datos.acciones')}`,
+            width: '200px',
+            center: true,
+            cell: (row) => {
+                return (
+                    <Stack direction="row">
+                        <common.BootstrapTooltip
+                            title={t('unificado.tabla.datos.seguimiento')}
+                        >
+                            <IconButton
+                                color="success"
+                                onClick={() => {
+                                    handleRowClickedButton(row);
+                                    setOpenDialogSeg(true);
+                                }}
+                            >
+                                <ReceiptLongRoundedIcon />
+                            </IconButton>
+                        </common.BootstrapTooltip>
+
+                        <common.BootstrapTooltip
+                            title={t('unificado.tabla.formulario.archivos')}
+                        >
+                            <IconButton
+                                color="inherit"
+                                onClick={() => {
+                                    handleRowClickedButton(row);
+                                    setOpenDialogArch(true);
+                                }}
+                            >
+                                <BadgeRoundedIcon />
+                            </IconButton>
+                        </common.BootstrapTooltip>
+
+                        {row.accion != 1 && (
+                            <common.BootstrapTooltip
+                                title={t('unificado.tabla.datos.despacho')}
+                            >
+                                <IconButton
+                                    color="warning"
+                                    onClick={() => {
+                                        handleRowClickedButton(row);
+                                        setOpenDialogDesp(true);
+                                    }}
+                                >
+                                    <TaxiAlertRoundedIcon />
+                                </IconButton>
+                            </common.BootstrapTooltip>
+                        )}
+
+                        <common.BootstrapTooltip
+                            title={t('etiquetas.cerrarcaso')}
+                        >
+                            <IconButton
+                                color="error"
+                                onClick={() => {
+                                    handleRowClickedButton(row);
+                                    setOpenDialogCC(true);
+                                }}
+                            >
+                                <CancelRoundedIcon />
+                            </IconButton>
+                        </common.BootstrapTooltip>
+                    </Stack>
+                );
+            },
+        },
+    ]);
+
+    const [form, setForm] = useState(dataPreh);
+
+    const loadData = async () => {
+        setOpenLoad(true);
+
+        await axios
+            .get('/api/hospitalesgeneral')
+            .then((response) => setDataHospitales(response.data))
+            .catch((error) => console.log(error.data));
+
+        await axios
+            .get('/api/interh_accion')
+            .then((response) => setDataAcciones(response.data))
+            .catch((error) => console.log(error.data));
+
+        await axios
+            .get('/api/tipo_llamada')
+            .then((response) => setDataLlamadas(response.data))
+            .catch((error) => console.log(error.data));
+
+        await axios
+            .get('/api/incidentes')
+            .then((response) => setDataIncidentes(response.data))
+            .catch((error) => console.log(error.data));
+
+        await axios
+            .get('/api/interh_prioridad')
+            .then((response) => setDataPrioridades(response.data))
+            .catch((error) => console.log(error.data));
+
+        await axios
+            .get('/api/tipo_cierrecaso')
+            .then((response) => setDataTipoCierre(response.data))
+            .catch((error) => console.log(error.data));
+
+        await axios
+            .get('/api/cie10')
+            .then((response) => setDataCIE10(response.data))
+            .catch((error) => console.log(error.data));
+
+        await axios
+            .get('/api/tipo_paciente')
+            .then((response) => setDataTipos(response.data))
+            .catch((error) => console.log(error.data));
+
+        fetchData();
+    };
+
+    const fetchData = async () => {
+        await axios
+            .get('/api/preh_maestro/habilitados')
+            .then((response) => {
+                setData(response.data);
+            })
+            .catch((error) => console.log(error.data));
+
+        setOpenLoad(false);
+    };
+
+    const handleRowClicked = (row) => {
+        let select = row;
+        setPaciente('');
+        if (!selectedData) {
+            setSelectedData(row);
+            const updatedData = data.map((item) => {
+                if (row.codigo !== item.codigo) {
+                    return item;
+                }
+
+                return {
+                    ...item,
+                    toggleSelected: true,
+                };
+            });
+
+            setData(updatedData);
+        } else {
+            if (row.codigo === selectedData.codigo) {
+                select = null;
+                setSelectedData(null);
+                const updatedData = data.map((item) => {
+                    if (row.codigo !== item.codigo) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: false,
+                    };
+                });
+                setData(updatedData);
+            } else {
+                setSelectedData(row);
+                const updatedData = data.map((item) => {
+                    if (selectedData.codigo === item.codigo) {
+                        return {
+                            ...item,
+                            toggleSelected: false,
+                        };
+                    } else if (row.codigo !== item.codigo) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: true,
+                    };
+                });
+                setData(updatedData);
+            }
+        }
+        setShowForms(select !== null);
+    };
+
+    const handleRowClickedButton = (row) => {
+        if (!selectedData) {
+            setSelectedData(row);
+            const updatedData = data.map((item) => {
+                if (row.codigo !== item.codigo) {
+                    return item;
+                }
+
+                return {
+                    ...item,
+                    toggleSelected: true,
+                };
+            });
+
+            setData(updatedData);
+            setShowForms(true);
+        } else {
+            if (row.codigo !== selectedData.codigo) {
+                setPaciente('');
+                setSelectedData(row);
+                const updatedData = data.map((item) => {
+                    if (selectedData.codigo === item.codigo) {
+                        return {
+                            ...item,
+                            toggleSelected: false,
+                        };
+                    } else if (row.codigo !== item.codigo) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: true,
+                    };
+                });
+                setData(updatedData);
+            }
+        }
+    };
+
+    const handleChange = (event, newValue) => {
+        setValue(newValue);
+    };
+
+    const handleChangeForm = (e) => {
+        setForm((prevState) => ({
+            ...prevState,
+            [e.target.name]: e.target.value,
+        }));
+    };
+
+    const actualizar = () => {
+        setShowForms(false);
+        setSelectedData(null);
+        fetchData();
+    };
+
+    const Post = async () => {
+        setOpenLoad(true);
+        await axios
+            .post('/api/preh_maestro', form)
+            .then((response) => {
+                if (archivosNC.length > 0) {
+                    let formData = new FormData();
+                    for (let i = 0; i < archivosNC.length; i++) {
+                        formData = new FormData();
+                        formData.append('id_archivo', 1);
+                        formData.append('archivo', archivosNC[i]);
+                        formData.append('nombre_original', archivosNC[i].name);
+                        formData.append(
+                            'cod_casopreh',
+                            response.data.cod_casopreh
+                        );
+
+                        const subirArchivos = async () => {
+                            await axios({
+                                url: '/api/archivo',
+                                method: 'POST',
+                                data: formData,
+                                headers: {
+                                    'Content-Type': 'multipart/form-data',
+                                },
+                            });
+                        };
+                        subirArchivos();
+                    }
+                }
+                actualizar();
+                setOpenLoad(false);
+                setOpenDialog(false);
+                clearform();
+                notificarExitoCaso(response.data.cod_casopreh);
+            })
+            .catch((error) => {
+                setOpenLoad(false);
+                notificarErrorCaso();
+            });
+    };
+
+    const PostSeguimiento = async () => {
+        setOpenLoad(true);
+        await axios
+            .post('/api/preh_seguimiento', {
+                seguimento: seguimiento,
+                cod_casopreh: selectedData.codigo,
+                fecha_seguimento: moment().format('YYYY-MM-DD HH:mm:ss'),
+            })
+            .then((response) => {
+                actualizar();
+                closeDialogSeg();
+                mostarSuccess('Seguimientos actualizados exitosamente');
+            })
+            .catch((error) => {
+                setOpenLoad(false);
+                mostarError('Ha ocurrido un error');
+            });
+    };
+
+    const PostDespacho = async () => {
+        setOpenLoad(true);
+        await axios
+            .put(`/api/preh_maestro/${selectedData.codigo}`, {
+                accion: 1,
+            })
+            .then((response) => {
+                actualizar();
+                setOpenDialogDesp(false);
+                mostarSuccess('Caso enviado a despacho de ambulancia');
+            })
+            .catch((error) => {
+                setOpenLoad(false);
+                mostarError('Ha ocurrido un error');
+            });
+    };
+
+    const PostArchivos = async () => {
+        setOpenLoad(true);
+        let formData = new FormData();
+        for (let i = 0; i < archivos.length; i++) {
+            formData = new FormData();
+            formData.append('id_archivo', 1);
+            formData.append('archivo', archivos[i]);
+            formData.append('cod_casopreh', selectedData.codigo);
+            formData.append('nombre_original', archivos[i].name);
+
+            await axios({
+                url: '/api/archivo',
+                method: 'POST',
+                data: formData,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+        }
+
+        setOpenLoad(false);
+        actualizar();
+        mostarSuccess('Archivos actualizados exitosamente');
+        closeDialogArch();
+    };
+
+    const PostCerrarCaso = async () => {
+        if (nombrecierre === '') {
+            setErrorCierre(true);
+            setHelpCierre('Este campo es obligatorio');
+        } else {
+            setOpenLoad(true);
+            await axios
+                .post('/api/preh_cierre', {
+                    nombrecierre: nombrecierre,
+                    cod_casopreh: selectedData.codigo,
+                    nota: nota,
+                })
+                .then((response) => {
+                    actualizar();
+                    closeDialogCC();
+                    mostarSuccess('Caso cerrado exitosamente');
+                })
+                .catch((error) => {
+                    setOpenLoad(false);
+                    mostarError('Ha ocurrido un error');
+                });
+        }
+    };
+
+    const clearform = () => {
+        setContenidoIncidente('');
+        setForm(dataPreh);
+    };
+
+    const closeDialog = () => {
+        clearform();
+        setOpenDialog(false);
+    };
+
+    const closeDialogSeg = () => {
+        setSeguimiento('');
+        setOpenDialogSeg(false);
+    };
+
+    const closeDialogArch = () => {
+        setArchivos([]);
+        setOpenDialogArch(false);
+    };
+
+    const closeDialogCC = () => {
+        setNombrecierre('');
+        setNota('');
+        setOpenDialogCC(false);
+    };
 
     const notificarExitoCaso = (idcaso) =>
-        toast.success(` Nuevo caso con id ${idcaso} creado con éxito!`, {
+        toast.success(`Nuevo caso con id ${idcaso} creado con éxito!`, {
             position: 'top-right',
             autoClose: 5000,
             hideProgressBar: false,
@@ -62,7 +676,7 @@ const Regulacion = () => {
         });
 
     const notificarErrorCaso = () =>
-        toast.error('  Ha ocurrido un error en la creación del nuevo caso', {
+        toast.error('Ha ocurrido un error en la creación del nuevo caso', {
             position: 'top-right',
             autoClose: 5000,
             hideProgressBar: false,
@@ -73,258 +687,38 @@ const Regulacion = () => {
             theme: 'colored',
         });
 
-    window.Echo.private('actpreh').listen('ActualizarPreh', (e) => {
-        setUltimo(e.mensaje);
-    });
-
-    const Get = () => {
-        axios
-            .get('/api/preh_maestro/habilitados')
-            .then((response) => {
-                setDatos(response.data);
-                return response.data;
-            })
-            .catch((error) => {
-                return error;
-            });
-    };
-
-    //Formulario para archivos
-    const [formularioArchivos, setFormularioArchivos] = useState({
-        archivos: FileList,
-    });
-    const [formularioArchivo, setFormularioArchivo] = useState({
-        archivo: File,
-        cod_casopreh: '',
-    });
-
-    //estado modal crear nuevo caso
-    const [form, setForm] = useState({
-        telefono_confirma: '',
-        llamada_fallida: '',
-        fecha: DateTime.now()
-            .set({ milliseconds: 0 })
-            .toISO({ suppressMilliseconds: true }),
-        quepasa: '',
-        incidente: '',
-        direccion: '',
-        nombre_reporta: '',
-        prioridad: '',
-        accion: '',
-        caso_multiple: '',
-    });
-
-    const clearform = () => {
-        setForm({
-            telefono_confirma: '',
-            llamada_fallida: '',
-            fecha: DateTime.now()
-                .set({ milliseconds: 0 })
-                .toISO({ suppressMilliseconds: true }),
-            quepasa: '',
-            incidente: '',
-            direccion: '',
-            nombre_reporta: '',
-            prioridad: '',
-            accion: '',
-            caso_multiple: '',
+    const mostarSuccess = (texto) => {
+        toast.success(texto, {
+            position: 'top-right',
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'colored',
         });
     };
 
-    const [formPaciente, setFormPaciente] = useState({
-        cod_casopreh: '',
-        pacientes: [],
-        id_paciente: '',
-        tipo_doc: '',
-        num_doc: '',
-        expendiente: '',
-        fecha_nacido: '',
-        edad: '',
-        cod_edad: '',
-        nombre1: '',
-        nombre2: '',
-        apellido1: '',
-        apellido2: '',
-        genero: '',
-        apodo: '',
-        nacionalidad: '',
-        celular: '',
-        aseguradro: '',
-        direccion: '',
-        observacion: '',
-    });
-
-    const [formEvaluacion, setFormEvaluacion] = useState({
-        pacientes: [],
-        evaluaciones_clinicas: [],
-        id_evaluacionclinica: '',
-        cod_casopreh: '',
-        fecha_horaevaluacion: '',
-        cod_paciente: '',
-        cod_diag_cie: '',
-        diagnos_txt: '',
-        triage: '',
-        c_clinico: '',
-        examen_fisico: '',
-        tratamiento: '',
-        antecedentes: '',
-        paraclinicos: '',
-        sv_tx: '',
-        sv_fc: '',
-        sv_fr: '',
-        sv_temp: '',
-        sv_gl: '',
-        peso: '',
-        talla: '',
-        sv_fcf: '',
-        sv_sato2: '',
-        sv_apgar: '',
-        sv_gli: '',
-        usu_sede: '',
-        tiempo_enfermedad: '',
-        tipo_enfermedad: '',
-        ap_med_paciente: '',
-        ap_diabetes: '',
-        ap_cardiop: '',
-        ap_convul: '',
-        ap_asma: '',
-        ap_acv: '',
-        ap_has: '',
-        ap_alergia: '',
-        ap_otros: '',
-        tipo_paciente: '',
-    });
-
-    const [formHospital, setFormHospital] = useState({
-        cod_casopreh: '',
-        hospital_destino: '',
-        hora_seleccion_hospital: '',
-        nombre_medico: '',
-        telefono: '',
-    });
-
-    const GetAcciones = () => {
-        axios
-            .get('/api/interh_accion')
-            .then((response) => {
-                setAcciones(response.data);
-                return response.data;
-            })
-            .catch((error) => {
-                return error;
-            });
-
-        axios
-            .get('/api/tipo_llamada')
-            .then((response) => {
-                setLlamadas(response.data);
-                return response.data;
-            })
-            .catch((error) => {
-                return error;
-            });
-
-        axios
-            .get('/api/incidentes')
-            .then((response) => {
-                setIncidentes(response.data);
-                return response.data;
-            })
-            .catch((error) => {
-                return error;
-            });
-    };
-
-    const GetPrioridades = () => {
-        axios
-            .get('/api/interh_prioridad')
-            .then((response) => {
-                setPrioridades(response.data);
-                return response.data;
-            })
-            .catch((error) => {
-                return error;
-            });
-    };
-
-    const handleChange = (e) => {
-        e.persist();
-        setForm((prevState) => ({
-            ...prevState,
-            [e.target.name]: e.target.value,
-        }));
-    };
-
-    const selectArchivos = (e) => {
-        e.persist();
-
-        setFormularioArchivos((prevState) => ({
-            ...prevState,
-            archivos: e.target.files,
-        }));
-
-        setFormularioArchivo((prevState) => ({
-            ...prevState,
-            archivo: e.target.files[0],
-        }));
-        setArchivos(e.target.files);
-        setArchivo(e.target.files[0]);
-    };
-
-    const Post = () => {
-        axios
-            .post('/api/preh_maestro', form)
-            .then((response) => {
-                Get();
-                clearform();
-                setContenido_Incidente('');
-                let formData = new FormData();
-                for (let i = 0; i < archivos.length; i++) {
-                    formData = new FormData();
-                    formData.append('id_archivo', 1);
-                    formData.append('archivo', archivos[i]);
-                    formData.append('cod_casopreh', response.data.cod_casopreh);
-
-                    axios({
-                        url: '/api/archivo',
-                        method: 'POST',
-                        data: formData,
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                        },
-                    })
-                        .then((respuesta) => {
-                            Get();
-                        })
-                        .catch((err) => {});
-                }
-
-                Get();
-                handleClose();
-                notificarExitoCaso(response.data.cod_casopreh);
-                return response.data;
-            })
-            .catch((error) => {
-                notificarErrorCaso();
-                return error.response.data;
-            });
+    const mostarError = (texto) => {
+        toast.error(texto, {
+            position: 'top-right',
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'colored',
+        });
     };
 
     useEffect(() => {
-        setFormularioArchivo((prevState) => ({
-            ...prevState,
-            archivo: archivo,
-        }));
-    }, [archivo, archivos]);
-
-    useEffect(() => {}, [datos]);
+        loadData();
+    }, []);
 
     useEffect(() => {
-        Get();
-    }, [ultimo]);
-
-    useEffect(() => {
-        incidentes.map((servicio) => {
+        dataIncidentes.map((servicio) => {
             if (servicio.id_incidente == form.incidente) {
                 const extractScriptRegex =
                     /<script\b[^>]*>([\s\S]*?)<\/script>/gim;
@@ -338,589 +732,780 @@ const Regulacion = () => {
                     innerHtml = innerHtml.replace(scriptsExtracted[0], '');
                     window.eval(scriptsExtracted[1]);
                 }
-                setContenido_Incidente(innerHtml);
+                setContenidoIncidente(innerHtml);
             }
         });
     }, [form.incidente]);
 
-    useEffect(() => {
-        GetAcciones();
-        GetPrioridades();
-    }, []);
-
-    //hacer put al backend a la tabla pacientegeneral cuando se actualice el estado de formPaciente
-    useEffect(() => {
-        if (formPaciente.id_paciente) {
-            axios
-                .put(`/api/pacientegeneral/${formPaciente.id_paciente}`, {
-                    cod_casopreh: formPaciente.cod_casopreh,
-                    id_paciente: formPaciente.id_paciente,
-                    expendiente: formPaciente.expendiente,
-                    num_doc: formPaciente.num_doc,
-                    tipo_doc: formPaciente.tipo_doc,
-                    nombre1: formPaciente.nombre1,
-                    nombre2: formPaciente.nombre2,
-                    apellido1: formPaciente.apellido1,
-                    apellido2: formPaciente.apellido2,
-                    genero: formPaciente.genero,
-                    edad: formPaciente.edad,
-                    fecha_nacido: formPaciente.fecha_nacido,
-                    cod_edad: formPaciente.cod_edad,
-                    telefono: formPaciente.telefono,
-                    celular: formPaciente.celular,
-                    direccion: formPaciente.direccion,
-                    email: formPaciente.email,
-                    aseguradro: formPaciente.aseguradro,
-                    observacion: formPaciente.observacion,
-                    nss: formPaciente.nss,
-                    usu_sede: formPaciente.usu_sede,
-                    prehospitalario: formPaciente.prehospitalario,
-                    apodo: formPaciente.apodo,
-                    nacionalidad: formPaciente.nacionalidad,
-                    dpto_pte: formPaciente.dpto_pte,
-                    provin_pte: formPaciente.provin_pte,
-                    distrito_pte: formPaciente.distrito_pte,
-                    admision_hospital: formPaciente.admision_hospital,
-                })
-                .then((response) => {
-                    Get();
-                    return response.data;
-                })
-                .catch((error) => {
-                    return error.response.data;
-                });
-        }
-    }, [formPaciente]);
-
-    //hacer put al backend a la tabla preh_evaluacionclinica cuando se actualice el estado de formEvaluacion
-    useEffect(() => {
-        if (formEvaluacion.id_evaluacionclinica) {
-            axios
-                .put(
-                    `/api/preh_evaluacionclinica/${formEvaluacion.id_evaluacionclinica}`,
-                    {
-                        id_evaluacionclinica:
-                            formEvaluacion.id_evaluacionclinica,
-                        cod_casopreh: formEvaluacion.cod_casopreh,
-                        fecha_horaevaluacion:
-                            formEvaluacion.fecha_horaevaluacion,
-                        cod_paciente: formEvaluacion.cod_paciente,
-                        cod_diag_cie: formEvaluacion.cod_diag_cie,
-                        diagnos_txt: formEvaluacion.diagnos_txt,
-                        triage: formEvaluacion.triage,
-                        c_clinico: formEvaluacion.c_clinico,
-                        examen_fisico: formEvaluacion.examen_fisico,
-                        tratamiento: formEvaluacion.tratamiento,
-                        antecedentes: formEvaluacion.antecedentes,
-                        paraclinicos: formEvaluacion.paraclinicos,
-                        sv_tx: formEvaluacion.sv_tx,
-                        sv_fc: formEvaluacion.sv_fc,
-                        sv_fr: formEvaluacion.sv_fr,
-                        sv_temp: formEvaluacion.sv_temp,
-                        sv_gl: formEvaluacion.sv_gl,
-                        peso: formEvaluacion.peso,
-                        talla: formEvaluacion.talla,
-                        sv_fcf: formEvaluacion.sv_fcf,
-                        sv_sato2: formEvaluacion.sv_sato2,
-                        sv_apgar: formEvaluacion.sv_apgar,
-                        sv_gli: formEvaluacion.sv_gli,
-                        usu_sede: formEvaluacion.usu_sede,
-                        tiempo_enfermedad: formEvaluacion.tiempo_enfermedad,
-                        tipo_enfermedad: formEvaluacion.tipo_enfermedad,
-                        ap_med_paciente: formEvaluacion.ap_med_paciente,
-                        ap_diabetes: formEvaluacion.ap_diabetes,
-                        ap_cardiop: formEvaluacion.ap_cardiop,
-                        ap_convul: formEvaluacion.ap_convul,
-                        ap_asma: formEvaluacion.ap_asma,
-                        ap_acv: formEvaluacion.ap_acv,
-                        ap_has: formEvaluacion.ap_has,
-                        ap_alergia: formEvaluacion.ap_alergia,
-                        ap_otros: formEvaluacion.ap_otros,
-                        tipo_paciente: formEvaluacion.tipo_paciente,
-                    }
-                )
-                .then((response) => {
-                    Get();
-                    return response.data;
-                })
-                .catch((error) => {
-                    return error.response.data;
-                });
-        }
-    }, [formEvaluacion]);
-
-    //hacer put al backend a la tabla preh_maestro cuando se actualice el estado de formHospital
-    useEffect(() => {
-        if (
-            formHospital.cod_casopreh != null &&
-            formHospital.cod_casopreh != ''
-        ) {
-            axios
-                .put(
-                    `/api/preh_maestro/${formHospital.cod_casopreh}`,
-                    formHospital
-                )
-                .then((response) => {
-                    Get();
-                    return response.data;
-                })
-                .catch((error) => {
-                    return error.response.data;
-                });
-        }
-    }, [formHospital]);
-
-    //hacer put al backend a la tabla preh_evaluacionclinica cuando se actualice el estado de formEvaluacion
-    useEffect(() => {
-        if (formHospital.cod_casopreh) {
-            axios
-                .put(
-                    `/api/preh_maestro/${formHospital.cod_casopreh}`,
-                    formHospital
-                )
-                .then((response) => {
-                    Get();
-                    return response.data;
-                })
-                .catch((error) => {
-                    return error.response.data;
-                });
-        }
-    }, [formHospital]);
-
     return (
-        <div>
-            <div>
-                <h2>{t('unificado.unido.titulo')}</h2>
-            </div>
+        <>
+            <Backdrop
+                sx={{
+                    color: '#fff',
+                    zIndex: (theme) => theme.zIndex.drawer + 101,
+                }}
+                open={openLoad}
+            >
+                <Stack spacing={1} alignItems="center">
+                    <CircularProgress disableShrink color="inherit" />
+                    <Typography>{textLoad}</Typography>
+                </Stack>
+            </Backdrop>
 
-            <div>
-                <Button className="btnn" onClick={handleShow}>
-                    <FontAwesomeIcon icon={faClinicMedical} className="mx-1" />
-                    {t('etiquetas.nuevocaso')}
-                </Button>
-                <Button className="btnn" onClick={notificarErrorCaso}>
-                    <FontAwesomeIcon icon={faMapMarkedAlt} className="mx-1" />
-                    {t('etiquetas.mapa')}
-                </Button>
-            </div>
+            <h2>{t('unificado.unido.titulo')}</h2>
 
-            <Tabla
-                datos={datos}
-                setDatos={setDatos}
-                setFormPaciente={setFormPaciente}
-                setFormEvaluacion={setFormEvaluacion}
-                setFormHospital={setFormHospital}
-            ></Tabla>
+            <Card>
+                <CardContent
+                    sx={{
+                        pb: '0 !important',
+                        '& > header': {
+                            padding: 0,
+                        },
+                        '& .rdt_Table': {
+                            border: 'solid 1px rgba(0, 0, 0, .12)',
+                        },
+                    }}
+                >
+                    <DataTable
+                        striped
+                        columns={columns}
+                        data={filteredItems}
+                        onRowClicked={handleRowClicked}
+                        conditionalRowStyles={common.conditionalRowStyles}
+                        pagination
+                        paginationComponentOptions={
+                            common.paginationComponentOptions
+                        }
+                        subHeader
+                        subHeaderComponent={subHeaderComponent}
+                        fixedHeader
+                        persistTableHead
+                        fixedHeaderScrollHeight="calc(100vh - 317px)"
+                        customStyles={common.customStyles}
+                        highlightOnHover
+                        noDataComponent={
+                            <Typography sx={{ my: 2 }}>
+                                No existen casos para mostrar
+                            </Typography>
+                        }
+                    />
+                </CardContent>
+            </Card>
 
-            <Formularios
-                setFormPaciente={setFormPaciente}
-                formPaciente={formPaciente}
-                setFormEvaluacion={setFormEvaluacion}
-                formEvaluacion={formEvaluacion}
-                setFormHospital={setFormHospital}
-                formHospital={formHospital}
-            ></Formularios>
+            {showForms && (
+                <Box
+                    sx={{
+                        my: 2,
+                        width: '100%',
+                        border: 'solid 1px rgba(0, 0, 0, .12)',
+                    }}
+                >
+                    <Box
+                        sx={{
+                            '& .MuiTab-root': {
+                                minHeight: '46px',
+                            },
+                            '& .Mui-selected': {
+                                color: '#fff !important',
+                                backgroundColor: '#1976d2',
+                            },
+                        }}
+                    >
+                        <Tabs
+                            value={value}
+                            onChange={handleChange}
+                            aria-label="basic tabs example"
+                            sx={{
+                                borderBottom: 'solid 1px rgba(0, 0, 0, .12)',
+                                '& span.span': {
+                                    overflow: 'hidden',
+                                    whiteSpace: 'nowrap',
+                                    textOverflow: 'ellipsis',
+                                },
+                            }}
+                        >
+                            <Tab
+                                sx={{ textTransform: 'none' }}
+                                icon={<ManRoundedIcon />}
+                                iconPosition="start"
+                                label={
+                                    <span className="span">
+                                        {t('formularios.pacientes')}
+                                    </span>
+                                }
+                                {...common.a11yProps(0)}
+                            />
 
-            <Modal show={show} onHide={handleClose} size="xl">
-                <Modal.Header closeButton>
-                    <Modal.Title>{t('etiquetas.nuevocaso')}</Modal.Title>
-                </Modal.Header>
+                            <Tab
+                                sx={{ textTransform: 'none' }}
+                                icon={<MonitorHeartRoundedIcon />}
+                                iconPosition="start"
+                                label={
+                                    <span className="span">
+                                        {t('formularios.evaluacion')}
+                                    </span>
+                                }
+                                {...common.a11yProps(1)}
+                            />
 
-                <Modal.Body>
-                    <Form>
-                        <Row className="mb-2">
-                            <Col>
-                                <Form.Group
-                                    as={Row}
-                                    className="mb-3"
-                                    controlId="Telefono"
+                            <Tab
+                                sx={{ textTransform: 'none' }}
+                                icon={<DomainRoundedIcon />}
+                                iconPosition="start"
+                                label={
+                                    <span className="span">
+                                        {t('formularios.hospital')}
+                                    </span>
+                                }
+                                {...common.a11yProps(2)}
+                            />
+                        </Tabs>
+                    </Box>
+
+                    <common.TabPanel value={value} index={0}>
+                        <FormularioPaciente
+                            caso={selectedData}
+                            paciente={paciente}
+                            setPaciente={setPaciente}
+                            actualizar={actualizar}
+                        />
+                    </common.TabPanel>
+
+                    <common.TabPanel value={value} index={1}>
+                        <FormularioEvaluacion
+                            caso={selectedData}
+                            paciente={paciente}
+                            setPaciente={setPaciente}
+                            dataCIE10={dataCIE10}
+                            dataTipos={dataTipos}
+                            actualizar={actualizar}
+                        />
+                    </common.TabPanel>
+
+                    <common.TabPanel value={value} index={2}>
+                        <FormularioHospital
+                            caso={selectedData}
+                            dataHospitales={dataHospitales}
+                            actualizar={actualizar}
+                        />
+                    </common.TabPanel>
+                </Box>
+            )}
+
+            {/************************* Nuevo caso *************************/}
+            <Dialog
+                fullWidth
+                maxWidth="lg"
+                open={openDialog}
+                onClose={closeDialog}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t('etiquetas.nuevocaso')}
+                        </Typography>
+
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={closeDialog}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+
+                <DialogContent dividers>
+                    <Grid
+                        container
+                        noValidate
+                        spacing={2}
+                        sx={{ my: 2 }}
+                        component="form"
+                        autoComplete="off"
+                    >
+                        <Grid
+                            item
+                            xs={6}
+                            md={4}
+                            lg={3}
+                            sx={{
+                                '& > .react-tel-input > .special-label': {
+                                    display: 'block',
+                                    color: 'rgba(0, 0, 0, 0.6)',
+                                    backgroundColor: 'transparent',
+                                },
+                                '& > .react-tel-input > input.form-control': {
+                                    width: '100%',
+                                    minHeight: '41px',
+                                    backgroundColor: 'transparent',
+                                },
+                                '& > .react-tel-input ul.country-list': {
+                                    width: '100%',
+                                    minWidth: '300px',
+                                },
+                            }}
+                        >
+                            <PhoneInput
+                                country={common.codgoPais}
+                                value={form.telefono_confirma}
+                                specialLabel={`${t(
+                                    'unificado.unido.formulario.telefono'
+                                )}:`}
+                                onChange={(value) =>
+                                    setForm((prevState) => ({
+                                        ...prevState,
+                                        telefono_confirma: value,
+                                    }))
+                                }
+                            />
+                        </Grid>
+
+                        <Grid item xs={6} md={4} lg={3}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="llamada_fallida">
+                                    {t('unificado.unido.formulario.llamadano')}:
+                                </InputLabel>
+
+                                <Select
+                                    labelId="llamada_fallida"
+                                    label={`${t(
+                                        'unificado.unido.formulario.llamadano'
+                                    )}:`}
+                                    name="llamada_fallida"
+                                    value={form.llamada_fallida}
+                                    onChange={handleChangeForm}
                                 >
-                                    <Form.Label column sm={3}>
-                                        <strong>
-                                            {t(
-                                                'unificado.unido.formulario.telefono'
-                                            )}
-                                        </strong>
-                                    </Form.Label>
+                                    <MenuItem value={0}>
+                                        -- {t('etiquetas.seleccion')} --
+                                    </MenuItem>
 
-                                    <Col sm={9}>
-                                        <PhoneInput
-                                            containerClass="mx-0"
-                                            inputClass="mx-0"
-                                            country={ServiceConfig.codgoPais}
-                                            value={form.telefono_confirma}
-                                            onChange={(value) =>
-                                                setForm((prevState) => ({
-                                                    ...prevState,
-                                                    telefono_confirma: value,
-                                                }))
-                                            }
-                                        />
-                                    </Col>
-                                </Form.Group>
-
-                                <Form.Group
-                                    as={Row}
-                                    className="mb-3"
-                                    controlId="llamadaFallida"
-                                >
-                                    <Form.Label column sm={3}>
-                                        <strong>
-                                            {t(
-                                                'unificado.unido.formulario.llamadano'
-                                            )}
-                                        </strong>
-                                    </Form.Label>
-
-                                    <Col sm={9}>
-                                        <Form.Control
-                                            as="select"
-                                            value={form.llamada_fallida}
-                                            onChange={handleChange}
-                                            name="llamada_fallida"
+                                    {dataLlamadas.map((item) => (
+                                        <MenuItem
+                                            key={item.id_llamda_f}
+                                            value={item.id_llamda_f}
                                         >
-                                            <option
-                                                value=""
-                                                key="9651985"
-                                                id="defServ"
-                                            >
-                                                {`-- ${t(
-                                                    'etiquetas.seleccion'
-                                                )} --`}
-                                            </option>
+                                            {item.llamada_fallida}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
 
-                                            {llamadas.map((servicio) => (
-                                                <option
-                                                    key={servicio.id_llamda_f}
-                                                    value={servicio.id_llamda_f}
-                                                    id={servicio.id_llamda_f}
-                                                >
-                                                    {servicio.llamada_fallida}
-                                                </option>
-                                            ))}
-                                        </Form.Control>
-                                    </Col>
-                                </Form.Group>
+                        <Grid item xs={6} md={4} lg={3}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    'unificado.unido.formulario.nombrereporta'
+                                )}:`}
+                                variant="outlined"
+                                name="nombre_reporta"
+                                value={form.nombre_reporta}
+                                onChange={handleChangeForm}
+                            />
+                        </Grid>
 
-                                <Form.Group
-                                    as={Row}
-                                    className="mb-3"
-                                    controlId="nomRepor"
+                        <Grid item xs={6} md={4} lg={3}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="incidente">
+                                    {t('unificado.unido.formulario.incidente')}:
+                                </InputLabel>
+
+                                <Select
+                                    labelId="incidente"
+                                    label={`${t(
+                                        'unificado.unido.formulario.incidente'
+                                    )}:`}
+                                    name="incidente"
+                                    value={form.incidente}
+                                    onChange={handleChangeForm}
                                 >
-                                    <Form.Label column sm={3}>
-                                        <strong>
-                                            {t(
-                                                'unificado.unido.formulario.motivo'
-                                            )}
-                                        </strong>
-                                    </Form.Label>
-
-                                    <Col sm={9}>
-                                        <Form.Control
-                                            value={form.quepasa}
-                                            as="textarea"
-                                            type="text"
-                                            placeholder={`${t(
-                                                'unificado.unido.formulario.motivo'
-                                            )}`}
-                                            onChange={handleChange}
-                                            name="quepasa"
-                                        />
-                                    </Col>
-                                </Form.Group>
-
-                                <Form.Group
-                                    as={Row}
-                                    className="mb-3"
-                                    controlId="tipoServicio"
-                                >
-                                    <Form.Label column sm={3}>
-                                        <strong>
-                                            {t(
-                                                'unificado.unido.formulario.incidente'
-                                            )}
-                                        </strong>
-                                    </Form.Label>
-
-                                    <Col sm={9}>
-                                        <Form.Control
-                                            as="select"
-                                            value={form.incidente}
-                                            onChange={handleChange}
-                                            name="incidente"
+                                    {dataIncidentes.map((item) => (
+                                        <MenuItem
+                                            key={item.id_incidente}
+                                            value={item.id_incidente}
                                         >
-                                            <option
-                                                value=""
-                                                key="23584165474"
-                                                id="defServ"
-                                            >
-                                                {`-- ${t(
-                                                    'etiquetas.seleccion'
-                                                )} --`}
-                                            </option>
+                                            {item.nombre_es}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
 
-                                            {incidentes.map((servicio) => (
-                                                <option
-                                                    key={servicio.id_incidente}
-                                                    value={
-                                                        servicio.id_incidente
-                                                    }
-                                                    id={servicio.id_incidente}
-                                                >
-                                                    {servicio.nombre_es}
-                                                </option>
-                                            ))}
-                                        </Form.Control>
-                                    </Col>
-                                </Form.Group>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    'unificado.unido.formulario.motivo'
+                                )}:`}
+                                variant="outlined"
+                                name="quepasa"
+                                value={form.quepasa}
+                                onChange={handleChangeForm}
+                            />
+                        </Grid>
 
-                                <Form.Group
-                                    as={Row}
-                                    className="mb-3"
-                                    controlId="nomRepor"
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    'unificado.unido.formulario.direccion'
+                                )}:`}
+                                variant="outlined"
+                                name="direccion"
+                                value={form.direccion}
+                                onChange={handleChangeForm}
+                            />
+                        </Grid>
+
+                        <Grid item xs={6} md={4} lg={3}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="accion">
+                                    {t('unificado.unido.formulario.accion')}:
+                                </InputLabel>
+
+                                <Select
+                                    labelId="accion"
+                                    label={`${t(
+                                        'unificado.unido.formulario.accion'
+                                    )}:`}
+                                    name="accion"
+                                    value={form.accion}
+                                    onChange={handleChangeForm}
                                 >
-                                    <Form.Label column sm={3}>
-                                        <strong>
-                                            {t(
-                                                'unificado.unido.formulario.direccion'
-                                            )}
-                                        </strong>
-                                    </Form.Label>
-                                    <Col sm={9}>
-                                        <Form.Control
-                                            value={form.direccion}
-                                            type="text"
-                                            placeholder={`${t(
-                                                'unificado.unido.formulario.direccion'
-                                            )}`}
-                                            onChange={handleChange}
-                                            name="direccion"
-                                        />
-                                    </Col>
-                                </Form.Group>
-
-                                <Form.Group
-                                    as={Row}
-                                    className="mb-3"
-                                    controlId="nomRepor"
-                                >
-                                    <Form.Label column sm={3}>
-                                        <strong>
-                                            {t(
-                                                'unificado.unido.formulario.nombrereporta'
-                                            )}
-                                        </strong>
-                                    </Form.Label>
-                                    <Col sm={9}>
-                                        <Form.Control
-                                            value={form.nombre_reporta}
-                                            type="text"
-                                            placeholder={`${t(
-                                                'unificado.unido.formulario.nombrereporta'
-                                            )}`}
-                                            onChange={handleChange}
-                                            name="nombre_reporta"
-                                        />
-                                    </Col>
-                                </Form.Group>
-
-                                <Form.Group
-                                    as={Row}
-                                    className="mb-3"
-                                    controlId="prio"
-                                >
-                                    <Form.Label column sm={3}>
-                                        <strong>
-                                            {t(
-                                                'unificado.unido.formulario.prioridad'
-                                            )}
-                                        </strong>
-                                    </Form.Label>
-                                    <Col sm={9}>
-                                        <Form.Control
-                                            as="select"
-                                            value={form.prioridad}
-                                            onChange={handleChange}
-                                            name="prioridad"
+                                    {dataAcciones.map((item) => (
+                                        <MenuItem
+                                            key={item.id_accion}
+                                            value={item.id_accion}
                                         >
-                                            <option
-                                                value=""
-                                                key="68415684965"
-                                                id="defPrio"
-                                            >
-                                                {`-- ${t(
-                                                    'etiquetas.seleccion'
-                                                )} --`}
-                                            </option>
-                                            {prioridades.map((prioridad) => (
-                                                <option
-                                                    value={
-                                                        prioridad.id_prioridad
-                                                    }
-                                                    key={prioridad.id_prioridad}
-                                                    id={prioridad.id_prioridad}
-                                                >
-                                                    {prioridad.nombre_prioridad}
-                                                </option>
-                                            ))}
-                                        </Form.Control>
-                                    </Col>
-                                </Form.Group>
+                                            {item.nombre_accion_es}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
 
-                                <Form.Group
-                                    as={Row}
-                                    className="mb-3"
-                                    controlId="accion"
+                        <Grid item xs={6} md={3} lg={2}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="prioridad">
+                                    {t('unificado.unido.formulario.prioridad')}:
+                                </InputLabel>
+
+                                <Select
+                                    labelId="prioridad"
+                                    label={`${t(
+                                        'unificado.unido.formulario.prioridad'
+                                    )}:`}
+                                    name="prioridad"
+                                    value={form.prioridad}
+                                    onChange={handleChangeForm}
                                 >
-                                    <Form.Label column sm={3}>
-                                        <strong>
-                                            {t(
-                                                'unificado.unido.formulario.accion'
-                                            )}
-                                        </strong>
-                                    </Form.Label>
-                                    <Col sm={9}>
-                                        <Form.Control
-                                            as="select"
-                                            value={form.accion}
-                                            onChange={handleChange}
-                                            name="accion"
+                                    {dataPrioridades.map((item) => (
+                                        <MenuItem
+                                            key={item.id_prioridad}
+                                            value={item.id_prioridad}
                                         >
-                                            <option
-                                                value=""
-                                                key="25846589"
-                                                id="defAcc"
-                                            >
-                                                {`-- ${t(
-                                                    'etiquetas.seleccion'
-                                                )} --`}
-                                            </option>
-                                            {acciones.map((accion) => (
-                                                <option
-                                                    value={accion.id_accion}
-                                                    key={accion.id_accion}
-                                                    id={accion.id_accion}
-                                                >
-                                                    {accion.nombre_accion_es}
-                                                </option>
-                                            ))}
-                                        </Form.Control>
-                                    </Col>
-                                </Form.Group>
-                                <fieldset value={form.motivo_atencioninteh}>
-                                    <Form.Group as={Row} className="mb-3">
-                                        <Form.Label as="legend" column sm={3}>
-                                            <strong>
-                                                {' '}
-                                                {t(
-                                                    'unificado.unido.formulario.multiple'
-                                                )}
-                                            </strong>
-                                        </Form.Label>
-                                        <Col sm={9}>
-                                            <Form.Check
-                                                type="radio"
-                                                checked={
-                                                    form.caso_multiple == 1
-                                                }
-                                                label="Si."
-                                                name="caso_multiple"
-                                                id="1"
-                                                value="1"
-                                                onChange={handleChange}
-                                            />
+                                            {item.nombre_prioridad}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
 
-                                            <Form.Check
-                                                type="radio"
-                                                checked={
-                                                    form.caso_multiple == 0
-                                                }
-                                                label="No."
-                                                name="caso_multiple"
-                                                id="0"
-                                                value="0"
-                                                onChange={handleChange}
-                                            />
-                                        </Col>
-                                    </Form.Group>
-                                </fieldset>
+                        <Grid item xs={6} md={3} lg={2}>
+                            <FormControl>
+                                <FormLabel id="motivo">
+                                    {`${t(
+                                        'unificado.unido.formulario.multiple'
+                                    )}:`}
+                                </FormLabel>
 
-                                <Form.Group
-                                    as={Row}
-                                    className="mb-3"
-                                    controlId="formFileMultiple"
+                                <RadioGroup
+                                    row
+                                    aria-labelledby="motivo"
+                                    name="caso_multiple"
+                                    value={form.caso_multiple}
+                                    onChange={handleChangeForm}
                                 >
-                                    <Form.Label column sm={3}>
-                                        <strong>
-                                            {t('etiquetas.adjuntar')}
-                                        </strong>
-                                    </Form.Label>
-                                    <Col sm={9}>
-                                        <Form.Control
-                                            type="file"
-                                            name="archivos[]"
-                                            multiple
-                                            onChange={selectArchivos}
-                                        />
-                                    </Col>
-                                </Form.Group>
-                            </Col>
+                                    <FormControlLabel
+                                        label="Sí"
+                                        value={1}
+                                        control={<Radio size="small" />}
+                                    />
 
-                            <Col>
-                                <div
-                                    dangerouslySetInnerHTML={{
-                                        __html: contenido_Incidente,
-                                    }}
-                                ></div>
-                            </Col>
-                        </Row>
-                    </Form>
-                </Modal.Body>
+                                    <FormControlLabel
+                                        label="No"
+                                        value={0}
+                                        control={<Radio size="small" />}
+                                    />
+                                </RadioGroup>
+                            </FormControl>
+                        </Grid>
 
-                <Modal.Footer>
-                    <Button variant="primary" onClick={Post}>
+                        <Grid
+                            item
+                            xs={6}
+                            md={4}
+                            lg={3}
+                            sx={{ display: 'flex', alignItems: 'center' }}
+                        >
+                            <input
+                                multiple
+                                type="file"
+                                label={`${t('etiquetas.adjuntar')}:`}
+                                name="archivos[]"
+                                onChange={(event) =>
+                                    setArchivosNC(event.target.files)
+                                }
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <div
+                                dangerouslySetInnerHTML={{
+                                    __html: contenidoIncidente,
+                                }}
+                            ></div>
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+
+                <DialogActions sx={{ mb: 1 }}>
+                    <Button variant="contained" onClick={Post}>
                         {t('etiquetas.agregar')}
                     </Button>
-                    <Button variant="secondary" onClick={handleClose}>
+
+                    <Button
+                        variant="contained"
+                        color="inherit"
+                        onClick={closeDialog}
+                    >
                         {t('etiquetas.cancelar')}
                     </Button>
-                </Modal.Footer>
-            </Modal>
+                </DialogActions>
+            </Dialog>
 
-            <Modal show={showModalExito} onHide={handleCloseModalExito}>
-                <Alert variant="success" className="mb-0">
-                    <Alert.Heading>{t('mensajes.exito')}</Alert.Heading>
-                    <p>{t('mensajes.mscreacionexito')}</p>
-                    <hr />
-                    <div className="d-flex justify-content-end">
-                        <Button
-                            onClick={() => setShowModalExito(false)}
-                            variant="outline-success"
-                        >
-                            {t('etiquetas.aceptar')}
-                        </Button>
-                    </div>
-                </Alert>
-            </Modal>
+            {/************************* Seguimiento *************************/}
+            <Dialog fullWidth open={openDialogSeg} onClose={closeDialogSeg}>
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t('unificado.tabla.formulario.seguimiento')}
+                        </Typography>
 
-            <Modal show={showModalError} onHide={handleCloseModalError}>
-                <Alert variant="danger" className="mb-0">
-                    <Alert.Heading>{t('mensajes.error')}</Alert.Heading>
-                    <p>{t('mensajes.mscreacionerror')}</p>
-                    <hr />
-                    <div className="d-flex justify-content-end">
-                        <Button
-                            onClick={() => setShowModalError(false)}
-                            variant="outline-danger"
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={closeDialogSeg}
+                            aria-label="Cerrar"
                         >
-                            {t('etiquetas.aceptar')}
-                        </Button>
-                    </div>
-                </Alert>
-            </Modal>
-        </div>
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+
+                <DialogContent dividers>
+                    <TextField
+                        fullWidth
+                        multiline
+                        rows={2}
+                        label={`${t(
+                            'unificado.tabla.formulario.escribanota'
+                        )}:`}
+                        variant="outlined"
+                        value={seguimiento}
+                        onChange={(event) => setSeguimiento(event.target.value)}
+                    />
+
+                    {selectedData && (
+                        <List
+                            dense
+                            disablePadding
+                            sx={{ mt: 2 }}
+                            subheader={
+                                <ListSubheader
+                                    disableGutters
+                                    sx={{ fontWeight: 'bold', lineHeight: 1 }}
+                                >
+                                    {t('unificado.tabla.formulario.nota')}:
+                                </ListSubheader>
+                            }
+                        >
+                            {selectedData.seguimientos.map((item) => (
+                                <ListItem
+                                    divider
+                                    disablePadding
+                                    key={item.id_seguimiento}
+                                    sx={{
+                                        '& > div': { display: 'inline-flex' },
+                                    }}
+                                >
+                                    <ListItemText
+                                        primary={`${item.seguimento} ${' - '}`}
+                                        secondary={item.fecha_seguimento}
+                                    />
+                                </ListItem>
+                            ))}
+                        </List>
+                    )}
+                </DialogContent>
+
+                <DialogActions sx={{ mb: 1 }}>
+                    <Button variant="contained" onClick={PostSeguimiento}>
+                        {t('etiquetas.guardar')}
+                    </Button>
+
+                    <Button
+                        variant="contained"
+                        color="inherit"
+                        onClick={closeDialogSeg}
+                    >
+                        {t('etiquetas.cancelar')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/************************* Archivo *************************/}
+            <Dialog fullWidth open={openDialogArch} onClose={closeDialogArch}>
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t('unificado.tabla.formulario.archivos')}
+                        </Typography>
+
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={closeDialogArch}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+
+                <DialogContent dividers>
+                    <input
+                        multiple
+                        type="file"
+                        label={`${t('etiquetas.adjuntar')}:`}
+                        name="archivos[]"
+                        onChange={(event) => setArchivos(event.target.files)}
+                    />
+
+                    {selectedData && (
+                        <List
+                            dense
+                            disablePadding
+                            sx={{ mt: 2 }}
+                            subheader={
+                                <ListSubheader
+                                    disableGutters
+                                    sx={{ fontWeight: 'bold', lineHeight: 1 }}
+                                >
+                                    {t('unificado.tabla.formulario.archivos')}:
+                                </ListSubheader>
+                            }
+                        >
+                            {selectedData.archivos.map((item) => (
+                                <ListItemButton
+                                    divider
+                                    component="a"
+                                    disableGutters
+                                    key={item.id_archivo}
+                                    href={item.nombre_archivo}
+                                    download={item.nombre_original}
+                                    sx={{
+                                        color: '#0d6efd !important',
+                                        '& > div': { display: 'inline-flex' },
+                                    }}
+                                >
+                                    <ListItemText
+                                        primary={item.nombre_original}
+                                    />
+                                </ListItemButton>
+                            ))}
+                        </List>
+                    )}
+                </DialogContent>
+
+                <DialogActions sx={{ mb: 1 }}>
+                    <Button variant="contained" onClick={PostArchivos}>
+                        {t('etiquetas.subir')}
+                    </Button>
+
+                    <Button
+                        variant="contained"
+                        color="inherit"
+                        onClick={closeDialogArch}
+                    >
+                        {t('etiquetas.cancelar')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/************************* Cerrar caso *************************/}
+            <Dialog fullWidth open={openDialogCC} onClose={closeDialogCC}>
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t('unificado.tabla.formulario.cerrarcaso')}
+                        </Typography>
+
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={closeDialogCC}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+
+                <DialogContent dividers>
+                    <FormControl
+                        fullWidth
+                        size="small"
+                        sx={{ mb: 2 }}
+                        error={errorCierre}
+                    >
+                        <InputLabel id="cierre">
+                            {t('interhospital.tabla.formulario.tipocierre')}:
+                        </InputLabel>
+
+                        <Select
+                            labelId="cierre"
+                            label={`${t(
+                                'unificado.tabla.formulario.tipocierre'
+                            )}:`}
+                            value={nombrecierre}
+                            onChange={(event) => {
+                                if (errorCierre) setErrorCierre(false);
+                                setNombrecierre(event.target.value);
+                            }}
+                        >
+                            {dataTipoCierre.map((item) => (
+                                <MenuItem
+                                    key={item.id_tranlado_fallido}
+                                    value={item.id_tranlado_fallido}
+                                >
+                                    {item.tipo_cierrecaso_es}
+                                </MenuItem>
+                            ))}
+                        </Select>
+
+                        <FormHelperText>{helpCierre}</FormHelperText>
+                    </FormControl>
+
+                    <TextField
+                        fullWidth
+                        multiline
+                        rows={3}
+                        variant="outlined"
+                        label={`${t(
+                            'unificado.tabla.formulario.razoncierre'
+                        )}:`}
+                        value={nota}
+                        onChange={(event) => setNota(event.target.value)}
+                    />
+                </DialogContent>
+
+                <DialogActions sx={{ mb: 1 }}>
+                    <Button variant="contained" onClick={PostCerrarCaso}>
+                        {t('etiquetas.aceptar')}
+                    </Button>
+
+                    <Button
+                        variant="contained"
+                        color="inherit"
+                        onClick={closeDialogCC}
+                    >
+                        {t('etiquetas.cancelar')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/************************* Despacho ambulancia *************************/}
+            <Dialog
+                fullWidth
+                open={openDialogDesp}
+                onClose={() => setOpenDialogDesp(false)}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t('unificado.tabla.formulario.enviar')}
+                        </Typography>
+
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={() => setOpenDialogDesp(false)}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+
+                <DialogContent dividers>
+                    <DialogContentText sx={{ textAlign: 'center' }}>
+                        {t('unificado.tabla.formulario.enviardespacho')}
+                        <br />
+                        <Typography
+                            align="center"
+                            component="span"
+                            sx={{ fontWeight: 'bold', marginTop: 1 }}
+                        >
+                            {t('unificado.tabla.formulario.irreversible')}
+                        </Typography>
+                    </DialogContentText>
+                </DialogContent>
+
+                <DialogActions sx={{ mb: 1 }}>
+                    <Button variant="contained" onClick={PostDespacho}>
+                        {t('etiquetas.aceptar')}
+                    </Button>
+
+                    <Button
+                        variant="contained"
+                        color="inherit"
+                        onClick={() => setOpenDialogDesp(false)}
+                    >
+                        {t('etiquetas.cancelar')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </>
     );
 };
-
-export default Regulacion;

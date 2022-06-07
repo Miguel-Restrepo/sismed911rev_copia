@@ -64,7 +64,7 @@ const dataPaciente = {
     apodo: '',
     nacionalidad: '',
     celular: '',
-    aseguradro: '',
+    aseguradro: 0,
     direccion: '',
     observacion: '',
     telefono: '',
@@ -90,11 +90,12 @@ const dataPacienteNuevo = {
     nombre2: '',
     apellido1: '',
     apellido2: '',
-    genero: '',
+    genero: 1,
     apodo: '',
     nacionalidad: '',
     celular: '',
-    aseguradro: '',
+    aseguradro: 0,
+    nss: '',
     direccion: '',
     observacion: '',
 };
@@ -108,6 +109,7 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
     const [dataTipoDoc, setDataTipoDoc] = useState([]);
     const [dataTipoEdad, setDataTipoEdad] = useState([]);
     const [dataTipoGenero, setDataTipoGenero] = useState([]);
+    const [dataSeguro, setDataSeguro] = useState([]);
 
     const [form, setForm] = useState(dataPaciente);
     const [formNuevo, setFormNuevo] = useState(dataPacienteNuevo);
@@ -129,11 +131,11 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
             nombre2: element.nombre2 ? element.nombre2 : '',
             apellido1: element.apellido1 ? element.apellido1 : '',
             apellido2: element.apellido2 ? element.apellido2 : '',
-            genero: element.genero ? element.genero : '',
+            genero: element.genero ? element.genero : 1,
             apodo: element.apodo ? element.apodo : '',
             nacionalidad: element.nacionalidad ? element.nacionalidad : '',
             celular: element.celular ? element.celular : '',
-            aseguradro: element.aseguradro ? element.aseguradro : '',
+            aseguradro: element.aseguradro ? element.aseguradro : 0,
             direccion: element.direccion ? element.direccion : '',
             observacion: element.observacion ? element.observacion : '',
             telefono: element.telefono ? element.telefono : '',
@@ -357,17 +359,17 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
             .put(`/api/pacientegeneral/${form.id_paciente}`, form)
             .then((response) => {
                 setPaciente('');
-                setOpenLoad(false);
-                mostarSuccess('Paciente editado exitosamente');
+                mostarSuccess(t('mensajes.mspeexito'));
                 actualizar();
             })
             .catch((error) => {
                 setOpenLoad(false);
-                mostarError('Error editando el paciente');
+                mostarError(t('mensajes.mspeerror'));
             });
     };
 
     const PostPaciente = async () => {
+        setOpenLoad(true);
         await axios
             .post('/api/pacientegeneral', formNuevo)
             .then((response) => {
@@ -396,19 +398,6 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
         });
     };
 
-    const mostarWarning = (texto) => {
-        toast.warning(texto, {
-            position: 'top-right',
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: 'colored',
-        });
-    };
-
     const mostarError = (texto) => {
         toast.error(texto, {
             position: 'top-right',
@@ -423,70 +412,51 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
     };
 
     useEffect(() => {
-        console.log('1');
-        const GetTipoDocumento = async () => {
-            await axios
-                .get('/api/tipo_id')
-                .then((response) => setDataTipoDoc(response.data))
-                .catch((error) => console.log(error));
-        };
-
-        const GetTipoEdad = async () => {
-            await axios
-                .get('/api/tipo_edad')
-                .then((response) => setDataTipoEdad(response.data))
-                .catch((error) => console.log(error));
-        };
-
-        const GetTipoGenero = async () => {
-            await axios
-                .get('/api/tipo_genero')
-                .then((response) => setDataTipoGenero(response.data))
-                .catch((error) => console.log(error));
-        };
-
-        GetTipoDocumento();
-        GetTipoEdad();
-        GetTipoGenero();
-    }, [caso]);
-
-    useEffect(() => {
-        console.log('2');
         setFormNuevo((prevState) => ({
             ...prevState,
             cod_casointerh: caso.codigo,
         }));
+
+        const loadData = async () => {
+            setOpenLoad(true);
+
+            let response = await axios.get('/api/tipo_id');
+            setDataTipoDoc(response.data);
+
+            response = await axios.get('/api/tipo_edad');
+            setDataTipoEdad(response.data);
+
+            response = await axios.get('/api/tipo_genero');
+            setDataTipoGenero(response.data);
+
+            response = await axios.get('/api/aseguradores');
+            setDataSeguro(response.data);
+
+            setOpenLoad(false);
+        };
+
+        loadData();
     }, [caso]);
 
     useEffect(() => {
-        console.log('3');
-        if (document.querySelector('.special-label')) {
-            document.querySelector('.special-label').innerHTML = `${t(
-                'formularios.formpacientes.telefono'
-            )}:`;
-        }
-
         if (paciente !== '') {
             const element = caso.pacientes[paciente];
             setForm((prevState) => ({
                 ...prevState,
                 cod_casointerh: element.cod_casointerh,
                 id_paciente: element.id_paciente,
-                //tipo_doc: element.tipo_doc ? element.tipo_doc : '',
                 num_doc: element.num_doc ? element.num_doc : '',
                 expendiente: element.expendiente ? element.expendiente : '',
                 fecha_nacido: element.fecha_nacido ? element.fecha_nacido : '',
                 edad: element.edad ? element.edad : '',
-                //cod_edad: element.cod_edad ? element.cod_edad : '',
                 nombre1: element.nombre1 ? element.nombre1 : '',
                 nombre2: element.nombre2 ? element.nombre2 : '',
                 apellido1: element.apellido1 ? element.apellido1 : '',
                 apellido2: element.apellido2 ? element.apellido2 : '',
-                //genero: element.genero ? element.genero : '',
                 apodo: element.apodo ? element.apodo : '',
                 nacionalidad: element.nacionalidad ? element.nacionalidad : '',
                 celular: element.celular ? element.celular : '',
-                aseguradro: element.aseguradro ? element.aseguradro : '',
+                aseguradro: element.aseguradro ? element.aseguradro : 0,
                 direccion: element.direccion ? element.direccion : '',
                 observacion: element.observacion ? element.observacion : '',
                 telefono: element.telefono ? element.telefono : '',
@@ -507,9 +477,9 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
     }, [paciente]);
 
     useEffect(() => {
-        console.log('4');
         if (paciente !== '') {
             const element = caso.pacientes[paciente];
+
             if (dataTipoDoc.length > 0) {
                 setForm((prevState) => ({
                     ...prevState,
@@ -527,11 +497,18 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
             if (dataTipoGenero.length > 0) {
                 setForm((prevState) => ({
                     ...prevState,
-                    genero: element.genero ? element.genero : '',
+                    genero: element.genero ? element.genero : 1,
+                }));
+            }
+
+            if (dataSeguro.length > 0) {
+                setForm((prevState) => ({
+                    ...prevState,
+                    aseguradro: element.aseguradro ? element.aseguradro : 0,
                 }));
             }
         }
-    }, [dataTipoDoc, dataTipoEdad, dataTipoGenero]);
+    }, [dataTipoDoc, dataTipoEdad, dataTipoGenero, dataSeguro]);
 
     return (
         <Box sx={{ m: 2 }}>
@@ -544,7 +521,7 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
             >
                 <Stack spacing={1} alignItems="center">
                     <CircularProgress disableShrink color="inherit" />
-                    <Typography>Cargando ...</Typography>
+                    <Typography>{t('etiquetas.cargando')}</Typography>
                 </Stack>
             </Backdrop>
 
@@ -700,7 +677,11 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
                                     onChange={handleChangeFormFechaNacido}
                                     maxDate={moment()}
                                     renderInput={(params) => (
-                                        <TextField {...params} size="small" />
+                                        <TextField
+                                            fullWidth
+                                            {...params}
+                                            size="small"
+                                        />
                                     )}
                                     sx={{
                                         '& button.PrivateDatePickerToolbar-penIcon':
@@ -818,16 +799,20 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
                             />
                         </Grid>
 
-                        <Grid item xs={6} md={3}>
-                            <FormControl>
-                                <FormLabel id="genero-label">
-                                    {t('formularios.formpacientes.genero')}
+                        <Grid item xs={6} md={4}>
+                            <FormControl
+                                sx={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <FormLabel id="genero-label" sx={{ mr: 1 }}>
+                                    {t('formularios.formpacientes.genero')}:
                                 </FormLabel>
 
                                 <RadioGroup
                                     row
                                     aria-labelledby="genero-label"
-                                    defaultValue={1}
                                     name="genero"
                                     value={form.genero}
                                     onChange={handleChangeForm}
@@ -894,7 +879,9 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
                             }}
                         >
                             <PhoneInput
-                                label="celular"
+                                specialLabel={`${t(
+                                    'formularios.formpacientes.telefono'
+                                )}:`}
                                 value={form.celular}
                                 country={common.codgoPais}
                                 onChange={(value) =>
@@ -906,6 +893,37 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
                             />
                         </Grid>
 
+                        <Grid item xs={12} md={8} lg={6}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="seguro-label">
+                                    {t('formularios.formpacientes.seguro')}:
+                                </InputLabel>
+
+                                <Select
+                                    labelId="seguro-label"
+                                    label={`${t(
+                                        'formularios.formpacientes.seguro'
+                                    )}:`}
+                                    name="aseguradro"
+                                    value={form.aseguradro}
+                                    onChange={handleChangeForm}
+                                >
+                                    <MenuItem value={0}>
+                                        -- {t('etiquetas.seleccion')} --
+                                    </MenuItem>
+
+                                    {dataSeguro.map((item) => (
+                                        <MenuItem
+                                            key={item.id_asegurador}
+                                            value={item.id_asegurador}
+                                        >
+                                            {item.nombre_asegurador}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
                         <Grid item xs={6} md={3} lg={2}>
                             <TextField
                                 fullWidth
@@ -914,8 +932,8 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
                                     'formularios.formpacientes.segurosocial'
                                 )}:`}
                                 variant="outlined"
-                                name="aseguradro"
-                                value={form.aseguradro}
+                                name="nss"
+                                value={form.nss}
                                 onChange={handleChangeForm}
                             />
                         </Grid>
@@ -1096,7 +1114,11 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
                                     onChange={handleChangeFormNuevoFechaNacido}
                                     maxDate={moment()}
                                     renderInput={(params) => (
-                                        <TextField {...params} size="small" />
+                                        <TextField
+                                            fullWidth
+                                            {...params}
+                                            size="small"
+                                        />
                                     )}
                                     sx={{
                                         '& button.PrivateDatePickerToolbar-penIcon':
@@ -1214,16 +1236,20 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
                             />
                         </Grid>
 
-                        <Grid item xs={6} md={3}>
-                            <FormControl>
-                                <FormLabel id="genero-label">
-                                    {t('formularios.formpacientes.genero')}
+                        <Grid item xs={6} md={4}>
+                            <FormControl
+                                sx={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <FormLabel id="genero-label" sx={{ mr: 1 }}>
+                                    {t('formularios.formpacientes.genero')}:
                                 </FormLabel>
 
                                 <RadioGroup
                                     row
                                     aria-labelledby="genero-label"
-                                    defaultValue={1}
                                     name="genero"
                                     value={formNuevo.genero}
                                     onChange={handleChangeFormNuevo}
@@ -1302,16 +1328,47 @@ export default ({ caso, paciente, setPaciente, actualizar }) => {
                             />
                         </Grid>
 
+                        <Grid item xs={12} md={8} lg={6}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="seguro-label">
+                                    {t('formularios.formpacientes.seguro')}:
+                                </InputLabel>
+
+                                <Select
+                                    labelId="seguro-label"
+                                    label={`${t(
+                                        'formularios.formpacientes.seguro'
+                                    )}:`}
+                                    name="aseguradro"
+                                    value={formNuevo.aseguradro}
+                                    onChange={handleChangeFormNuevo}
+                                >
+                                    <MenuItem value={0}>
+                                        -- {t('etiquetas.seleccion')} --
+                                    </MenuItem>
+
+                                    {dataSeguro.map((item) => (
+                                        <MenuItem
+                                            key={item.id_asegurador}
+                                            value={item.id_asegurador}
+                                        >
+                                            {item.nombre_asegurador}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
                         <Grid item xs={6} md={3} lg={2}>
                             <TextField
                                 fullWidth
                                 size="small"
+                                variant="outlined"
                                 label={`${t(
                                     'formularios.formpacientes.segurosocial'
                                 )}:`}
-                                variant="outlined"
-                                name="aseguradro"
-                                value={formNuevo.aseguradro}
+                                name="nss"
+                                value={formNuevo.nss}
                                 onChange={handleChangeFormNuevo}
                             />
                         </Grid>

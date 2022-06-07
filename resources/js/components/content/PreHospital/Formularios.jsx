@@ -1,8 +1,8 @@
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
-import FormularioPaciente from "./FormularioPaciente";
-import FormularioEvaluacion from "./FormularioEvaluacion";
-import FormularioHospital from "./FormularioHospital";
+import FormularioPaciente from "./FormularioPaciente_";
+import FormularioEvaluacion from "./FormularioEvaluacion_";
+import FormularioHospital from "./FormularioHospital_";
 import Icofont from "react-icofont";
 import { useTranslation } from "react-i18next";
 
