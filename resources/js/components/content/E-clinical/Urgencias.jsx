@@ -185,7 +185,11 @@ function Urgencias() {
 
     const filteredItems = pacientes.filter(
         (item) =>
+<<<<<<< HEAD
         (item.codigo_cie &&
+=======
+            (item.codigo_cie &&
+>>>>>>> 9a76ca316ff3702399a1d194a75e05fed53b2b48
                 item.codigo_cie
                     .toString()
                     .toLowerCase()

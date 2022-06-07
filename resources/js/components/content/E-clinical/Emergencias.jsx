@@ -430,6 +430,7 @@ function Emergencias() {
             (item.diagnostico &&
                 item.diagnostico
                     .toString()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
                     .toLowerCase()
                     .includes(filterText.toLowerCase()))
     );
