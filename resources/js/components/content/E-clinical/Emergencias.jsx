@@ -306,7 +306,7 @@ function Emergencias() {
             name: `${t("eclinical.emergencias.datos.hc")}`,
             sortable: true,
             width: '80px',
-            selector: (row) => row.expediente,
+            selector: (row) => row.expendiente,
         },
         {
             name: `${t("eclinical.emergencias.datos.paciente")}`,

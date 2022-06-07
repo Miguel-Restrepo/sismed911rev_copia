@@ -193,8 +193,8 @@ function Clasificacion() {
                     .toString()
                     .toLowerCase()
                     .includes(filterText.toLowerCase())) ||
-            (item.expediente &&
-                item.expediente
+            (item.expendiente &&
+                item.expendiente
                     .toString()
                     .toLowerCase()
                     .includes(filterText.toLowerCase())) ||
@@ -631,7 +631,7 @@ function Clasificacion() {
             name: `${t('formularios.formpacientes.expediente')}`,
             sortable: true,
             width: '160px',
-            selector: (row) => row.expediente,
+            selector: (row) => row.expendiente,
         },
         {
             name: `${t("eclinical.clasificacion.datos.paciente")}`,

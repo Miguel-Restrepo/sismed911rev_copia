@@ -185,11 +185,7 @@ function Urgencias() {
 
     const filteredItems = pacientes.filter(
         (item) =>
-<<<<<<< HEAD
         (item.codigo_cie &&
-=======
-            (item.codigo_cie &&
->>>>>>> 9a76ca316ff3702399a1d194a75e05fed53b2b48
                 item.codigo_cie
                     .toString()
                     .toLowerCase()
@@ -290,7 +286,7 @@ function Urgencias() {
             name: `${t("eclinical.emergencias.datos.hc")}`,
             sortable: true,
             width: '80px',
-            selector: (row) => row.expediente,
+            selector: (row) => row.expendiente,
         },
         {
             name: `${t("eclinical.emergencias.datos.paciente")}`,
