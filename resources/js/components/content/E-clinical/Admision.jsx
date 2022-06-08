@@ -82,7 +82,7 @@ function Admision() {
     const [filterText, setFilterText] = useState('');
     const [openDialog, setOpenDialog] = useState(false);
 
-
+    const [asegurador, setAsegurador] = useState([]);
     const [form, setForm] = useState({
         id_ingreso: '',
         cod911: '',
@@ -254,7 +254,18 @@ function Admision() {
         }
     };
 
-
+    const GetAseguradores = () => {
+        axios
+            .get('/api/aseguradores')
+            .then((response) => {
+                setAsegurador(response.data);
+                //console.log(response.data);
+                return response.data;
+            })
+            .catch((error) => {
+                return error;
+            });
+    };
 
     const GetPacientes = () => {
         axios
@@ -439,7 +450,7 @@ function Admision() {
                                             ['nacionalidad']:
                                                 response.data.nacionalidad,
                                         }));
-                                       
+
                                         calcularEdadForm(
                                             moment(
                                                 response.data
@@ -604,6 +615,7 @@ function Admision() {
         GetTipoDocumento();
         GetTipoGenero();
         GetTipoEdad();
+        GetAseguradores();
     }, []);
 
     useEffect(() => {
@@ -1145,6 +1157,46 @@ function Admision() {
                             />
                         </Grid>
 
+                        <Grid item xs={6} md={3} lg={3}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="asegura-label">
+                                    Asegurador
+                                </InputLabel>
+
+                                <Select
+                                    labelId="asegura-label"
+                                    id="tipodoc"
+                                    label={`Asegurador`}
+                                    name="aseguradro"
+                                    value={form2.aseguradro}
+                                    onChange={handleChangeFormPacienteDoc}
+                                >
+                                    {asegurador.map((item) => (
+                                        <MenuItem
+                                            key={item.id_asegurador}
+                                            value={item.id_asegurador}
+                                        >
+                                            {item.nombre_asegurador}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={6} md={3} lg={2}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label={`${t(
+                                    'formularios.formpacientes.segurosocial'
+                                )}:`}
+                                variant="outlined"
+                                name="nss"
+                                value={form2.nss}
+                                onChange={handleChange1}
+                            />
+                        </Grid>
+
                         <Grid
                             item
                             xs={6}
@@ -1179,21 +1231,7 @@ function Admision() {
                             />
                         </Grid>
 
-                        <Grid item xs={6} md={3} lg={2}>
-                            <TextField
-                                fullWidth
-                                size="small"
-                                label={`${t(
-                                    'formularios.formpacientes.segurosocial'
-                                )}:`}
-                                variant="outlined"
-                                name="nss"
-                                value={form2.nss}
-                                onChange={handleChange1}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={6} md={3}>
                             <TextField
                                 fullWidth
                                 size="small"
