@@ -439,8 +439,12 @@ function Admision() {
                                             ['nacionalidad']:
                                                 response.data.nacionalidad,
                                         }));
+                                       
                                         calcularEdadForm(
-                                            response.data.fecha_nacimiento
+                                            moment(
+                                                response.data
+                                                    .fecha_nacimiento
+                                            )
                                         );
                                     } else {
                                         mostarError('Ha ocurrido un error');

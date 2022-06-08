@@ -185,7 +185,7 @@ function Urgencias() {
 
     const filteredItems = pacientes.filter(
         (item) =>
-        (item.codigo_cie &&
+            (item.codigo_cie &&
                 item.codigo_cie
                     .toString()
                     .toLowerCase()
@@ -264,13 +264,11 @@ function Urgencias() {
                     <div>
                         <AccessTimeIcon sx={{ color: red[500] }} />
                         <span className="text-danger">
-                            {Math.floor(
-                                Math.abs(
-                                    Date.parse(row.fecha_admision) - extraData
-                                ) /
+                            {`${Math.floor(
+                                Math.abs(Date.parse(row.fecha_admision) - new Date()) /
                                 1000 /
                                 60
-                            ) + " MIN"}
+                            )} MIN`}
                         </span>
                     </div>
                 );
@@ -1174,114 +1172,122 @@ function Urgencias() {
     const selecionOtorrino = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            otorrino: e.target.value,
+            otorrino: eliminarNormal(e.target.value)
         }));
     };
 
     const selecionPiel = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            piel: e.target.value,
+            piel: eliminarNormal(e.target.value)
         }));
     };
 
     const selecionNeuro = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            neuro: e.target.value,
+            neuro: eliminarNormal(e.target.value)
         }));
     };
 
     const selecionExtremidad = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            extremidad: e.target.value,
+            extremidad: eliminarNormal(e.target.value)
         }));
     };
 
     const selecionGenital = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            genital: e.target.value,
+            genital: eliminarNormal(e.target.value)
         }));
     };
 
     const selecionRectal = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            rectal: e.target.value,
+            rectal: eliminarNormal(e.target.value)
         }));
     };
 
     const selecionPelvis = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            pelvis: e.target.value,
+            pelvis: eliminarNormal(e.target.value)
         }));
     };
 
     const selecionAbdomen = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            abdomen: e.target.value,
+            abdomen: eliminarNormal(e.target.value)
         }));
     };
 
     const selecionPulmon = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            pulmon: e.target.value,
+            pulmon: eliminarNormal(e.target.value)
         }));
     };
 
     const selecionTorax = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            torax: e.target.value,
+            torax: eliminarNormal(e.target.value)
         }));
     };
 
     const selecionCorazon = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            corazon: e.target.value,
+            corazon: eliminarNormal(e.target.value)
         }));
     };
 
     const selecionBoca = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            boca: e.target.value,
+            boca: eliminarNormal(e.target.value)
         }));
     };
 
     const selecionGeneral = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            general: e.target.value,
+            general: eliminarNormal(e.target.value)
         }));
     };
 
     const selecionCabeza = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            cabeza: e.target.value,
+            cabeza: eliminarNormal(e.target.value)
         }));
     };
 
     const selecionCuello = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            cuello: e.target.value,
+            cuello: eliminarNormal(e.target.value)
         }));
     };
 
     const selecionOjo = (e) => {
         setForm2((prevState) => ({
             ...prevState,
-            ojo: e.target.value,
+            ojo: eliminarNormal(e.target.value)
         }));
     };
+    const eliminarNormal = (arr)=>{
+        if(arr.length==1)
+        {
+            return arr;
+        }else{
+            return arr.filter((_item, index)=> _item.value!=1);    
+        }
+    }
 
     const cambioDosis = (e) => {
         setdosisMedicamentoSeleccionado(e.target.value);
@@ -1386,9 +1392,9 @@ function Urgencias() {
                             id_atencionmedica: response.data.id_atencionmedica,
                         }));
                         //notificarExitoCaso(response.data.id_atencionmedica);
-                        if(response.data.id_atencionmedica!=null){
+                        if (response.data.id_atencionmedica != null) {
                             notificarExitoCaso(response.data.id_atencionmedica);
-                        }else{
+                        } else {
                             notificarErrorCaso();
                         }
                         GetAdmisiones();
@@ -1450,7 +1456,7 @@ function Urgencias() {
                     notificarExitoCaso(
                         response.data.id_atencionmedica_medicamentos
                     );
-                    
+
                     return response.data;
                 })
                 .catch((error) => {
@@ -2613,7 +2619,7 @@ function Urgencias() {
                         onClick={() => {
                             setPaciente(pacienteTemp);
                             setIdPaciente(idPacienteTemp);
-                            
+
                             handleClose2();
                         }}
                     >
@@ -2963,7 +2969,7 @@ function Urgencias() {
                                 };
                             });
                             setExamenes(updatedData);
-                            
+
                             cerrarExamenes();
                         }}
                     >

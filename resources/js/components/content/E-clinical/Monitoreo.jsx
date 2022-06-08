@@ -494,8 +494,8 @@ const Monitoreo = () => {
                 return (
                     <div>
                         {row.evoluciones.map(evo =>
-
-                            <li key={evo.examen.id_examen}>{evo.examen.nombre_examen}</li>
+                        {evo.examen  ? <li key={evo.examen.id_examen}>{evo.examen.nombre_examen}</li>:''
+                            }
                         )}
                     </div>
                 );
