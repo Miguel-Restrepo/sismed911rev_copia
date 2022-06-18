@@ -90,7 +90,19 @@
         "mscexito": "clasificado con éxito",
         "msclasificacionerror": "Ha ocurrido un error en la clasificación del caso",
         "mspexito": "Paciente creado exitosamente",
-        "msperror": "Error creando el paciente"
+        "mspeexito": "Paciente editado exitosamente",
+        "msperror": "Error creando el paciente",
+        "mspeerror": "Error editando el paciente",
+        "mseexito": "Evaluacion clínica creada exitosamente",
+        "mseeexito": "Evaluacion clínica editada exitosamente",
+        "mseerror": "Error creando la evaluacion clínica",
+        "mseeerror": "Error editando la evaluacion clínica",
+        "mshexito": "Formulario hospital editado exitosamente",
+        "mshrror": "Error editando el formulario hospital",
+        "msaexito": "Ambulancia agregada exitosamente",
+        "msaerror": "Error agregando la ambulancia",
+        "msaeexito": "Formulario ambulancia editado exitosamente",
+        "msaeerror": "Error editando el formulario ambulancia"
     },
     "navbar": {
         "info": "Información Personal",
@@ -148,7 +160,9 @@
         "minutos": "Minutos",
         "iniciar": "Iniciar sesión",
         "hoy": "Hoy",
-        "nuevopaciente": "Nuevo paciente"
+        "nuevopaciente": "Nuevo paciente",
+        "vacio": "No existen datos para mostrar",
+        "cargando": "Cargando..."
     },
     "formularios": {
         "formulario": "Formulario",
@@ -195,6 +209,7 @@
             "apodo": "Apodo",
             "nacionalidad": "Nacionalidad",
             "telefono": "Teléfono",
+            "seguro": "Seguro",
             "segurosocial": "No. Seguro social",
             "direccion": "Dirección",
             "observaciones": "Observaciones",
@@ -279,7 +294,8 @@
                 "accion": "Acción",
                 "seguimiento": "Seguimiento",
                 "despacho": "Despacho",
-                "cerrarcaso": "Cerrar caso"
+                "cerrarcaso": "Cerrar caso",
+                "acciones": "Acciones"
             },
             "formulario": {
                 "cerrarcaso": "Cerrar caso",
@@ -291,7 +307,8 @@
                 "nota": "Nota",
                 "archivos": "Archivos",
                 "enviar": "Enviar a Despacho",
-                "enviardespacho": "¿Desea enviar a despacho de ambulancia?"
+                "enviardespacho": "¿Desea enviar a despacho de ambulancia?",
+                "irreversible": "ESTA ACCIÓN ES IRREVERSIBLE"
             }
         },
         "unido": {
@@ -306,7 +323,7 @@
                 "telefono": "Teléfono",
                 "llamadano": "Llamada no pertinente",
                 "motivo": "Motivo llamado",
-                "tiposolicitud": "Tipo de solicitud",
+                "motivosolicitud": "Motivo solicitud",
                 "inter": "InterHospitalario",
                 "pre": "PreHospitalario",
                 "serviciosinter": "Servicios interhospitalarios",
@@ -321,7 +338,7 @@
                 "ubicacionpte": "Ubicación pte",
                 "prioridad": "Prioridad",
                 "accion": "Acción",
-                "paciente": "Paciente",
+                "pacientes": "Pacientes",
                 "generarrt": "Generar retorno",
                 "generacionrt": "Generación de retorno",
                 "ubicacionpcte": "Ubicación Paciente",
@@ -345,7 +362,7 @@
         "catalogo": {
             "datos": {
                 "id": "Id Catalogo",
-                "servicio": "Servicio"
+                "servicio": "Tipo de Servicio"
             },
             "titulo": "Catálogo"
         },
@@ -907,7 +924,8 @@
                 "accion": "Acción",
                 "seguimiento": "Seguimiento",
                 "despacho": "Despacho",
-                "cerrarcaso": "Cerrar caso"
+                "cerrarcaso": "Cerrar caso",
+                "tipo_servicio": "Tipo servicio"
             },
             "formulario": {
                 "tipocierre": "Por favor, seleccione el tipo de cierre",

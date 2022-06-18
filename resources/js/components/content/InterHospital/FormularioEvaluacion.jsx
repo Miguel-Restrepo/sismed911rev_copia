@@ -94,8 +94,8 @@ export default ({
 
     const filteredItemsCIE10 = dataCIE10.filter(
         (item) =>
-            (item.codigo &&
-                item.codigo
+            (item.codigo_cie &&
+                item.codigo_cie
                     .toLowerCase()
                     .includes(filterTextCIE10.toLowerCase())) ||
             (item.diagnostico &&
@@ -115,7 +115,7 @@ export default ({
                     <common.FilterComponent
                         onClear={handleClear}
                         filterText={filterTextCIE10}
-                        onFilter={(e) => setFilterTextA(e.target.value)}
+                        onFilter={(e) => setFilterTextCIE10(e.target.value)}
                     />
                 </Grid>
             </Grid>
@@ -572,16 +572,20 @@ export default ({
                                 fullWidth
                                 size="small"
                                 type="number"
-                                name="sv_gl"
                                 variant="outlined"
+                                name="sv_gl"
                                 value={form.sv_gl}
-                                onChange={handleChangeForm}
                                 label={`${t(
                                     'formularios.formevaluacion.glasgow'
                                 )}:`}
+                                onChange={handleChangeForm}
                                 onKeyUp={(e) => {
                                     if (e.target.value > 15) {
-                                        e.target.value = 15;
+                                        e.preventDefault();
+                                        setForm((prevState) => ({
+                                            ...prevState,
+                                            sv_gl: 15,
+                                        }));
                                     }
                                 }}
                                 onBlur={(e) => {
@@ -589,7 +593,11 @@ export default ({
                                         e.target.value < 3 &&
                                         e.target.value != ''
                                     ) {
-                                        e.target.value = 3;
+                                        e.preventDefault();
+                                        setForm((prevState) => ({
+                                            ...prevState,
+                                            sv_gl: 3,
+                                        }));
                                     }
                                 }}
                             />
@@ -601,6 +609,19 @@ export default ({
                                 value={form.sv_sato2}
                                 mask="999 %"
                                 onChange={handleChangeForm}
+                                onKeyUp={(e) => {
+                                    console.log(e.target.value);
+                                    if (
+                                        Number(e.target.value.split(' %')[0]) >
+                                        100
+                                    ) {
+                                        e.preventDefault();
+                                        setForm((prevState) => ({
+                                            ...prevState,
+                                            sv_sato2: '100 %',
+                                        }));
+                                    }
+                                }}
                             >
                                 <TextField
                                     fullWidth
@@ -627,7 +648,7 @@ export default ({
                                     name="sv_gli"
                                     variant="outlined"
                                     label={`${t(
-                                        'formularios.formevaluacion.sp02'
+                                        'formularios.formevaluacion.glicemia'
                                     )}:`}
                                 />
                             </InputMask>
@@ -912,7 +933,11 @@ export default ({
                 </>
             )}
 
-            <Dialog fullWidth open={openDialogCIE10}>
+            <Dialog
+                fullWidth
+                open={openDialogCIE10}
+                onClose={() => setOpenDialogCIE10(false)}
+            >
                 <AppBar sx={{ position: 'relative' }}>
                     <Toolbar
                         variant="dense"

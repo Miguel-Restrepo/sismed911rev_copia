@@ -249,7 +249,7 @@ const Mantenimiento = () => {
         );
     }, [filterText]);
 
-    const filteredItems = tablas.filter(
+    const filteredItems = mans.filter(
         (item) =>
             (item.id &&
                 item.id

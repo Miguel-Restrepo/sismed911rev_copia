@@ -11,6 +11,7 @@ import InterHospital from './InterHospital/InterHospital';
 import Regulacion from './PreHospital/Regulacion';
 import Despacho from './PreHospital/Despacho';
 
+
 import Hospital from './Med-surge/Hospital';
 import Registro from './Med-surge/Registro';
 import Reportes from './Med-surge/Reportes';
@@ -56,6 +57,7 @@ import Login from './login';
 
 import TrasladoInterH from './InterHospital/TrasladoInterH';
 import axios from 'axios';
+import Reporte from './InterHospital/Reporte'
 import Cola from './InterHospital/Cola';
 import ColaPreh from './PreHospital/ColaPreh';
 import TableroPreh from './PreHospital/TableroPreh';
@@ -206,6 +208,7 @@ class Content extends React.Component {
                             ambulancias: true,
                             tipoServicios: true,
                             novedades: true,
+                            mantenimiento:true,
                             login: false,
                         });
                     } else if (element.tablename == 'Recordatorios') {
@@ -400,6 +403,13 @@ class Content extends React.Component {
                                 element={<InterHospital />}
                             />
                         )}
+                        {this.state.interhospitalario && (
+                            <Route
+                                path="/reporteInterH"
+                                element={<Reporte />}
+                            />
+                        )}
+                        
 
                         {this.state.regulacion && (
                             <Route

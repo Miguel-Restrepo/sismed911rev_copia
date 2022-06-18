@@ -261,6 +261,7 @@ export default () => {
             cell: (row) => {
                 return (
                     <Stack direction="row">
+                       
                         <common.BootstrapTooltip title="Seguimiento">
                             <IconButton
                                 color="inherit"
@@ -668,7 +669,6 @@ export default () => {
             theme: 'colored',
         });
     };
-
     useEffect(() => {
         loadData();
     }, []);
@@ -1004,7 +1004,7 @@ export default () => {
                                 value={hospital}
                                 options={dataHospitales}
                                 getOptionLabel={(option) =>
-                                    option.nombre_hospital
+                                    `${option.nombre_hospital} - ${option.nombre_provincia}`
                                 }
                                 onChange={(event, newValue) => {
                                     setHospital(newValue);

@@ -122,7 +122,9 @@ export default ({ caso, dataHospitales, actualizar }) => {
                             value={hospital}
                             disableClearable
                             options={dataHospitales}
-                            getOptionLabel={(option) => option.nombre_hospital}
+                            getOptionLabel={(option) =>
+                                `${option.nombre_hospital} - ${option.nombre_provincia}`
+                            }
                             onChange={(event, newValue) => {
                                 setHospital(newValue);
                                 setForm((prevState) => ({

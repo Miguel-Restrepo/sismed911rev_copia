@@ -116,6 +116,7 @@ function SideBar(props) {
                             '/trasladoInterH': 'Traslado',
                             '/tableroInterH': 'Tablero',
                             '/colaInterH': 'Cola Pacientes',
+                            '/reporteInterH': 'Reporte'
                         }));
                         return;
                     }
