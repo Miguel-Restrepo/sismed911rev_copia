@@ -1028,7 +1028,6 @@ const Evaluacion = () => {
                                 data={filteredItemsesp}
                                 onRowClicked={(row) => {
                                     setEspecialidadTemp(row.nombre_especialidad);
-                                    console.log(row)
                                     setIdEspecialidadTemp(row.id_especialidad);
                                     let select = row;
                                     if (!idEspecialidadTemp) {

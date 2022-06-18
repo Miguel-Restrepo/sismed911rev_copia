@@ -1,11 +1,54 @@
 import React from 'react'
 import Icofont from 'react-icofont';
+import EditIcon from '@mui/icons-material/Edit';
+import DataTable from 'react-data-table-component';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import {
+    InputLabel,
+    MenuItem,
+    FormControl,
+    OutlinedInput,
+    Box,
+    Stack,
+    Chip,
+    Checkbox,
+    FormGroup,
+    Item,
+    Grid,
+    TextField,
+    Typography,
+    Dialog,
+    DialogContent,
+    DialogActions,
+    AppBar,
+    NativeSelect,
+    Toolbar,
+    Card,
+    CardContent,
+    Radio,
+    FormControlLabel,
+    FormLabel,
+    Backdrop,
+    ButtonGroup,
+    Button,
+    CircularProgress,
+    IconButton,
+} from '@mui/material';
+const moment = require('moment');
+import common from '../../../common';
+import ArticleIcon from '@mui/icons-material/Article';
+import SearchIcon from '@mui/icons-material/Search';
+import { useEffect, useMemo, useState } from 'react';
 
 import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { useEffect, useState } from "react";
 import axios from "axios";
 import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit';
 //import 'react-phone-input-2/lib/style.css'
@@ -41,6 +84,12 @@ const Catalogo = () => {
     const handleEdit = () => setEditar(true);
     const handleAdd = () => setEditar(false);
 
+    const [textLoad, setTextLoad] = useState('Cargando ...');
+    const [openLoad, setOpenLoad] = useState(false);
+    const [filterText, setFilterText] = useState('');
+    const [filterText1, setFilterText1] = useState('');
+
+
     const [form, setForm] = useState({
         servicio_es: '',
         servicio_en: '',
@@ -55,43 +104,44 @@ const Catalogo = () => {
         servicio_fr: ''
     })
 
-    const Get = () => {
-        axios.get(`/api/catalogo_serv_taller`)
+    const Get = async () => {
+        setOpenLoad(true);
+        await axios.get(`/api/catalogo_serv_taller`)
             .then(response => {
-
+                setOpenLoad(false);
                 setTablas(response.data);
                 return response.data;
             })
             .catch(error => {
+                setOpenLoad(false);
                 return error;
             })
 
     }
     const notificarExitoCaso = (idcaso) =>
-    toast.success(`${t("mensajes.mscasoid")} ${idcaso} ${t("mensajes.msexito")}`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored"
-    });;
+        toast.success(`${t("mensajes.mscasoid")} ${idcaso} ${t("mensajes.msexito")}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored"
+        });;
 
-const notificarErrorCaso = () =>
-    toast.error(`${t("mensajes.mscreacionerror")}`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored"
-    });;
+    const notificarErrorCaso = () =>
+        toast.error(`${t("mensajes.mscreacionerror")}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored"
+        });;
     const handleChange = e => {
-        e.persist();
         setForm(
             prevState => ({
                 ...prevState,
@@ -127,6 +177,8 @@ const notificarErrorCaso = () =>
             })
     }
 
+
+
     useEffect(() => {
         Get()
 
@@ -145,296 +197,426 @@ const notificarErrorCaso = () =>
         handleClose();
     }
 
+    const subHeaderComponent = useMemo(() => {
+        const handleClear = () => {
+            if (filterText) setFilterText('');
+        };
 
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
 
+                    </Stack>
+                </Grid>
 
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear}
+                        filterText={filterText}
+                        onFilter={(e) => setFilterText(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterText]);
 
-    const { SearchBar } = Search;
-    const columns = [{
-        dataField: 'id_catalogo',
-        text: `${t("ambulancias.catalogo.datos.servicio")}`,
-        sort: true
-    }, {
-        dataField: `servicio_es`,
-        text:`${t("ambulancias.catalogo.datos.servicio")} Es`,
-        sort: true
-    },
-    {
-        dataField: `servicio_en`,
-        text:`${t("ambulancias.catalogo.datos.servicio")} En`,
-        sort: true
-    },
-    {
-        dataField: `servicio_fe`,
-        text:`${t("ambulancias.catalogo.datos.servicio")} Fr`,
-        sort: true
-    },
-    {
-        dataField: `servicio_pt`,
-        text:`${t("ambulancias.catalogo.datos.servicio")} Pt`,
-        sort: true
-    }, {
-        text:'',
-        dataField: '652',
-        formatter: (cell, row, rowIndex, extraData) => {
-            return (
-                <div>
-                    <Icofont icon="search-1" className="mx-2" onClick={() => {
-                        handleView()
-                        setForm({
-                            servicio_es: row.servicio_es,
-                            servicio_en: row.servicio_en,
-                            servicio_fr: row.servicio_fr,
-                            servicio_pt: row.servicio_pt
-                        })
-                        setLine({
-                            id_catalogo: row.id_catalogo,
-                            servicio_es: row.servicio_es,
-                            servicio_en: row.servicio_en,
-                            servicio_fr: row.servicio_fr,
-                            servicio_pt: row.servicio_pt
-                        })
-                        handleShow();
-                    }} />
-                </div>
-            );
-        }
-    }, {
-        text: '',
-        dataField: '546',
-        formatter: (cell, row, rowIndex, extraData) => {
-            return (
-                <div>
+    const filteredItems = tablas.filter(
+        (item) =>
+            (item.id_catalogo &&
+                item.id_catalogo
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.servicio_es &&
+                item.servicio_es
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.servicio_en &&
+                item.servicio_en
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.servicio_fr &&
+                item.servicio_fr
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.servicio_pr &&
+                item.servicio_pr
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase()))
 
-                    <Icofont icon="pencil-alt-2" className="mx-2" onClick={() => {
-                        handleEdit()
-                        setForm({
-                            servicio_es: row.servicio_es,
-                            servicio_en: row.servicio_en,
-                            servicio_fr: row.servicio_fr,
-                            servicio_pt: row.servicio_pt
-                        })
-                        setLine({
-                            id_catalogo: row.id_catalogo,
-                            servicio_es: row.servicio_es,
-                            servicio_en: row.servicio_en,
-                            servicio_fr: row.servicio_fr,
-                            servicio_pt: row.servicio_pt
-                        })
-                        handleShowE()
-                    }} />
-
-                </div>
-            );
-        }
-    }, {
-        text: '',
-        dataField: '321',
-        formatter: (cell, row, rowIndex, extraData) => {
-            return (
-                <div>
-                    <Icofont icon="trash" className="mx-2" onClick={() => {
-                        handleDelet()
-                        setForm({
-                            servicio_es: row.servicio_es,
-                            servicio_en: row.servicio_en,
-                            servicio_fr: row.servicio_fr,
-                            servicio_pt: row.servicio_pt
-                        })
-                        setLine({
-                            id_catalogo: row.id_catalogo,
-                            servicio_es: row.servicio_es,
-                            servicio_en: row.servicio_en,
-                            servicio_fr: row.servicio_fr,
-                            servicio_pt: row.servicio_pt
-                        })
-                        handleShow();
-                    }} />
-                </div>
-            );
-        }
-    }
-    ];
-    const options = {
-        custom: true,
-        paginationSize: 5,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: tablas.length
-    };
-    const selectRow = {
-        mode: 'radio',
-        clickToSelect: true,
-        selected: [1],
-        hideSelectColumn: true,
-        classes: 'selection-row'
-    };
-    const contentTable = ({ paginationProps, paginationTableProps }) => (
-        <div>
-            <ToolkitProvider
-                keyField="id_catalogo"
-                columns={columns}
-                data={tablas}
-                search
-            >
-                {
-                    toolkitprops => (
-                        <div>
-                            <SearchBar placeholder={`${t("tabla.buscador")}`}  {...toolkitprops.searchProps} />
-                            <BootstrapTable
-                                striped
-                                hover
-                                {...toolkitprops.baseProps}
-                                {...paginationTableProps}
-                                noDataIndication={`${t("tabla.sindatos")}`}
-                                selectRow={selectRow}
-                            />
-                        </div>
-                    )
-                }
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
     );
+
+    const columns = useMemo(() => [
+
+        {
+            name: `${t("ambulancias.catalogo.datos.servicio")}`,
+            sortable: true,
+            selector: (row) => row.id_catalogo,
+        }, {
+            name: `${t("ambulancias.catalogo.datos.servicio")} Es`,
+            sortable: true,
+            selector: (row) => row.servicio_es,
+        }, {
+            name: `${t("ambulancias.catalogo.datos.servicio")} En`,
+            sortable: true,
+            selector: (row) => row.servicio_en,
+        }, {
+            name: `${t("ambulancias.catalogo.datos.servicio")} Fr`,
+            sortable: true,
+            selector: (row) => row.servicio_fr,
+        }, {
+            name: `${t("ambulancias.catalogo.datos.servicio")} Pt`,
+            sortable: true,
+            selector: (row) => row.servicio_pr,
+        }, {
+            name: ``,
+            width: '50px',
+            cell: (row) => {
+                return (
+                    <div>
+                        <SearchIcon onClick={() => {
+                            handleView()
+                            setForm({
+                                servicio_es: row.servicio_es,
+                                servicio_en: row.servicio_en,
+                                servicio_fr: row.servicio_fr,
+                                servicio_pr: row.servicio_pr
+                            })
+                            setLine({
+                                id_catalogo: row.id_catalogo,
+                                servicio_es: row.servicio_es,
+                                servicio_en: row.servicio_en,
+                                servicio_fr: row.servicio_fr,
+                                servicio_pr: row.servicio_pr
+                            })
+                            handleShow();
+
+                        }} />
+                    </div>
+                );
+            },
+        }, {
+            name: ``,
+            width: '50px',
+            cell: (row) => {
+                return (
+                    <div>
+
+                        <EditIcon onClick={() => {
+                            handleEdit()
+                            setForm({
+                                servicio_es: row.servicio_es,
+                                servicio_en: row.servicio_en,
+                                servicio_fr: row.servicio_fr,
+                                servicio_pr: row.servicio_pr
+                            })
+                            setLine({
+                                id_catalogo: row.id_catalogo,
+                                servicio_es: row.servicio_es,
+                                servicio_en: row.servicio_en,
+                                servicio_fr: row.servicio_fr,
+                                servicio_pr: row.servicio_pr
+                            })
+                            handleShowE()
+
+                        }} />
+
+                    </div>
+                );
+            },
+        }, {
+            name: '',
+            width: '50px',
+            cell: (row) => {
+                return (
+                    <div>
+                        <DeleteIcon onClick={() => {
+                            handleDelet()
+                            setForm({
+                                servicio_es: row.servicio_es,
+                                servicio_en: row.servicio_en,
+                                servicio_fr: row.servicio_fr,
+                                servicio_pr: row.servicio_pr
+                            })
+                            setLine({
+                                id_catalogo: row.id_catalogo,
+                                servicio_es: row.servicio_es,
+                                servicio_en: row.servicio_en,
+                                servicio_fr: row.servicio_fr,
+                                servicio_pr: row.servicio_pr
+                            })
+                            handleShow();
+
+                        }} />
+
+                    </div>
+                );
+            },
+        },
+    ])
+
+
+
+
 
 
     return (
         <div>
-            <div>
-                <h2>{t("ambulancias.catalogo.titulo")}</h2>
-            </div>
-            <div>
-                <Button variant="outline-dark" onClick={() => {
-                    handleAdd()
-                    clearform()
-                    handleShowE()
-                }}>
-                    <Icofont icon="ui-add" className="mx-2" />
-                </Button>
-                <PaginationProvider
-                    pagination={
-                        paginationFactory(options)
-                    }
-                >
-                    {contentTable}
-                </PaginationProvider>
+            <Backdrop
+                sx={{
+                    color: '#fff',
+                    zIndex: (theme) => theme.zIndex.drawer + 101,
+                }}
+                open={openLoad}
+            >
+                <Stack spacing={1} alignItems="center">
+                    <CircularProgress disableShrink color="inherit" />
+                    <Typography>{textLoad}</Typography>
+                </Stack>
+            </Backdrop>
+            <h2>{t("ambulancias.catalogo.titulo")}</h2>
+            <Button variant="contained" onClick={() => {
 
-                <Modal show={show} onHide={() => {
+                handleAdd()
+                clearform()
+                handleShowE()
+            }}>
+                <AddIcon />
+            </Button>
+            <Card>
+                <CardContent
+                    sx={{
+                        pb: '0 !important',
+                        '& > header': {
+                            padding: 0,
+                        },
+                        '& .rdt_Table': {
+                            border: 'solid 1px rgba(0, 0, 0, .12)',
+                        },
+                    }}
+                >
+                    <DataTable
+                        striped
+                        columns={columns}
+                        data={filteredItems}
+                        conditionalRowStyles={common.conditionalRowStyles}
+                        pagination
+                        paginationComponentOptions={
+                            common.paginationComponentOptions
+                        }
+                        subHeader
+                        subHeaderComponent={subHeaderComponent}
+                        fixedHeader
+                        persistTableHead
+                        fixedHeaderScrollHeight="calc(100vh - 317px)"
+                        customStyles={common.customStyles}
+                        highlightOnHover
+                        noDataComponent={
+                            <Typography sx={{ my: 2 }}>
+                                No existen datos para mostrar
+                            </Typography>
+                        }
+                    />
+                </CardContent>
+            </Card>
+
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={show}
+                onClose={() => {
                     handleClose()
                     setLine('')
-                }} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title> <h1>{t("ambulancias.catalogo.titulo")} - {view ? t("etiquetas.ver") : t("etiquetas.eliminar")}</h1></Modal.Title>
-                    </Modal.Header>
+                }}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                        {t("ambulancias.catalogo.titulo")} - {view ? t("etiquetas.ver") : t("etiquetas.eliminar")}
+                        </Typography>
 
-                    <Modal.Body>
-                        <div className="mb-5">
-                            <Button variant="outline-dark" onClick={() => {
-                                clearform()
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={() => {
                                 handleClose()
-                                handleAdd()
                                 setLine('')
-                                handleShowE()
-                            }}>
-                                <Icofont icon="ui-add" className="mx-2" />
-                            </Button>
+                            }}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    <ButtonGroup variant="outlined">
+                        <Button onClick={() => {
 
-                            <Button variant="outline-dark" onClick={() => {
-                                handleEdit()
-                                handleClose()
-                                handleShowE()
-                            }}>
-                                <Icofont icon="pencil-alt-2" className="mx-2" />
-                            </Button>
+                            clearform()
+                            handleClose()
+                            handleAdd()
+                            setLine('')
+                            handleShowE()
+                        }}>
+                            <AddIcon />
+                        </Button>
 
-                            <Button variant="outline-dark" disabled={!view} onClick={() => {
-                                handleClose()
-                                handleDelet()
-                                handleShow()
-                            }} >
-                                <Icofont icon='trash' className="mx-2" />
-                            </Button>
-                        </div>
-                        <Form>
-                            <Form.Group as={Row} className="mb-3" controlId="formid">
-                                <Form.Label column sm="2">
-                                    {t("ambulancias.catalogo.datos.id")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.id_catalogo} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                    {t("ambulancias.catalogo.datos.servicio")} Es
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.servicio_es} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                    {t("ambulancias.catalogo.datos.servicio")} En
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.servicio_en} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                    {t("ambulancias.catalogo.datos.servicio")} Fr
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.servicio_fr} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                    {t("ambulancias.catalogo.datos.servicio")} Pt
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.servicio_pt} />
-                                </Col>
-                            </Form.Group>
-                        </Form>
-                    </Modal.Body>
+                        <Button onClick={() => {
+                            handleEdit()
+                            handleClose()
+                            handleShowE()
 
-                    <Modal.Footer>
-                        <Button variant={view ? 'primary' : 'danger'} onClick={view ? () => {
+                        }}>
+                            <EditIcon />
+                        </Button>
+
+                        <Button disabled={!view} onClick={() => {
+
+                            handleClose()
+                            handleDelet()
+                            handleShow()
+
+                        }} >
+                            <DeleteIcon />
+                        </Button>
+                    </ButtonGroup>
+                    <Grid
+                        container
+                        noValidate
+                        direction="row"
+                        justifyContent="center"
+                        spacing={2}
+                        sx={{ my: 2 }}
+                        component="form"
+                        autoComplete="off"
+                    >
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("ambulancias.catalogo.datos.id")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.id_catalogo}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("ambulancias.catalogo.datos.servicio")} Es
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.servicio_es}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("ambulancias.catalogo.datos.servicio")} En
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.servicio_en}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("ambulancias.catalogo.datos.servicio")} Fr
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.servicio_fr}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("ambulancias.catalogo.datos.servicio")} Pt
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.servicio_pr}
+                            </Typography>
+                        </Grid>
+
+
+                    </Grid>
+
+                    <DialogActions sx={{ mb: 1 }}>
+
+                        <Button variant='contained' color={view ? 'primary' : 'error'} onClick={view ? () => {
                             handleClose()
                             setLine('')
                         }
                             : Elimina}>
                             {view ? t("etiquetas.hecho") : t("etiquetas.eliminar")}
                         </Button>
-                        <Button variant="secondary" onClick={() => {
+                        <Button variant="outlined" onClick={() => {
                             handleClose()
                             setLine('')
                         }}>
                             {t("etiquetas.cancelar")}
                         </Button>
-                    </Modal.Footer>
-                </Modal>
 
-                <Modal show={showe} onHide={() => {
+                    </DialogActions>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={showe}
+                onClose={() => {
                     handleCloseE()
                     setLine('')
-                }} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title>{t("ambulancias.catalogo.titulo")} - {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}</Modal.Title>
-                    </Modal.Header>
+                }}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                        {t("ambulancias.catalogo.titulo")}
+                            - {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}
+                        </Typography>
 
-                    <Modal.Body>
-                        {editar ? <div className="mb-5">
-                            <Button variant="outline-dark" onClick={() => {
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={() => {
+                                handleCloseE()
+                                setLine('')
+                            }}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    {editar ?
+                        <ButtonGroup variant="outlined">
+                            <Button onClick={() => {
                                 handleCloseE()
                                 clearform()
                                 handleAdd()
@@ -442,56 +624,81 @@ const notificarErrorCaso = () =>
                                 handleShowE()
 
                             }}>
-                                <Icofont icon="ui-add" className="mx-2" />
+                                <AddIcon />
                             </Button>
-                            <Button variant="outline-dark" onClick={() => {
+                            <Button onClick={() => {
                                 handleCloseE()
                                 handleDelet()
                                 handleShow()
                             }}>
-                                <Icofont icon='trash' className="mx-2" />
+                                <DeleteIcon />
                             </Button>
-                        </div> : ''}
+                        </ButtonGroup>
+                        : ''}
+                    <Grid
+                        container
+                        noValidate
+                        direction="row"
+                        justifyContent="center"
+                        spacing={2}
+                        sx={{ my: 2 }}
+                        component="form"
+                        autoComplete="off"
+                    >
+                        <Grid item xs={6}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={`${t("ambulancias.catalogo.datos.servicio")} Es`}
+                                value={form.servicio_es}
+                                onChange={handleChange}
+                                name="servicio_es"
+                            />
 
-                        <Form className='m-xxl-4'>
-                            <Form.Group as={Row} className="mb-3" controlId="formcodigo">
-                                <Form.Label column sm="3">
-                                {t("ambulancias.catalogo.datos.servicio")} Es
-                                </Form.Label>
-                                <Col sm={4} >
-                                    <Form.Control type='text' placeholder={`${t("ambulancias.catalogo.datos.servicio")} Es`} value={form.servicio_es} onChange={handleChange} name="servicio_es" />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formcodigo">
-                                <Form.Label column sm="3">
-                                {t("ambulancias.catalogo.datos.servicio")} En
-                                </Form.Label>
-                                <Col sm={4} >
-                                    <Form.Control type='text' placeholder={`${t("ambulancias.catalogo.datos.servicio")} En`} value={form.servicio_en} onChange={handleChange} name="servicio_en" />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formcodigo">
-                                <Form.Label column sm="3">
-                                {t("ambulancias.catalogo.datos.servicio")} Fr
-                                </Form.Label>
-                                <Col sm={4} >
-                                    <Form.Control type='text' placeholder={`${t("ambulancias.catalogo.datos.servicio")} Fr`} value={form.servicio_fr} onChange={handleChange} name="servicio_fr" />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formcodigo">
-                                <Form.Label column sm="3">
-                                {t("ambulancias.catalogo.datos.servicio")} Pt
-                                </Form.Label>
-                                <Col sm={4} >
-                                    <Form.Control type='text' placeholder={`${t("ambulancias.catalogo.datos.servicio")} Pt`} value={form.servicio_pt} onChange={handleChange} name="servicio_pt" />
-                                </Col>
-                            </Form.Group>
+                        </Grid>
 
-                        </Form>
-                    </Modal.Body>
+                        <Grid item xs={6}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={`${t("ambulancias.catalogo.datos.servicio")} En`}
+                                value={form.servicio_en}
+                                onChange={handleChange}
+                                name="servicio_en"
+                            />
 
-                    <Modal.Footer>
-                        <Button variant='primary' onClick={editar ? () => {
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={`${t("ambulancias.catalogo.datos.servicio")} Fr`}
+                                value={form.servicio_fr}
+                                onChange={handleChange}
+                                name="servicio_fr"
+                            />
+
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={`${t("ambulancias.catalogo.datos.servicio")} Pt`}
+                                value={form.servicio_pr}
+                                onChange={handleChange}
+                                name="servicio_pr"
+                            />
+
+                        </Grid>
+                    </Grid>
+                    <DialogActions sx={{ mb: 1 }}>
+                        <Button variant='contained' onClick={editar ? () => {
                             Edit()
                             handleCloseE()
                         } : () => {
@@ -500,18 +707,16 @@ const notificarErrorCaso = () =>
                         }}>
                             {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}
                         </Button>
-                        <Button variant="secondary" onClick={() => {
+                        <Button variant="outlined" onClick={() => {
                             handleCloseE()
                             setLine('')
                             clearform()
                         }}>
                             {t("etiquetas.cancelar")}
                         </Button>
-                    </Modal.Footer>
-                </Modal>
-
-            </div>
-
+                    </DialogActions>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 

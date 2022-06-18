@@ -1,11 +1,53 @@
 import React from 'react'
 import Icofont from 'react-icofont';
-
+import EditIcon from '@mui/icons-material/Edit';
+import DataTable from 'react-data-table-component';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import {
+    InputLabel,
+    MenuItem,
+    FormControl,
+    OutlinedInput,
+    Box,
+    Stack,
+    Chip,
+    Checkbox,
+    FormGroup,
+    Item,
+    Grid,
+    TextField,
+    Typography,
+    Dialog,
+    DialogContent,
+    DialogActions,
+    AppBar,
+    NativeSelect,
+    Toolbar,
+    Card,
+    CardContent,
+    Radio,
+    FormControlLabel,
+    FormLabel,
+    Backdrop,
+    ButtonGroup,
+    Button,
+    CircularProgress,
+    IconButton,
+} from '@mui/material';
+const moment = require('moment');
+import common from '../../../common';
+import ArticleIcon from '@mui/icons-material/Article';
+import SearchIcon from '@mui/icons-material/Search';
+import { useEffect, useMemo, useState } from 'react';
 import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { useEffect, useState } from "react";
 import axios from "axios";
 import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit';
 //import 'react-phone-input-2/lib/style.css'
@@ -52,6 +94,12 @@ const Recordatorio = () => {
     const handleClose2 = () => setShow2(false);
     const handleShow2 = () => setShow2(true);
 
+    const [textLoad, setTextLoad] = useState('Cargando ...');
+    const [openLoad, setOpenLoad] = useState(false);
+    const [filterText, setFilterText] = useState('');
+    const [filterText1, setFilterText1] = useState('');
+
+
     const [form, setForm] = useState({
         vehiculo: '',
         servicio: '',
@@ -74,14 +122,16 @@ const Recordatorio = () => {
         })
     }
 
-    const Get = () => {
-        axios.get(`/api/recordatorio_taller`)
+    const Get = async () => {
+        setOpenLoad(true);
+        await axios.get(`/api/recordatorio_taller`)
             .then(response => {
-
+                setOpenLoad(false);
                 setTablas(response.data);
                 return response.data;
             })
             .catch(error => {
+                setOpenLoad(false);
                 return error;
             })
 
@@ -112,31 +162,30 @@ const Recordatorio = () => {
     }
 
     const notificarExitoCaso = (idcaso) =>
-    toast.success(`${t("mensajes.mscasoid")} ${idcaso} ${t("mensajes.msexito")}`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored"
-    });;
+        toast.success(`${t("mensajes.mscasoid")} ${idcaso} ${t("mensajes.msexito")}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored"
+        });;
 
-const notificarErrorCaso = () =>
-    toast.error(`${t("mensajes.mscreacionerror")}`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored"
-    });;
+    const notificarErrorCaso = () =>
+        toast.error(`${t("mensajes.mscreacionerror")}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored"
+        });;
 
     const handleChange = e => {
-        e.persist();
         setForm(
             prevState => ({
                 ...prevState,
@@ -199,392 +248,561 @@ const notificarErrorCaso = () =>
         handleClose();
     }
 
+    const subHeaderComponent = useMemo(() => {
+        const handleClear = () => {
+            if (filterText) setFilterText('');
+        };
 
-    const { SearchBar } = Search;
-    const columns = [{
-        dataField: 'id',
-        text: `${t("ambulancias.recordatorio.datos.id")}`,
-        sort: true
-    }, {
-        dataField: 'cod_ambulancias',
-        text: `${t("ambulancias.recordatorio.datos.ambulancias")}`,
-        sort: true
-    }, {
-        dataField: 'servicio_es',
-        text: `${t("ambulancias.recordatorio.datos.mantenimiento")}`,
-        sort: true
-    }, {
-        dataField: 'frecuencia_km',
-        text: `${t("ambulancias.recordatorio.datos.frecuenciakm")}`,
-        sort: true
-    }, {
-        dataField: 'frecuencia_tiempo',
-        text: `${t("ambulancias.recordatorio.datos.frecuenciati")}`,
-        sort: true
-    }, {
-        dataField: 'anticipo_km',
-        text: `${t("ambulancias.recordatorio.datos.anticipokm")}`,
-        sort: true
-    }, {
-        dataField: 'anticipo_tiempo',
-        text: `${t("ambulancias.recordatorio.datos.anticipoti")}`,
-        sort: true
-    }, {
-        text:'',
-        dataField: '78',
-        formatter: (cell, row, rowIndex, extraData) => {
-            return (
-                <div>
-                    <Icofont icon="search-1" className="mx-2" onClick={() => {
-                        handleView()
-                        setForm({
-                            vehiculo: row.vehiculo,
-                            servicio: row.servicio,
-                            frecuencia_km: row.frecuencia_km,
-                            frecuencia_tiempo: row.frecuencia_tiempo,
-                            anticipo_km: row.anticipo_km,
-                            anticipo_tiempo: row.anticipo_tiempo
-                        })
-                        setLine({
-                            id: row.id,
-                            vehiculo: row.cod_ambulancias,
-                            servicio: row.servicio_es,
-                            frecuencia_km: row.frecuencia_km,
-                            frecuencia_tiempo: row.frecuencia_tiempo,
-                            anticipo_km: row.anticipo_km,
-                            anticipo_tiempo: row.anticipo_tiempo
-                        })
-                        setAmbulancia(row.cod_ambulancias)
-                        setIdAmbulancia(row.vehiculo);
-                        handleShow();
-                    }} />
-                </div>
-            );
-        }
-    }, {
-        text:'',
-        dataField: '45',
-        formatter: (cell, row, rowIndex, extraData) => {
-            return (
-                <div>
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
 
-                    <Icofont icon="pencil-alt-2" className="mx-2" onClick={() => {
-                        handleEdit()
-                        setForm({
-                            vehiculo: row.vehiculo,
-                            servicio: row.servicio,
-                            frecuencia_km: row.frecuencia_km,
-                            frecuencia_tiempo: row.frecuencia_tiempo,
-                            anticipo_km: row.anticipo_km,
-                            anticipo_tiempo: row.anticipo_tiempo
-                        })
-                        setLine({
-                            id: row.id,
-                            vehiculo: row.cod_ambulancias,
-                            servicio: row.servicio_es,
-                            frecuencia_km: row.frecuencia_km,
-                            frecuencia_tiempo: row.frecuencia_tiempo,
-                            anticipo_km: row.anticipo_km,
-                            anticipo_tiempo: row.anticipo_tiempo
-                        })
-                        setAmbulancia(row.cod_ambulancias)
-                        setIdAmbulancia(row.vehiculo);
-                        handleShowE()
-                    }} />
+                    </Stack>
+                </Grid>
 
-                </div>
-            );
-        }
-    }, {
-        text:'',
-        dataField: '12',
-        formatter: (cell, row, rowIndex, extraData) => {
-            return (
-                <div>
-                    <Icofont icon="trash" className="mx-2" onClick={() => {
-                        handleDelet()
-                        setForm({
-                            vehiculo: row.vehiculo,
-                            servicio: row.servicio,
-                            frecuencia_km: row.frecuencia_km,
-                            frecuencia_tiempo: row.frecuencia_tiempo,
-                            anticipo_km: row.anticipo_km,
-                            anticipo_tiempo: row.anticipo_tiempo
-                        })
-                        setLine({
-                            id: row.id,
-                            vehiculo: row.cod_ambulancias,
-                            servicio: row.servicio_es,
-                            frecuencia_km: row.frecuencia_km,
-                            frecuencia_tiempo: row.frecuencia_tiempo,
-                            anticipo_km: row.anticipo_km,
-                            anticipo_tiempo: row.anticipo_tiempo
-                        })
-                        setAmbulancia(row.cod_ambulancias)
-                        setIdAmbulancia(row.vehiculo);
-                        handleShow();
-                    }} />
-                </div>
-            );
-        }
-    }
-    ];
-    const options = {
-        custom: true,
-        paginationSize: 5,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: tablas.length
-    };
-    const selectRow = {
-        mode: 'radio',
-        clickToSelect: true,
-        selected: [1],
-        hideSelectColumn: true,
-        classes: 'selection-row'
-    };
-    const contentTable = ({ paginationProps, paginationTableProps }) => (
-        <div>
-            <ToolkitProvider
-                keyField="id"
-                columns={columns}
-                data={tablas}
-                search
-            >
-                {
-                    toolkitprops => (
-                        <div>
-                            <SearchBar placeholder={`${t("tabla.buscador")}`}   {...toolkitprops.searchProps} />
-                            <BootstrapTable
-                                striped
-                                hover
-                                {...toolkitprops.baseProps}
-                                {...paginationTableProps}
-                                noDataIndication={`${t("tabla.sindatos")}`}
-                                selectRow={selectRow}
-                            />
-                        </div>
-                    )
-                }
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear}
+                        filterText={filterText}
+                        onFilter={(e) => setFilterText(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterText]);
+
+    const subHeaderComponent1 = useMemo(() => {
+        const handleClear = () => {
+            if (filterText1) setFilterText1('');
+        };
+
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
+
+                    </Stack>
+                </Grid>
+
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear}
+                        filterText={filterText1}
+                        onFilter={(e) => setFilterText1(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterText1]);
+
+    const filteredItems1 = ambulancias.filter(
+        (item) =>
+        (item.cod_ambulancias &&
+            item.cod_ambulancias
+                .toString()
+                .toLowerCase()
+                .includes(filterText1.toLowerCase()))
+
     );
 
-    const columns1 =
-        [{
-            text:'',
-            dataField: 'cod_ambulancias',
-            sort: true
-        }];
-    const options1 = {
-        custom: true,
-        paginationSize: 3,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: ambulancias.length
-    };
-    const selectRow1 = {
-        mode: 'radio',
-        clickToSelect: true,
-        hideSelectColumn: false,
-        style: { color: "#fff", background: "#0d6efd" },
-        onSelect: (row, isSelect, rowIndex, e) => {
-            setAmbulanciaTemp(row.cod_ambulancias);
+    const filteredItems = tablas.filter(
+        (item) =>
+            (item.id &&
+                item.id
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.fecha_creacion &&
+                item.fecha_creacion
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.procedimiento &&
+                item.procedimiento
+                    .toString()
+                    .toLowerCase()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .includes(filterText.toLowerCase()))
+
+    );
+
+    const columns1 = useMemo(() => [
+
+        {
+            name: '',
+            sortable: true,
+            selector: (row) => row.cod_ambulancias,
+        }
+    ])
+
+
+    const columns = useMemo(() => [
+
+        {
+            name: `${t("ambulancias.recordatorio.datos.id")}`,
+            sortable: true,
+            selector: (row) => row.id,
+        }, {
+            name: `${t("ambulancias.recordatorio.datos.ambulancias")}`,
+            sortable: true,
+            selector: (row) => row.cod_ambulancias,
+        }, {
+            name: `${t("ambulancias.recordatorio.datos.mantenimiento")}`,
+            sortable: true,
+            selector: (row) => row.servicio_es,
+        }, {
+            name: `${t("ambulancias.recordatorio.datos.frecuenciakm")}`,
+            sortable: true,
+            selector: (row) => row.frecuencia_km,
+        }, {
+            name: `${t("ambulancias.recordatorio.datos.frecuenciati")}`,
+            sortable: true,
+            selector: (row) => row.frecuencia_tiempo,
+        }, {
+            name: `${t("ambulancias.recordatorio.datos.anticipokm")}`,
+            sortable: true,
+            selector: (row) => row.anticipo_km,
+        }, {
+            name: `${t("ambulancias.recordatorio.datos.anticipoti")}`,
+            sortable: true,
+            selector: (row) => row.anticipo_tiempo,
+        }, {
+            name: ``,
+            width: '50px',
+            cell: (row) => {
+                return (
+                    <div>
+                        <SearchIcon onClick={() => {
+                            handleView()
+                            setForm({
+                                vehiculo: row.vehiculo,
+                                servicio: row.servicio,
+                                frecuencia_km: row.frecuencia_km,
+                                frecuencia_tiempo: row.frecuencia_tiempo,
+                                anticipo_km: row.anticipo_km,
+                                anticipo_tiempo: row.anticipo_tiempo
+                            })
+                            setLine({
+                                id: row.id,
+                                vehiculo: row.cod_ambulancias,
+                                servicio: row.servicio_es,
+                                frecuencia_km: row.frecuencia_km,
+                                frecuencia_tiempo: row.frecuencia_tiempo,
+                                anticipo_km: row.anticipo_km,
+                                anticipo_tiempo: row.anticipo_tiempo
+                            })
+                            setAmbulancia(row.cod_ambulancias)
+                            setIdAmbulancia(row.vehiculo);
+                            handleShow();
+
+                        }} />
+                    </div>
+                );
+            },
+        }, {
+            name: ``,
+            width: '50px',
+            cell: (row) => {
+                return (
+                    <div>
+
+                        <EditIcon onClick={() => {
+                            handleEdit()
+                            setForm({
+                                vehiculo: row.vehiculo,
+                                servicio: row.servicio,
+                                frecuencia_km: row.frecuencia_km,
+                                frecuencia_tiempo: row.frecuencia_tiempo,
+                                anticipo_km: row.anticipo_km,
+                                anticipo_tiempo: row.anticipo_tiempo
+                            })
+                            setLine({
+                                id: row.id,
+                                vehiculo: row.cod_ambulancias,
+                                servicio: row.servicio_es,
+                                frecuencia_km: row.frecuencia_km,
+                                frecuencia_tiempo: row.frecuencia_tiempo,
+                                anticipo_km: row.anticipo_km,
+                                anticipo_tiempo: row.anticipo_tiempo
+                            })
+                            setAmbulancia(row.cod_ambulancias)
+                            setIdAmbulancia(row.vehiculo);
+                            handleShowE()
+
+
+                            handleShowE()
+                        }} />
+
+                    </div>
+                );
+            },
+        }, {
+            name: '',
+            width: '50px',
+            cell: (row) => {
+                return (
+                    <div>
+                        <DeleteIcon onClick={() => {
+                            handleDelet()
+                            setForm({
+                                vehiculo: row.vehiculo,
+                                servicio: row.servicio,
+                                frecuencia_km: row.frecuencia_km,
+                                frecuencia_tiempo: row.frecuencia_tiempo,
+                                anticipo_km: row.anticipo_km,
+                                anticipo_tiempo: row.anticipo_tiempo
+                            })
+                            setLine({
+                                id: row.id,
+                                vehiculo: row.cod_ambulancias,
+                                servicio: row.servicio_es,
+                                frecuencia_km: row.frecuencia_km,
+                                frecuencia_tiempo: row.frecuencia_tiempo,
+                                anticipo_km: row.anticipo_km,
+                                anticipo_tiempo: row.anticipo_tiempo
+                            })
+                            setAmbulancia(row.cod_ambulancias)
+                            setIdAmbulancia(row.vehiculo);
+                            handleShow();
+
+                        }} />
+
+                    </div>
+                );
+            },
+        },
+    ])
+
+    const handleRowClicked = (row) => {
+        setAmbulanciaTemp(row.cod_ambulancias);
+        setIdAmbulanciaTemp(row.codigo);
+        let select = row;
+        if (!idAmbulanciaTemp) {
             setIdAmbulanciaTemp(row.codigo);
+            const updatedData = ambulancias.map((item) => {
+                if (row.codigo !== item.codigo) {
+                    return item;
+                }
+
+                return {
+                    ...item,
+                    toggleSelected: true,
+                };
+            });
+
+            setAmbulancias(updatedData);
+        } else {
+            if (row.codigo === idAmbulanciaTemp) {
+                select = null;
+                setIdAmbulanciaTemp(row.codigo);
+                const updatedData = ambulancias.map((item) => {
+                    if (row.codigo !== item.codigo) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: false,
+                    };
+                });
+                setAmbulancias(updatedData);
+            } else {
+                setIdAmbulanciaTemp(row.codigo);
+                const updatedData = ambulancias.map((item) => {
+                    if (idAmbulanciaTemp === item.codigo) {
+                        return {
+                            ...item,
+                            toggleSelected: false,
+                        };
+                    } else if (row.codigo !== item.codigo) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: true,
+                    };
+                });
+                setAmbulancias(updatedData);
+            }
         }
     };
-
-    const contentTable1 = ({ paginationProps, paginationTableProps }) => (
-        <div>
-            <ToolkitProvider
-                keyField="codigo"
-                columns={columns1}
-                data={ambulancias}
-                search
-            >
-                {
-                    toolkitprops => (
-                        <div>
-                            <SearchBar placeholder={`${t("tabla.buscador")}`}   {...toolkitprops.searchProps} className="mb-3" />
-                            <BootstrapTable
-                                hover
-                                {...toolkitprops.baseProps}
-                                {...paginationTableProps}
-                                noDataIndication={`${t("tabla.sindatos")}`}
-                                selectRow={selectRow1}
-                            />
-                        </div>
-                    )
-                }
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
-    );
-
-
-
     return (
         <div>
-            <div>
-                <h2>{t("ambulancias.recordatorio.titulo")}</h2>
-            </div>
-            <div>
-                <Button variant="outline-dark" onClick={() => {
-                    handleAdd()
-                    clearform()
-                    handleShowE()
-                }}>
-                    <Icofont icon="ui-add" className="mx-2" />
-                </Button>
-                <PaginationProvider
-                    pagination={
-                        paginationFactory(options)
-                    }
-                >
-                    {contentTable}
-                </PaginationProvider>
+            <Backdrop
+                sx={{
+                    color: '#fff',
+                    zIndex: (theme) => theme.zIndex.drawer + 101,
+                }}
+                open={openLoad}
+            >
+                <Stack spacing={1} alignItems="center">
+                    <CircularProgress disableShrink color="inherit" />
+                    <Typography>{textLoad}</Typography>
+                </Stack>
+            </Backdrop>
+            <h2>{t("ambulancias.recordatorio.titulo")}</h2>
+            <Button variant="contained" onClick={() => {
+                handleAdd()
+                clearform()
+                handleShowE()
 
-                <Modal show={show} onHide={() => {
+            }}>
+                <AddIcon />
+            </Button>
+            <Card>
+                <CardContent
+                    sx={{
+                        pb: '0 !important',
+                        '& > header': {
+                            padding: 0,
+                        },
+                        '& .rdt_Table': {
+                            border: 'solid 1px rgba(0, 0, 0, .12)',
+                        },
+                    }}
+                >
+                    <DataTable
+                        striped
+                        columns={columns}
+                        data={filteredItems}
+                        conditionalRowStyles={common.conditionalRowStyles}
+                        pagination
+                        paginationComponentOptions={
+                            common.paginationComponentOptions
+                        }
+                        subHeader
+                        subHeaderComponent={subHeaderComponent}
+                        fixedHeader
+                        persistTableHead
+                        fixedHeaderScrollHeight="calc(100vh - 317px)"
+                        customStyles={common.customStyles}
+                        highlightOnHover
+                        noDataComponent={
+                            <Typography sx={{ my: 2 }}>
+                                No existen datos para mostrar
+                            </Typography>
+                        }
+                    />
+                </CardContent>
+            </Card>
+
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={show}
+                onClose={() => {
                     handleClose()
                     setLine('')
-                }} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title> <h1>{t("ambulancias.recordatorio.titulo")} - {view ? t("etiquetas.ver") : t("etiquetas.eliminar")}</h1></Modal.Title>
-                    </Modal.Header>
+                }}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t("ambulancias.recordatorio.titulo")} - {view ? t("etiquetas.ver") : t("etiquetas.eliminar")}
+                        </Typography>
 
-                    <Modal.Body>
-                        <div className="mb-5">
-                            <Button variant="outline-dark" onClick={() => {
-                                clearform()
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={() => {
                                 handleClose()
-                                handleAdd()
                                 setLine('')
-                                handleShowE()
-                            }}>
-                                <Icofont icon="ui-add" className="mx-2" />
-                            </Button>
+                            }}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    <ButtonGroup variant="outlined">
+                        <Button onClick={() => {
 
-                            <Button variant="outline-dark" onClick={() => {
-                                handleEdit()
-                                handleClose()
-                                handleShowE()
-                            }}>
-                                <Icofont icon="pencil-alt-2" className="mx-2" />
-                            </Button>
+                            clearform()
+                            handleClose()
+                            handleAdd()
+                            setLine('')
+                            handleShowE()
+                        }}>
+                            <AddIcon />
+                        </Button>
 
-                            <Button variant="outline-dark" disabled={!view} onClick={() => {
-                                handleClose()
-                                handleDelet()
-                                handleShow()
-                            }} >
-                                <Icofont icon='trash' className="mx-2" />
-                            </Button>
-                        </div>
-                        <Form>
-                            <Form.Group as={Row} className="mb-3" controlId="formid">
-                                <Form.Label column sm="2">
+                        <Button onClick={() => {
+                            handleEdit()
+                            handleClose()
+                            handleShowE()
+
+                        }}>
+                            <EditIcon />
+                        </Button>
+
+                        <Button disabled={!view} onClick={() => {
+
+                            handleClose()
+                            handleDelet()
+                            handleShow()
+
+                        }} >
+                            <DeleteIcon />
+                        </Button>
+                    </ButtonGroup>
+                    <Grid
+                        container
+                        noValidate
+                        direction="row"
+                        justifyContent="center"
+                        spacing={2}
+                        sx={{ my: 2 }}
+                        component="form"
+                        autoComplete="off"
+                    >
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
                                 {t("ambulancias.recordatorio.datos.id")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.id} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                    {t("ambulancias.recordatorio.datos.ambulancias")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.vehiculo} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("ambulancias.recordatorio.datos.mantenimiento")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.servicio} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("ambulancias.recordatorio.datos.frecuenciakm")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.frecuencia_km} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("ambulancias.recordatorio.datos.frecuenciati")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.frecuencia_tiempo} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("ambulancias.recordatorio.datos.anticipokm")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.anticipo_km} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("ambulancias.recordatorio.datos.anticipoti")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.anticipo_tiempo} />
-                                </Col>
-                            </Form.Group>
-                        </Form>
-                    </Modal.Body>
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.id}
+                            </Typography>
+                        </Grid>
 
-                    <Modal.Footer>
-                        <Button variant={view ? 'primary' : 'danger'} onClick={view ? () => {
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("ambulancias.recordatorio.datos.ambulancias")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.vehiculo}
+                            </Typography>
+                        </Grid>
+
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("ambulancias.recordatorio.datos.mantenimiento")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.servicio}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("ambulancias.recordatorio.datos.frecuenciakm")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.frecuencia_km}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("ambulancias.recordatorio.datos.frecuenciati")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.frecuencia_tiempo}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("ambulancias.recordatorio.datos.anticipokm")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.anticipo_km}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("ambulancias.recordatorio.datos.anticipoti")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.anticipo_tiempo}
+                            </Typography>
+                        </Grid>
+
+
+                    </Grid>
+
+                    <DialogActions sx={{ mb: 1 }}>
+
+                        <Button variant='contained' color={view ? 'primary' : 'error'} onClick={view ? () => {
                             handleClose()
                             setLine('')
                         }
                             : Elimina}>
                             {view ? t("etiquetas.hecho") : t("etiquetas.eliminar")}
                         </Button>
-                        <Button variant="secondary" onClick={() => {
+                        <Button variant="outlined" onClick={() => {
                             handleClose()
                             setLine('')
                         }}>
-                            Cancelar
+                            {t("etiquetas.cancelar")}
                         </Button>
-                    </Modal.Footer>
-                </Modal>
 
-                <Modal show={showe} onHide={() => {
+                    </DialogActions>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={showe}
+                onClose={() => {
                     handleCloseE()
                     setLine('')
-                }} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title>{t("ambulancias.recordatorio.titulo")} - {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}</Modal.Title>
-                    </Modal.Header>
+                }}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t("ambulancias.recordatorio.titulo")}
+                            - {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}
+                        </Typography>
 
-                    <Modal.Body>
-                        {editar ? <div className="mb-5">
-                            <Button variant="outline-dark" onClick={() => {
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={() => {
+                                handleCloseE()
+                                setLine('')
+                            }}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    {editar ?
+                        <ButtonGroup variant="outlined">
+                            <Button onClick={() => {
                                 handleCloseE()
                                 clearform()
                                 handleAdd()
@@ -592,145 +810,243 @@ const notificarErrorCaso = () =>
                                 handleShowE()
 
                             }}>
-                                <Icofont icon="ui-add" className="mx-2" />
+                                <AddIcon />
                             </Button>
-                            <Button variant="outline-dark" onClick={() => {
+                            <Button onClick={() => {
                                 handleCloseE()
                                 handleDelet()
                                 handleShow()
                             }}>
-                                <Icofont icon='trash' className="mx-2" />
+                                <DeleteIcon />
                             </Button>
-                        </div> : ''}
+                        </ButtonGroup>
+                        : ''}
+                    <Grid
+                        container
+                        noValidate
+                        direction="row"
+                        justifyContent="center"
+                        spacing={2}
+                        sx={{ my: 2 }}
+                        component="form"
+                        autoComplete="off"
+                    >
 
-                        <Form className='m-xxl-4'>
-                            <Form.Group as={Row} className="mb-3">
-                                <Form.Label column sm={3}>
-                                    <strong>{t("ambulancias.recordatorio.datos.ambulancias")}</strong>
-                                </Form.Label>
-                                <Col sm={5} >
-                                    <InputGroup className="mb-2" >
-                                        <Form.Control id="x"
-                                            placeholder={`-- ${t("etiquetas.seleccion")} --`}
-                                            disabled
-                                            value={ambulancia}
-                                            onChange={handleChange}
-                                            name="vehiculo"
-                                        />
-                                        <Button variant="outline-secondary" id="button-search" onClick={handleShow2}>
-                                            <Icofont icon="ui-search" className="mx-2" />
-                                        </Button>
-                                    </InputGroup>
-                                </Col>
-                            </Form.Group>
+                        <Grid item xs={12}>
+                            <Stack direction="row">
 
-                            <Form.Group as={Row} className="mb-3" controlId="mantenimiento">
-                                <Form.Label column sm={3}>
-                                    <strong>{t("ambulancias.recordatorio.datos.mantenimiento")}</strong>
-                                </Form.Label>
-                                <Col sm={5} >
-                                    <Form.Control as="select" value={form.servicio} onChange={handleChange} name="servicio">
-                                        <option value="" id="defServ">
-                                        {`-- ${t("etiquetas.seleccion")} --`}
-                                        </option>
-                                        {servicios.map(serv =>
-                                            <option value={serv.id_catalogo} id={serv.id_catalogo} key={serv.id_catalogo}>
-                                                {serv.servicio_es}
-                                            </option>)}
-                                    </Form.Control>
-                                </Col>
-                            </Form.Group>
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    variant="outlined"
+                                    label={t("ambulancias.recordatorio.datos.ambulancias")}
+                                    value={ambulancia}
+                                    onChange={handleChange}
+                                    name="vehiculo"
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
+
+                                />
+
+                                <Button variant="outlined" onClick={handleShow2}
+                                    startIcon={< SearchIcon />}
+                                    sx={{
+                                        p: 0,
+                                        minWidth: '40px',
+                                        '& > span.MuiButton-startIcon': { m: 0 },
+                                    }} />
+                            </Stack>
+                        </Grid>
 
 
-                            <Form.Group as={Row} className="mb-3" controlId="formkmmantenimiento">
-                                <Form.Label column sm="3" >
-                                    <strong> {t("ambulancias.recordatorio.datos.frecuenciakm")}</strong>
-                                </Form.Label>
-                                <Col sm={2} >
-                                    <Form.Control type="text" placeholder={`${t("ambulancias.recordatorio.datos.frecuenciakm")}`} value={form.frecuencia_km} onChange={handleChange} name="frecuencia_km" />
-                                </Col>
-                            </Form.Group>
+                        <Grid item xs={12}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="tipodoc-label">
+                                    {t("ambulancias.recordatorio.datos.mantenimiento")}
+                                </InputLabel>
 
-                            <Form.Group as={Row} className="mb-3" controlId="formmesmantenimiento">
-                                <Form.Label column sm="3">
-                                    <strong>{t("ambulancias.recordatorio.datos.frecuenciati")}</strong>
-                                </Form.Label>
-                                <Col sm={2} >
-                                    <Form.Control type="text" placeholder={`${t("ambulancias.recordatorio.datos.frecuenciati")}`} value={form.frecuencia_tiempo} onChange={handleChange} name="frecuencia_tiempo" />
-                                </Col>
-                            </Form.Group>
+                                <Select
+                                    labelId="tipodoc-label"
+                                    id="tipodoc"
+                                    label={t("ambulancias.recordatorio.datos.mantenimiento")}
+                                    name="servicio"
+                                    value={form.servicio}
+                                    onChange={handleChange}
+                                >
+                                    {servicios.map((item) => (
+                                        <MenuItem
+                                            key={item.id_catalogo}
+                                            value={item.id_catalogo}
+                                        >
+                                            {item.servicio_es}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
 
-                            <Form.Group as={Row} className="mb-3" controlId="formrecordatoriokm">
-                                <Form.Label column sm="3" >
-                                    <strong>{t("ambulancias.recordatorio.datos.anticipokm")}</strong>
-                                </Form.Label>
-                                <Col sm={2} >
-                                    <Form.Control type="text" placeholder={`${t("ambulancias.recordatorio.datos.anticipokm")}`} value={form.anticipo_km} onChange={handleChange} name="anticipo_km" />
-                                </Col>
-                            </Form.Group>
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={t("ambulancias.recordatorio.datos.frecuenciakm")}
+                                value={form.frecuencia_km}
+                                onChange={handleChange}
+                                name="frecuencia_km"
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={t("ambulancias.recordatorio.datos.frecuenciati")}
+                                value={form.frecuencia_tiempo}
+                                onChange={handleChange}
+                                name="frecuencia_tiempo"
+                            />
 
-                            <Form.Group as={Row} className="mb-3" controlId="formrecordatoriotiempo">
-                                <Form.Label column sm={3} >
-                                    <strong>{t("ambulancias.recordatorio.datos.anticipoti")}</strong>
-                                </Form.Label>
-                                <Col sm={2} >
-                                    <Form.Control type="text" placeholder={`${t("ambulancias.recordatorio.datos.anticipoti")}`} value={form.anticipo_tiempo}
-                                        onChange={handleChange} name="anticipo_tiempo" />
-                                </Col>
-                            </Form.Group>
-                        </Form>
-                    </Modal.Body>
+                        </Grid>
 
-                    <Modal.Footer>
-                        <Button variant='primary' onClick={editar ? () => {
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={t("ambulancias.recordatorio.datos.anticipokm")}
+                                value={form.anticipo_km}
+                                onChange={handleChange}
+                                name="anticipo_km"
+                            />
+
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={t("ambulancias.recordatorio.datos.anticipoti")}
+                                value={form.anticipo_tiempo}
+                                onChange={handleChange}
+                                name="anticipo_tiempo"
+                            />
+
+                        </Grid>
+
+
+                    </Grid>
+                    <DialogActions sx={{ mb: 1 }}>
+                        <Button variant='contained' onClick={editar ? () => {
                             Edit()
                             handleCloseE()
                         } : () => {
                             Post()
                             handleCloseE()
                         }}>
-                            {editar ?t("etiquetas.editar") : t("etiquetas.agregar")}
+                            {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}
                         </Button>
-                        <Button variant="secondary" onClick={() => {
+                        <Button variant="outlined" onClick={() => {
                             handleCloseE()
                             setLine('')
                             clearform()
                         }}>
                             {t("etiquetas.cancelar")}
                         </Button>
-                    </Modal.Footer>
-                </Modal>
-                <Modal show={show2} onHide={handleClose2} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title>{t("ambulancias.recordatorio.datos.ambulancias")} </Modal.Title>
-                    </Modal.Header>
+                    </DialogActions>
+                </DialogContent>
+            </Dialog>
 
-                    <Modal.Body>
-                        <PaginationProvider pagination={paginationFactory(options1)}>
-                            {contentTable1}
-                        </PaginationProvider>
-                    </Modal.Body>
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={show2}
+                onClose={handleClose2}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
 
-                    <Modal.Footer>
-                        <Button variant="primary" onClick={() => {
+                        </Typography>
+
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={handleClose2}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    <Card>
+                        <CardContent
+                            sx={{
+                                pb: '0 !important',
+                                '& > header': {
+                                    padding: 0,
+                                },
+                                '& .rdt_Table': {
+                                    border: 'solid 1px rgba(0, 0, 0, .12)',
+                                },
+                            }}
+                        >
+                            <DataTable
+                                striped
+                                columns={columns1}
+                                data={filteredItems1}
+                                onRowClicked={handleRowClicked}
+                                conditionalRowStyles={common.conditionalRowStyles}
+                                pagination
+                                paginationComponentOptions={
+                                    common.paginationComponentOptions
+                                }
+                                subHeader
+                                subHeaderComponent={subHeaderComponent1}
+                                fixedHeader
+                                persistTableHead
+                                fixedHeaderScrollHeight="calc(100vh - 317px)"
+                                customStyles={common.customStyles}
+                                highlightOnHover
+                                noDataComponent={
+                                    <Typography sx={{ my: 2 }}>
+                                        No existen datos para mostrar
+                                    </Typography>
+                                }
+                            />
+                        </CardContent>
+                    </Card>
+                </DialogContent>
+                <DialogActions sx={{ mb: 1 }}>
+                    <Button
+                        variant="contained"
+                        onClick={() => {
                             setAmbulancia(ambulanciaTemp);
                             setIdAmbulancia(idAmbulanciaTemp);
                             handleClose2();
-                        }}>
-                            {t("etiquetas.seleccionar")}
-                        </Button>
-                        <Button variant="secondary" onClick={() => {
+                        }}
+                    >
+                        {t('etiquetas.seleccionar')}
+                    </Button>
+
+                    <Button
+                        variant="outlined"
+                        onClick={() => {
                             handleClose2();
-                        }}>
-                            {t("etiquetas.cancelar")}
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-
-
-
-            </div>
-
+                        }}
+                    >
+                        {t('etiquetas.cancelar')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     )
 

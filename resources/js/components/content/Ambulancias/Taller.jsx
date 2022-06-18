@@ -1,11 +1,53 @@
 import React from 'react'
 import Icofont from 'react-icofont';
-
+import EditIcon from '@mui/icons-material/Edit';
+import DataTable from 'react-data-table-component';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import {
+    InputLabel,
+    MenuItem,
+    FormControl,
+    OutlinedInput,
+    Box,
+    Stack,
+    Chip,
+    Checkbox,
+    FormGroup,
+    Item,
+    Grid,
+    TextField,
+    Typography,
+    Dialog,
+    DialogContent,
+    DialogActions,
+    AppBar,
+    NativeSelect,
+    Toolbar,
+    Card,
+    CardContent,
+    Radio,
+    FormControlLabel,
+    FormLabel,
+    Backdrop,
+    ButtonGroup,
+    Button,
+    CircularProgress,
+    IconButton,
+} from '@mui/material';
+const moment = require('moment');
+import common from '../../../common';
+import ArticleIcon from '@mui/icons-material/Article';
+import SearchIcon from '@mui/icons-material/Search';
+import { useEffect, useMemo, useState } from 'react';
 import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { useEffect, useState } from "react";
 import axios from "axios";
 import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit';
 //import 'react-phone-input-2/lib/style.css'
@@ -42,6 +84,10 @@ const Taller = () => {
     const handleEdit = () => setEditar(true);
     const handleAdd = () => setEditar(false);
 
+    const [textLoad, setTextLoad] = useState('Cargando ...');
+    const [openLoad, setOpenLoad] = useState(false);
+    const [filterText, setFilterText] = useState('');
+    const [filterText1, setFilterText1] = useState('');
 
     const notificarExitoCaso = (idcaso) =>
         toast.success(`${t("mensajes.mscasoid")} ${idcaso} ${t("mensajes.msexito")}`, {
@@ -74,21 +120,23 @@ const Taller = () => {
         nombre_taller: ''
     })
 
-    const Get = () => {
-        axios.get(`/api/ambulancia_taller`)
-            .then(response => {
+    const Get = async () => {
 
+        setOpenLoad(true);
+        await axios.get(`/api/ambulancia_taller`)
+            .then(response => {
+                setOpenLoad(false);
                 setTablas(response.data);
                 return response.data;
             })
             .catch(error => {
+                setOpenLoad(false);
                 return error;
             })
 
     }
 
     const handleChange = e => {
-        e.persist();
         setForm(
             prevState => ({
                 ...prevState,
@@ -144,238 +192,343 @@ const Taller = () => {
     }
 
 
+    const subHeaderComponent = useMemo(() => {
+        const handleClear = () => {
+            if (filterText) setFilterText('');
+        };
 
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
 
+                    </Stack>
+                </Grid>
 
-    const { SearchBar } = Search;
-    const columns = [{
-        dataField: 'id',
-        text: `${t("ambulancias.taller.datos.id")}`,
-        sort: true,
-    }, {
-        dataField: 'nombre_taller',
-        text: `${t("ambulancias.taller.datos.nombre")}`,
-        sort: true,
-    }, {
-        text:'',
-        dataField: '1',
-        formatter: (cell, row, rowIndex, extraData) => {
-            return (
-                <div>
-                    <Icofont icon="search-1" className="mx-2" onClick={() => {
-                        handleView()
-                        setForm({
-                            nombre_taller: row.nombre_taller
-                        })
-                        setLine({
-                            id: row.id,
-                            nombre_taller: row.nombre_taller
-                        })
-                        handleShow();
-                    }} />
-                </div>
-            );
-        }
-    }, {
-        text:'',
-        dataField: '2',
-        formatter: (cell, row, rowIndex, extraData) => {
-            return (
-                <div>
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear}
+                        filterText={filterText}
+                        onFilter={(e) => setFilterText(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterText]);
 
-                    <Icofont icon="pencil-alt-2" className="mx-2" onClick={() => {
-                        handleEdit()
-                        setForm({
-                            nombre_taller: row.nombre_taller
-                        })
-                        setLine({
-                            id: row.id,
-                            nombre_taller: row.nombre_taller
-                        })
-                        handleShowE()
-                    }} />
+    const filteredItems = tablas.filter(
+        (item) =>
+            (item.id &&
+                item.id
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.nombre_taller &&
+                item.nombre_taller
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase()))
 
-                </div>
-            );
-        }
-    }, {
-        text:'',
-        dataField: '3',
-        formatter: (cell, row, rowIndex, extraData) => {
-            return (
-                <div>
-                    <Icofont icon="trash" className="mx-2" onClick={() => {
-                        handleDelet()
-                        setForm({
-                            nombre_taller: row.nombre_taller
-                        })
-                        setLine({
-                            id: row.id,
-                            nombre_taller: row.nombre_taller
-                        })
-                        handleShow();
-                    }} />
-                </div>
-            );
-        }
-    }
-    ];
-    const options = {
-        custom: true,
-        paginationSize: 5,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: tablas.length
-    };
-    const selectRow = {
-        mode: 'radio',
-        clickToSelect: true,
-        selected: [1],
-        hideSelectColumn: true,
-        classes: 'selection-row'
-    };
-    const contentTable = ({ paginationProps, paginationTableProps }) => (
-        <div>
-            <ToolkitProvider
-                keyField="id"
-                columns={columns}
-                data={tablas}
-                search
-            >
-                {
-                    toolkitprops => (
-                        <div>
-                            <SearchBar placeholder={`${t("tabla.buscador")}`}  {...toolkitprops.searchProps} />
-                            <BootstrapTable
-                                striped
-                                hover
-                                {...toolkitprops.baseProps}
-                                {...paginationTableProps}
-                                noDataIndication={`${t("tabla.sindatos")}`}
-                                selectRow={selectRow}
-                            />
-                        </div>
-                    )
-                }
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
     );
 
+    const columns = useMemo(() => [
+
+        {
+            name: `${t("ambulancias.taller.datos.id")}`,
+            sortable: true,
+            selector: (row) => row.id,
+        }, {
+            name: `${t("ambulancias.taller.datos.nombre")}`,
+            sortable: true,
+            selector: (row) => row.nombre_taller,
+        }, {
+            name: ``,
+            width: '50px',
+            cell: (row) => {
+                return (
+                    <div>
+                        <SearchIcon onClick={() => {
+                            handleView()
+                            setForm({
+                                nombre_taller: row.nombre_taller
+                            })
+                            setLine({
+                                id: row.id,
+                                nombre_taller: row.nombre_taller
+                            })
+                            handleShow();
+
+                        }} />
+                    </div>
+                );
+            },
+        }, {
+            name: ``,
+            width: '50px',
+            cell: (row) => {
+                return (
+                    <div>
+
+                        <EditIcon onClick={() => {
+
+                            handleEdit()
+                            setForm({
+                                nombre_taller: row.nombre_taller
+                            })
+                            setLine({
+                                id: row.id,
+                                nombre_taller: row.nombre_taller
+                            })
+                            handleShowE()
+                        }} />
+
+                    </div>
+                );
+            },
+        }, {
+            name: '',
+            width: '50px',
+            cell: (row) => {
+                return (
+                    <div>
+                        <DeleteIcon onClick={() => {
+                            handleDelet()
+                            setForm({
+                                nombre_taller: row.nombre_taller
+                            })
+                            setLine({
+                                id: row.id,
+                                nombre_taller: row.nombre_taller
+                            })
+                            handleShow();
+
+                        }} />
+
+                    </div>
+                );
+            },
+        },
+    ])
 
     return (
         <div>
-            <div>
-                <h2>{t("ambulancias.taller.titulo")}</h2>
-            </div>
-            <div>
-                <Button variant="outline-dark" onClick={() => {
-                    handleAdd()
-                    clearform()
-                    handleShowE()
-                }}>
-                    <Icofont icon="ui-add" className="mx-2" />
-                </Button>
-                <PaginationProvider
-                    pagination={
-                        paginationFactory(options)
-                    }
-                >
-                    {contentTable}
-                </PaginationProvider>
+            <Backdrop
+                sx={{
+                    color: '#fff',
+                    zIndex: (theme) => theme.zIndex.drawer + 101,
+                }}
+                open={openLoad}
+            >
+                <Stack spacing={1} alignItems="center">
+                    <CircularProgress disableShrink color="inherit" />
+                    <Typography>{textLoad}</Typography>
+                </Stack>
+            </Backdrop>
+            <h2>{t("ambulancias.taller.titulo")}</h2>
+            <Button variant="contained" onClick={() => {
 
-                <Modal show={show} onHide={() => {
+                handleAdd()
+                clearform()
+                handleShowE()
+            }}>
+                <AddIcon />
+            </Button>
+            <Card>
+                <CardContent
+                    sx={{
+                        pb: '0 !important',
+                        '& > header': {
+                            padding: 0,
+                        },
+                        '& .rdt_Table': {
+                            border: 'solid 1px rgba(0, 0, 0, .12)',
+                        },
+                    }}
+                >
+                    <DataTable
+                        striped
+                        columns={columns}
+                        data={filteredItems}
+                        conditionalRowStyles={common.conditionalRowStyles}
+                        pagination
+                        paginationComponentOptions={
+                            common.paginationComponentOptions
+                        }
+                        subHeader
+                        subHeaderComponent={subHeaderComponent}
+                        fixedHeader
+                        persistTableHead
+                        fixedHeaderScrollHeight="calc(100vh - 317px)"
+                        customStyles={common.customStyles}
+                        highlightOnHover
+                        noDataComponent={
+                            <Typography sx={{ my: 2 }}>
+                                No existen datos para mostrar
+                            </Typography>
+                        }
+                    />
+                </CardContent>
+            </Card>
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={show}
+                onClose={() => {
                     handleClose()
                     setLine('')
-                }} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title> <h1>{t("ambulancias.taller.titulo")} - {view ? t("etiquetas.ver") : t("etiquetas.eliminar")}</h1></Modal.Title>
-                    </Modal.Header>
+                }}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t("ambulancias.taller.titulo")} - {view ? t("etiquetas.ver") : t("etiquetas.eliminar")}
+                        </Typography>
 
-                    <Modal.Body>
-                        <div className="mb-5">
-                            <Button variant="outline-dark" onClick={() => {
-                                clearform()
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={() => {
                                 handleClose()
-                                handleAdd()
                                 setLine('')
-                                handleShowE()
-                            }}>
-                                <Icofont icon="ui-add" className="mx-2" />
-                            </Button>
+                            }}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    <ButtonGroup variant="outlined">
+                        <Button onClick={() => {
 
-                            <Button variant="outline-dark" onClick={() => {
-                                handleEdit()
-                                handleClose()
-                                handleShowE()
-                            }}>
-                                <Icofont icon="pencil-alt-2" className="mx-2" />
-                            </Button>
+                            clearform()
+                            handleClose()
+                            handleAdd()
+                            setLine('')
+                            handleShowE()
+                        }}>
+                            <AddIcon />
+                        </Button>
 
-                            <Button variant="outline-dark" disabled={!view} onClick={() => {
-                                handleClose()
-                                handleDelet()
-                                handleShow()
-                            }} >
-                                <Icofont icon='trash' className="mx-2" />
-                            </Button>
-                        </div>
-                        <Form>
-                            <Form.Group as={Row} className="mb-3" controlId="formid">
-                                <Form.Label column sm="2">
-                                    {t("ambulancias.taller.datos.id")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.id} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                    {t("ambulancias.taller.datos.nombre")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.nombre_taller} />
-                                </Col>
-                            </Form.Group>
-                        </Form>
-                    </Modal.Body>
+                        <Button onClick={() => {
 
-                    <Modal.Footer>
-                        <Button variant={view ? 'primary' : 'danger'} onClick={view ? () => {
+                            handleEdit()
+                            handleClose()
+                            handleShowE()
+                        }}>
+                            <EditIcon />
+                        </Button>
+
+                        <Button disabled={!view} onClick={() => {
+
+
+                            handleClose()
+                            handleDelet()
+                            handleShow()
+                        }} >
+                            <DeleteIcon />
+                        </Button>
+                    </ButtonGroup>
+                    <Grid
+                        container
+                        noValidate
+                        direction="row"
+                        justifyContent="center"
+                        spacing={2}
+                        sx={{ my: 2 }}
+                        component="form"
+                        autoComplete="off"
+                    >
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("ambulancias.taller.datos.id")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.id}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("ambulancias.taller.datos.nombre")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.nombre_taller}
+                            </Typography>
+                        </Grid>
+
+
+                    </Grid>
+
+                    <DialogActions sx={{ mb: 1 }}>
+
+                        <Button variant='contained' color={view ? 'primary' : 'error'} onClick={view ? () => {
                             handleClose()
                             setLine('')
                         }
                             : Elimina}>
                             {view ? t("etiquetas.hecho") : t("etiquetas.eliminar")}
                         </Button>
-                        <Button variant="secondary" onClick={() => {
+                        <Button variant="outlined" onClick={() => {
                             handleClose()
                             setLine('')
                         }}>
                             {t("etiquetas.cancelar")}
                         </Button>
-                    </Modal.Footer>
-                </Modal>
 
-                <Modal show={showe} onHide={() => {
+                    </DialogActions>
+                </DialogContent>
+            </Dialog>
+
+
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={showe}
+                onClose={() => {
                     handleCloseE()
                     setLine('')
-                }} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title>{t("ambulancias.taller.titulo")} - {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}</Modal.Title>
-                    </Modal.Header>
+                }}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t("ambulancias.taller.titulo")}
+                            - {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}
+                        </Typography>
 
-                    <Modal.Body>
-                        {editar ? <div className="mb-5">
-                            <Button variant="outline-dark" onClick={() => {
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={() => {
+                                handleCloseE()
+                                setLine('')
+                            }}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    {editar ?
+                        <ButtonGroup variant="outlined">
+                            <Button onClick={() => {
                                 handleCloseE()
                                 clearform()
                                 handleAdd()
@@ -383,32 +536,42 @@ const Taller = () => {
                                 handleShowE()
 
                             }}>
-                                <Icofont icon="ui-add" className="mx-2" />
+                                <AddIcon />
                             </Button>
-                            <Button variant="outline-dark" onClick={() => {
+                            <Button onClick={() => {
                                 handleCloseE()
                                 handleDelet()
                                 handleShow()
                             }}>
-                                <Icofont icon='trash' className="mx-2" />
+                                <DeleteIcon />
                             </Button>
-                        </div> : ''}
+                        </ButtonGroup>
+                        : ''}
+                    <Grid
+                        container
+                        noValidate
+                        direction="row"
+                        justifyContent="center"
+                        spacing={2}
+                        sx={{ my: 2 }}
+                        component="form"
+                        autoComplete="off"
+                    >
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={t("ambulancias.taller.datos.nombre")}
+                                value={form.nombre_taller}
+                                onChange={handleChange}
+                                name="nombre_taller"
+                            />
 
-                        <Form className='m-xxl-4'>
-                            <Form.Group as={Row} className="mb-3" controlId="formcodigo">
-                                <Form.Label column sm="3">
-                                    {t("ambulancias.taller.datos.nombre")}
-                                </Form.Label>
-                                <Col sm={4} >
-                                    <Form.Control type='text' placeholder={`${t("ambulancias.taller.datos.nombre")}`} value={form.nombre_taller} onChange={handleChange} name="nombre_taller" />
-                                </Col>
-                            </Form.Group>
-
-                        </Form>
-                    </Modal.Body>
-
-                    <Modal.Footer>
-                        <Button variant='primary' onClick={editar ? () => {
+                        </Grid>
+                    </Grid>
+                    <DialogActions sx={{ mb: 1 }}>
+                        <Button variant='contained' onClick={editar ? () => {
                             Edit()
                             handleCloseE()
                         } : () => {
@@ -417,18 +580,16 @@ const Taller = () => {
                         }}>
                             {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}
                         </Button>
-                        <Button variant="secondary" onClick={() => {
+                        <Button variant="outlined" onClick={() => {
                             handleCloseE()
                             setLine('')
                             clearform()
                         }}>
                             {t("etiquetas.cancelar")}
                         </Button>
-                    </Modal.Footer>
-                </Modal>
-
-            </div>
-
+                    </DialogActions>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 
