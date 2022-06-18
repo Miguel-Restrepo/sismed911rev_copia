@@ -832,32 +832,7 @@ const Novedades = () => {
                             </FormControl>
                         </Grid>
 
-                        <Grid item xs={12}>
-                            <FormControl fullWidth size="small">
-                                <InputLabel id="tipodoc-label">
-                                    {t("ambulancias.novedades.datos.usuario")}
-                                </InputLabel>
-
-                                <Select
-                                    labelId="tipodoc-label"
-                                    id="tipodoc"
-                                    label={t("ambulancias.novedades.datos.usuario")}
-                                    name="id_user"
-                                    value={form.id_user}
-                                    onChange={handleChange}
-                                >
-                                    {usuarios.map((item) => (
-                                        <MenuItem
-                                            key={item.id_user}
-                                            value={item.id_user}
-                                        >
-                                            {item.nombre1} {item.nombre2} {item.apellido1} {item.apellido2}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-
+                      
                         <Grid item xs={12}>
                             <FormControl fullWidth size="small">
                                 <InputLabel id="tipodoc-label">

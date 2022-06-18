@@ -258,22 +258,10 @@ const Catalogo = () => {
             sortable: true,
             selector: (row) => row.id_catalogo,
         }, {
-            name: `${t("ambulancias.catalogo.datos.servicio")} Es`,
+            name: `${t("ambulancias.catalogo.datos.servicio")}`,
             sortable: true,
             selector: (row) => row.servicio_es,
-        }, {
-            name: `${t("ambulancias.catalogo.datos.servicio")} En`,
-            sortable: true,
-            selector: (row) => row.servicio_en,
-        }, {
-            name: `${t("ambulancias.catalogo.datos.servicio")} Fr`,
-            sortable: true,
-            selector: (row) => row.servicio_fr,
-        }, {
-            name: `${t("ambulancias.catalogo.datos.servicio")} Pt`,
-            sortable: true,
-            selector: (row) => row.servicio_pr,
-        }, {
+        },  {
             name: ``,
             width: '50px',
             cell: (row) => {
@@ -442,7 +430,7 @@ const Catalogo = () => {
                         }}
                     >
                         <Typography sx={{ fontSize: '1.3rem' }}>
-                        {t("ambulancias.catalogo.titulo")} - {view ? t("etiquetas.ver") : t("etiquetas.eliminar")}
+                        {t("ambulancias.catalogo.datos.servicio")} - {view ? t("etiquetas.ver") : t("etiquetas.eliminar")}
                         </Typography>
 
                         <IconButton
@@ -596,7 +584,7 @@ const Catalogo = () => {
                         }}
                     >
                         <Typography sx={{ fontSize: '1.3rem' }}>
-                        {t("ambulancias.catalogo.titulo")}
+                        {t("ambulancias.catalogo.datos.servicio")}
                             - {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}
                         </Typography>
 
