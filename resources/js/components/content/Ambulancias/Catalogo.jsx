@@ -367,7 +367,7 @@ const Catalogo = () => {
                     <Typography>{textLoad}</Typography>
                 </Stack>
             </Backdrop>
-            <h2>{t("ambulancias.catalogo.titulo")}</h2>
+            <h2>{t("ambulancias.catalogo.datos.servicio")}</h2>
             <Button variant="contained" onClick={() => {
 
                 handleAdd()

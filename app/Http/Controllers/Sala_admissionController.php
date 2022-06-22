@@ -86,7 +86,7 @@ class Sala_admissionController extends Controller
                 'departamento.*',
                 'provincias.*',
                 'distrito_reniec.*'
-            )->orderBy("codigo",'desc')
+                )->orderBy("codigo",'desc')
             ->get();
         $collection = collect($objeto);
         $var = $collection->unique('codigo');

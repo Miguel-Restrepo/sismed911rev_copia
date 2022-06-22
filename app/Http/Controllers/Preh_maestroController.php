@@ -29,15 +29,14 @@ class Preh_maestroController extends Controller
             ->select(
                 'preh_maestro.cod_casopreh as codigo',
                 'preh_maestro.*'
-                
             )
             ->get();
         foreach ($objeto as $post) {
             $post->seguimientos = Preh_seguimiento::where('cod_casopreh', $post->codigo)->get();
             $post->pacientes = Pacientegeneral::where('cod_casopreh', $post->codigo)->get();
             $post->evaluaciones_clinicas = Preh_evaluacionclinica::where('preh_evaluacionclinica.cod_casopreh', $post->codigo)
-            ->leftJoin('pacientegeneral', 'pacientegeneral.id_paciente', '=', 'preh_evaluacionclinica.id_paciente')->get();
-            $post->archivos= Archivos::where('cod_casopreh',$post->codigo)->get();
+                ->leftJoin('pacientegeneral', 'pacientegeneral.id_paciente', '=', 'preh_evaluacionclinica.id_paciente')->get();
+            $post->archivos = Archivos::where('cod_casopreh', $post->codigo)->get();
         }
         return $objeto;
     }
@@ -48,12 +47,13 @@ class Preh_maestroController extends Controller
             ->leftJoin('interh_prioridad', 'interh_prioridad.id_prioridad', '=', 'preh_maestro.prioridad')
             ->leftJoin('preh_cierre', 'preh_cierre.cod_casopreh', '=', 'preh_maestro.cod_casopreh')
             ->leftJoin('preh_destino', 'preh_destino.cod_casopreh', '=', 'preh_maestro.cod_casopreh')
-            ->leftJoin('preh_servicio_ambulancia', 'preh_servicio_ambulancia.cod_casopreh', '=', 'preh_maestro.cod_casopreh')  
+            ->leftJoin('preh_servicio_ambulancia', 'preh_servicio_ambulancia.cod_casopreh', '=', 'preh_maestro.cod_casopreh')
             ->leftJoin('interh_accion', 'interh_accion.id_accion', '=', 'preh_maestro.accion')
             ->leftJoin('hospitalesgeneral', 'hospitalesgeneral.id_hospital', '=', 'preh_maestro.hospital_destino')
             ->whereNull('preh_cierre.cod_casopreh')
             ->select(
                 'preh_maestro.cod_casopreh as codigo',
+                'preh_maestro.direccion as direccion_preh',
                 'preh_maestro.*',
                 'incidentes.*',
                 'interh_prioridad.*',
@@ -68,25 +68,23 @@ class Preh_maestroController extends Controller
         $var = $collection->unique('codigo');
         $retorno = $var->values()->all();
         foreach ($retorno as $post) {
-            $tmp=strtotime( $post->fecha);
-            $post->soloFecha=date('d/m/Y', $tmp);
-            $post->soloHora=date('h:i:s', $tmp);
+            $tmp = strtotime($post->fecha);
+            $post->soloFecha = date('d/m/Y', $tmp);
+            $post->soloHora = date('h:i:s', $tmp);
             $post->seguimientos = Preh_seguimiento::where('cod_casopreh', $post->codigo)->get();
             $post->pacientes = Pacientegeneral::where('cod_casopreh', $post->codigo)->get();
-            $nombres="";
-            foreach ( $post->pacientes as $pacientes) {
-                if($nombres=="")
-                {
-                    $nombres=$pacientes->nombre1.' '. $pacientes->apellido1;
-                }else{
-                    $nombres=$nombres.', '. $pacientes->nombre1.' '. $pacientes->apellido1;
+            $nombres = "";
+            foreach ($post->pacientes as $pacientes) {
+                if ($nombres == "") {
+                    $nombres = $pacientes->nombre1 . ' ' . $pacientes->apellido1;
+                } else {
+                    $nombres = $nombres . ', ' . $pacientes->nombre1 . ' ' . $pacientes->apellido1;
                 }
-                
             }
-            $post->nombres_pacientes=$nombres;
+            $post->nombres_pacientes = $nombres;
             $post->evaluaciones_clinicas = Preh_evaluacionclinica::where('preh_evaluacionclinica.cod_casopreh', $post->codigo)
-            ->leftJoin('pacientegeneral', 'pacientegeneral.id_paciente', '=', 'preh_evaluacionclinica.id_paciente')->get();
-            $post->archivos= Archivos::where('cod_casopreh',$post->codigo)->get();
+                ->leftJoin('pacientegeneral', 'pacientegeneral.id_paciente', '=', 'preh_evaluacionclinica.id_paciente')->get();
+            $post->archivos = Archivos::where('cod_casopreh', $post->codigo)->get();
         }
         return $retorno;
     }
@@ -97,11 +95,11 @@ class Preh_maestroController extends Controller
             ->leftJoin('interh_prioridad', 'interh_prioridad.id_prioridad', '=', 'preh_maestro.prioridad')
             ->leftJoin('preh_cierre', 'preh_cierre.cod_casopreh', '=', 'preh_maestro.cod_casopreh')
             ->leftJoin('preh_destino', 'preh_destino.cod_casopreh', '=', 'preh_maestro.cod_casopreh')
-            ->leftJoin('preh_servicio_ambulancia', 'preh_servicio_ambulancia.cod_casopreh', '=', 'preh_maestro.cod_casopreh')  
+            ->leftJoin('preh_servicio_ambulancia', 'preh_servicio_ambulancia.cod_casopreh', '=', 'preh_maestro.cod_casopreh')
             ->leftJoin('interh_accion', 'interh_accion.id_accion', '=', 'preh_maestro.accion')
             ->leftJoin('hospitalesgeneral', 'hospitalesgeneral.id_hospital', '=', 'preh_maestro.hospital_destino')
             ->whereNull('preh_cierre.cod_casopreh')
-            ->where('interh_accion.id_accion','=','1')
+            ->where('interh_accion.id_accion', '=', '1')
             ->select(
                 'preh_maestro.cod_casopreh as codigo',
                 'preh_maestro.*',
@@ -118,25 +116,23 @@ class Preh_maestroController extends Controller
         $var = $collection->unique('codigo');
         $retorno = $var->values()->all();
         foreach ($retorno as $post) {
-            $tmp=strtotime( $post->fecha);
-            $post->soloFecha=date('d/m/Y', $tmp);
-            $post->soloHora=date('h:i:s', $tmp);
+            $tmp = strtotime($post->fecha);
+            $post->soloFecha = date('d/m/Y', $tmp);
+            $post->soloHora = date('h:i:s', $tmp);
             $post->seguimientos = Preh_seguimiento::where('cod_casopreh', $post->codigo)->get();
             $post->pacientes = Pacientegeneral::where('cod_casopreh', $post->codigo)->get();
-            $nombres="";
-            foreach ( $post->pacientes as $pacientes) {
-                if($nombres=="")
-                {
-                    $nombres=$pacientes->nombre1.' '. $pacientes->apellido1;
-                }else{
-                    $nombres=$nombres.', '. $pacientes->nombre1.' '. $pacientes->apellido1;
+            $nombres = "";
+            foreach ($post->pacientes as $pacientes) {
+                if ($nombres == "") {
+                    $nombres = $pacientes->nombre1 . ' ' . $pacientes->apellido1;
+                } else {
+                    $nombres = $nombres . ', ' . $pacientes->nombre1 . ' ' . $pacientes->apellido1;
                 }
-                
             }
-            $post->nombres_pacientes=$nombres;
+            $post->nombres_pacientes = $nombres;
             $post->evaluaciones_clinicas = Preh_evaluacionclinica::where('preh_evaluacionclinica.cod_casopreh', $post->codigo)
-            ->leftJoin('pacientegeneral', 'pacientegeneral.id_paciente', '=', 'preh_evaluacionclinica.id_paciente')->get();
-            $post->archivos= Archivos::where('cod_casopreh',$post->codigo)->get();
+                ->leftJoin('pacientegeneral', 'pacientegeneral.id_paciente', '=', 'preh_evaluacionclinica.id_paciente')->get();
+            $post->archivos = Archivos::where('cod_casopreh', $post->codigo)->get();
         }
         return $retorno;
     }

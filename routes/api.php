@@ -80,6 +80,7 @@ use App\Http\Controllers\Interh_seguimientoController;
 use App\Http\Controllers\Interh_tiposervicioController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Mante_ambController;
+use App\Http\Controllers\Marca_ambulanciaController;
 use App\Http\Controllers\Medicamentos_registroController;
 use App\Http\Controllers\MedicamentosController;
 use App\Http\Controllers\Modalidad_ambulanciaController;
@@ -135,6 +136,7 @@ use App\Http\Controllers\UserlevelpermissionsController;
 use App\Http\Controllers\UserlevelsController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\WebservicesController;
+use App\Models\Tipo_combustible;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -780,6 +782,7 @@ Route::controller(Interh_evaluacionclinicaController::class)->group(function () 
 
 Route::controller(Interh_maestroController::class)->group(function () {
     Route::get('interh_maestro', 'index'); //Para obtener todos
+    Route::get('interh_maestro/cerrados', 'cerrados'); //Para obtener todos los deshabilitados(cerrados)
     Route::get('interh_maestro/habilitados', 'indexActivos'); //Para obtener todos los habilitados(no cerrados)
     Route::get('interh_maestro/{id}', 'show'); //Para consultar especifico
     Route::get('interh_maestro/{id}/hospitalorigen', 'verHospitalOrigen'); //Para consultar especifico
@@ -838,6 +841,13 @@ Route::controller(Mante_ambController::class)->group(function () {
     Route::post('mante_amb', 'store'); //Para guardar
     Route::put('mante_amb/{id}', 'update'); //Para actualizar//metodo cambiable a put
     Route::delete('mante_amb/{id}/delete', 'destroy'); //Para eliminar un registro, cambiable a delete
+});
+Route::controller(Marca_ambulanciaController::class)->group(function () {
+    Route::get('marca', 'index'); //Para obtener todos
+    Route::get('marca/{id}', 'show'); //Para consultar especifico
+    Route::post('marca', 'store'); //Para guardar
+    Route::put('marca/{id}', 'update'); //Para actualizar//metodo cambiable a put
+    Route::delete('marca/{id}/delete', 'destroy'); //Para eliminar un registro, cambiable a delete
 });
 
 Route::controller(Medicamentos_registroController::class)->group(function () {
@@ -1212,7 +1222,13 @@ Route::controller(Tipo_cierrecasoController::class)->group(function () {
     Route::put('tipo_cierrecaso/{id}', 'update'); //Para actualizar//metodo cambiable a put
     Route::delete('tipo_cierrecaso/{id}/delete', 'destroy'); //Para eliminar un registro, cambiable a delete
 });
-
+Route::controller(Tipo_combustible::class)->group(function () {
+    Route::get('tipo_combustible', 'index'); //Para obtener todos
+    Route::get('tipo_combustible/{id}', 'show'); //Para consultar especifico
+    Route::post('tipo_combustible', 'store'); //Para guardar
+    Route::put('tipo_combustible/{id}', 'update'); //Para actualizar//metodo cambiable a put
+    Route::delete('tipo_combustible/{id}/delete', 'destroy'); //Para eliminar un registro, cambiable a delete
+});
 Route::controller(Tipo_edadController::class)->group(function () {
     Route::get('tipo_edad', 'index'); //Para obtener todos
     Route::get('tipo_edad/{id}', 'show'); //Para consultar especifico

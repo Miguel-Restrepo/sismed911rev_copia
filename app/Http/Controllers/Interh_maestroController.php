@@ -226,6 +226,79 @@ class Interh_maestroController extends Controller
         }
         return $retorno;
     }
+    
+    public function cerrados()
+    { //PARA OBTENER TODOS LOS REGISTROS con filtro de cierre(Que no lo tengan es decir 0)
+        $objeto = DB::table('interh_maestro')->leftJoin('hospitalesgeneral', 'hospitalesgeneral.id_hospital', '=', 'interh_maestro.hospital_origneinterh')
+            ->leftJoin('hospitalesgeneral as hg', 'hg.id_hospital', '=', 'interh_maestro.hospital_destinointerh')
+            ->leftJoin('interh_prioridad', 'interh_prioridad.id_prioridad', '=', 'interh_maestro.prioridadinterh')
+            ->leftJoin('interh_cierre', 'interh_cierre.cod_casointerh', '=', 'interh_maestro.cod_casointerh')
+            ->leftJoin('interh_tiposervicio', 'interh_tiposervicio.id_tiposervicion', '=', 'interh_maestro.tipo_serviciointerh')
+            ->leftJoin('interh_motivoatencion', 'interh_motivoatencion.id_motivoatencion', '=', 'interh_maestro.motivo_atencioninteh')
+            ->leftJoin('interh_accion', 'interh_accion.id_accion', '=', 'interh_maestro.accioninterh')
+            ->leftJoin('servicio_ambulancia', 'servicio_ambulancia.cod_casointerh', '=', 'interh_maestro.cod_casointerh')
+            ->whereNotNull('interh_cierre.cod_casointerh')
+            ->select(
+                'interh_maestro.cod_casointerh as codigo',
+                'interh_maestro.*',
+                'hospitalesgeneral.*',
+                'interh_prioridad.*',
+                'interh_cierre.*',
+                'interh_tiposervicio.*',
+                'interh_motivoatencion.*',
+                'interh_accion.*',
+                'servicio_ambulancia.*',
+                'hg.id_hospital  as destino_id_hospital',
+                'hg.nombre_hospital  as destino_nombre_hospital',
+                'hg.provincia_hospital  as destino_provincia_hospital',
+                'hg.municipio_hospital  as destino_municipio_hospital',
+                'hg.depto_hospital  as destino_depto_hospital',
+                'hg.nivel_hospital  as destino_nivel_hospital',
+                'hg.redservicions_hospital  as destino_redservicions_hospital',
+                'hg.sector_hospital  as destino_sector_hospital',
+                'hg.tipo_hospital  as destino_tipo_hospital',
+                'hg.camashab_cali  as destino_camashab_cali',
+                'hg.latitud_hospital  as destino_latitud_hospital',
+                'hg.longitud_hospital  as destino_longitud_hospital',
+                'hg.icon_hospital  as destino_icon_hospital',
+                'hg.especialidad  as destino_especialidad',
+                'hg.codpolitico  as destino_codpolitico',
+                'hg.direccion  as destino_direccion',
+                'hg.telefono  as destino_telefono',
+                'hg.nombre_responsable  as destino_nombre_responsable',
+                'hg.estado  as destino_estado',
+                'hg.emt  as destino_emt'
+            )
+            ->orderBy('prioridadinterh')
+            ->orderByDesc('fechahorainterh')
+
+            ->get();
+
+        $collection = collect($objeto);
+        $var = $collection->unique('codigo');
+        $retorno = $var->values()->all();
+        foreach ($objeto as $post) {
+            //
+            $tmp = strtotime($post->fechahorainterh);
+            $post->soloFecha = date('d/m/Y', $tmp);
+            $post->soloHora = date('h:i:s', $tmp);
+            $post->seguimientos = Interh_seguimiento::where('cod_casointerh', $post->codigo)->get();
+            $post->pacientes = Pacientegeneral::where('cod_casointerh', $post->codigo)->get();
+            $nombres = "";
+            foreach ($post->pacientes as $pacientes) {
+                if ($nombres == "") {
+                    $nombres = $pacientes->nombre1 . ' ' . $pacientes->apellido1;
+                } else {
+                    $nombres = $nombres . ', ' . $pacientes->nombre1 . ' ' . $pacientes->apellido1;
+                }
+            }
+            $post->nombres_pacientes = $nombres;
+            $post->evaluaciones_clinicas = Interh_evaluacionclinica::where('interh_evaluacionclinica.cod_casointerh', $post->codigo)
+                ->leftJoin('pacientegeneral', 'pacientegeneral.id_paciente', '=', 'interh_evaluacionclinica.id_paciente')->get();
+            $post->archivos = Archivos::where('cod_casointerh', $post->codigo)->get();
+        }
+        return $retorno;
+    }
 
     public function verHospitalOrigen($id)
     { //Muestra uno en especifico
