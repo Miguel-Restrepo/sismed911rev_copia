@@ -1049,7 +1049,7 @@ const Usuarios = () => {
                         <Grid item xs={12}>
                             <FormControl fullWidth size="small">
                                 <InputLabel id="tipodoc-label">
-
+                                {t("administracion.usuarios.datos.perfil")}
                                 </InputLabel>
 
                                 <Select
@@ -1076,7 +1076,7 @@ const Usuarios = () => {
                         <Grid item xs={12}>
                             <FormControl fullWidth size="small">
                                 <InputLabel id="tipodoc-label">
-
+                                {t("administracion.usuarios.datos.sede")}
                                 </InputLabel>
 
                                 <Select
@@ -1103,7 +1103,7 @@ const Usuarios = () => {
                         <Grid item xs={12}>
                             <FormControl fullWidth size="small">
                                 <InputLabel id="tipodoc-label">
-
+                                {t("administracion.usuarios.datos.acode")}
                                 </InputLabel>
 
                                 <Select

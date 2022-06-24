@@ -97,7 +97,7 @@ const Base = () => {
         distrito: '',
         longitud: '',
         latitud: '',
-        direccion:''
+        direccion: ''
     });
 
     const clearform = () => setForm({
@@ -105,7 +105,7 @@ const Base = () => {
         dpto: '',
         provincia: '',
         distrito: '',
-        direccion:'',
+        direccion: '',
         longitud: '',
         latitud: ''
     })
@@ -160,7 +160,7 @@ const Base = () => {
     }
 
     const handleChange = e => {
-        
+
         setForm(
             prevState => ({
                 ...prevState,
@@ -298,11 +298,11 @@ const Base = () => {
                     .toString()
                     .toLowerCase()
                     .includes(filterText.toLowerCase())) ||
-                    (item.direccion &&
-                        item.direccion
-                            .toString()
-                            .toLowerCase()
-                            .includes(filterText.toLowerCase()))
+            (item.direccion &&
+                item.direccion
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase()))
 
     );
 
@@ -320,15 +320,15 @@ const Base = () => {
         }, {
             name: `${t("administracion.base.datos.dpto")}`,
             sortable: true,
-            selector: (row) => row.dpto,
+            selector: (row) => row.dpto ? row.departamento.nombre_dpto : '',
         }, {
             name: `${t("administracion.base.datos.provincia")}`,
             sortable: true,
-            selector: (row) => row.provincia,
+            selector: (row) => row.provincia ? row.provincia.nombre_provincia : '',
         }, {
             name: `${t("administracion.base.datos.distrito")}`,
             sortable: true,
-            selector: (row) => row.distrito,
+            selector: (row) => row.distrito ? row.distrito.nombre_distrito : '',
         }, {
             name: `${t("administracion.base.datos.longitud")}`,
             sortable: true,
@@ -337,11 +337,11 @@ const Base = () => {
             name: `${t("administracion.base.datos.latitud")}`,
             sortable: true,
             selector: (row) => row.latitud,
-        },  {
+        }, {
             name: `Dirección`,
             sortable: true,
             selector: (row) => row.direccion,
-        },{
+        }, {
             name: ``,
             width: '50px',
             cell: (row) => {
@@ -352,7 +352,7 @@ const Base = () => {
                             setForm({
                                 nombre: row.nombre,
                                 dpto: row.dpto,
-                                direccion:row.direccion,
+                                direccion: row.direccion,
                                 provincia: row.provincia,
                                 distrito: row.distrito,
                                 longitud: row.longitud,
@@ -361,8 +361,8 @@ const Base = () => {
                             setLine({
                                 id_base: row.id_base,
                                 nombre: row.nombre,
-                                dpto: row.dpto,
-                                direccion:row.direccion,
+                                dpto: row.departamento,
+                                direccion: row.direccion,
                                 provincia: row.provincia,
                                 distrito: row.distrito,
                                 longitud: row.longitud,
@@ -386,7 +386,7 @@ const Base = () => {
                             setForm({
                                 nombre: row.nombre,
                                 dpto: row.dpto,
-                                direccion:row.direccion,
+                                direccion: row.direccion,
                                 provincia: row.provincia,
                                 distrito: row.distrito,
                                 longitud: row.longitud,
@@ -395,8 +395,8 @@ const Base = () => {
                             setLine({
                                 id_base: row.id_base,
                                 nombre: row.nombre,
-                                dpto: row.dpto,
-                                direccion:row.direccion,
+                                dpto: row.departamento,
+                                direccion: row.direccion,
                                 provincia: row.provincia,
                                 distrito: row.distrito,
                                 longitud: row.longitud,
@@ -419,7 +419,7 @@ const Base = () => {
                             setForm({
                                 nombre: row.nombre,
                                 dpto: row.dpto,
-                                direccion:row.direccion,
+                                direccion: row.direccion,
                                 provincia: row.provincia,
                                 distrito: row.distrito,
                                 longitud: row.longitud,
@@ -428,8 +428,8 @@ const Base = () => {
                             setLine({
                                 id_base: row.id_base,
                                 nombre: row.nombre,
-                                dpto: row.dpto,
-                                direccion:row.direccion,
+                                dpto: row.departamento,
+                                direccion: row.direccion,
                                 provincia: row.provincia,
                                 distrito: row.distrito,
                                 longitud: row.longitud,
@@ -610,7 +610,7 @@ const Base = () => {
                         </Grid>
                         <Grid item xs={6}>
                             <Typography variant="body1" gutterBottom>
-                                {line.dpto}
+                                {line.dpto ? line.dpto.nombre_dpto : ''}
                             </Typography>
                         </Grid>
 
@@ -621,7 +621,7 @@ const Base = () => {
                         </Grid>
                         <Grid item xs={6}>
                             <Typography variant="body1" gutterBottom>
-                                {line.provincia}
+                                {line.provincia ? line.provincia.nombre_provincia : ''}
                             </Typography>
                         </Grid>
 
@@ -632,7 +632,7 @@ const Base = () => {
                         </Grid>
                         <Grid item xs={6}>
                             <Typography variant="body1" gutterBottom>
-                                {line.distrito}
+                                {line.distrito ? line.distrito.nombre_distrito : ''}
                             </Typography>
                         </Grid>
 
@@ -889,10 +889,10 @@ const Base = () => {
                             {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}
                         </Button>
                         <Button variant="outlined" onClick={() => {
-                             handleCloseE()
-                             setLine('')
-                             clearform()
-                            
+                            handleCloseE()
+                            setLine('')
+                            clearform()
+
                         }}>
                             {t("etiquetas.cancelar")}
                         </Button>
