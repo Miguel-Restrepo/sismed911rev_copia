@@ -313,16 +313,35 @@ const Recordatorio = () => {
                     .toString()
                     .toLowerCase()
                     .includes(filterText.toLowerCase())) ||
-            (item.fecha_creacion &&
-                item.fecha_creacion
+            (item.cod_ambulancias &&
+                item.cod_ambulancias
                     .toString()
                     .toLowerCase()
                     .includes(filterText.toLowerCase())) ||
-            (item.procedimiento &&
-                item.procedimiento
+            (item.servicio_es &&
+                item.servicio_es
                     .toString()
                     .toLowerCase()
-                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .includes(filterText.toLowerCase())) ||
+            (item.frecuencia_km &&
+                item.frecuencia_km
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.frecuencia_tiempo &&
+                item.frecuencia_tiempo
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.anticipo_km &&
+                item.anticipo_km
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.anticipo_tiempo &&
+                item.anticipo_tiempo
+                    .toString()
+                    .toLowerCase()
                     .includes(filterText.toLowerCase()))
 
     );

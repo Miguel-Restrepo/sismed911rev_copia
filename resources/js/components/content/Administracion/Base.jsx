@@ -1,11 +1,53 @@
 import React from 'react'
 import Icofont from 'react-icofont';
-
+import EditIcon from '@mui/icons-material/Edit';
+import DataTable from 'react-data-table-component';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import {
+    InputLabel,
+    MenuItem,
+    FormControl,
+    OutlinedInput,
+    Box,
+    Stack,
+    Chip,
+    Checkbox,
+    FormGroup,
+    Item,
+    Grid,
+    TextField,
+    Typography,
+    Dialog,
+    DialogContent,
+    DialogActions,
+    AppBar,
+    NativeSelect,
+    Toolbar,
+    Card,
+    CardContent,
+    Radio,
+    FormControlLabel,
+    FormLabel,
+    Backdrop,
+    ButtonGroup,
+    Button,
+    CircularProgress,
+    IconButton,
+} from '@mui/material';
+const moment = require('moment');
+import common from '../../../common';
+import ArticleIcon from '@mui/icons-material/Article';
+import SearchIcon from '@mui/icons-material/Search';
+import { useEffect, useMemo, useState } from 'react';
 import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { useEffect, useState } from "react";
 import axios from "axios";
 import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit';
 //import 'react-phone-input-2/lib/style.css'
@@ -26,6 +68,9 @@ toast.configure()
 const Base = () => {
     const [t, i18n] = useTranslation("global");
     const [tablas, setTablas] = useState([]);
+    const [distritos, setDistritos] = useState([]);
+    const [departamentos, setDepartamentos] = useState([]);
+    const [provincias, setProvincias] = useState([]);
     const [line, setLine] = useState("");
     const [show, setShow] = useState(false);
     const [showe, setShowE] = useState(false);
@@ -40,13 +85,19 @@ const Base = () => {
     const handleEdit = () => setEditar(true);
     const handleAdd = () => setEditar(false);
 
+    const [textLoad, setTextLoad] = useState('Cargando ...');
+    const [openLoad, setOpenLoad] = useState(false);
+    const [filterText, setFilterText] = useState('');
+    const [filterText1, setFilterText1] = useState('');
+
     const [form, setForm] = useState({
         nombre: '',
         dpto: '',
         provincia: '',
         distrito: '',
         longitud: '',
-        latitud: ''
+        latitud: '',
+        direccion:''
     });
 
     const clearform = () => setForm({
@@ -54,15 +105,52 @@ const Base = () => {
         dpto: '',
         provincia: '',
         distrito: '',
+        direccion:'',
         longitud: '',
         latitud: ''
     })
 
-    const Get = () => {
-        axios.get(`/api/base_ambulancia`)
+    const Get = async () => {
+        setOpenLoad(true);
+        await axios.get(`/api/base_ambulancia`)
+            .then(response => {
+                setOpenLoad(false);
+                console.log(response.data)
+                setTablas(response.data);
+                return response.data;
+            })
+            .catch(error => {
+                setOpenLoad(false);
+                return error;
+            })
+
+    }
+
+    const GetLugares = () => {
+        axios.get(`/api/departamento`)
             .then(response => {
 
-                setTablas(response.data);
+                setDepartamentos(response.data);
+                return response.data;
+            })
+            .catch(error => {
+                return error;
+            })
+
+        axios.get(`/api/distrito`)
+            .then(response => {
+
+                setDistritos(response.data);
+                return response.data;
+            })
+            .catch(error => {
+                return error;
+            })
+
+        axios.get(`/api/provincias`)
+            .then(response => {
+
+                setProvincias(response.data);
                 return response.data;
             })
             .catch(error => {
@@ -72,7 +160,7 @@ const Base = () => {
     }
 
     const handleChange = e => {
-        e.persist();
+        
         setForm(
             prevState => ({
                 ...prevState,
@@ -83,28 +171,28 @@ const Base = () => {
 
     }
     const notificarExitoCaso = (idcaso) =>
-    toast.success(`${t("mensajes.mscasoid")} ${idcaso} ${t("mensajes.msexito")}`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored"
-    });;
+        toast.success(`${t("mensajes.mscasoid")} ${idcaso} ${t("mensajes.msexito")}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored"
+        });;
 
-const notificarErrorCaso = () =>
-    toast.error(`${t("mensajes.mscreacionerror")}`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored"
-    });;
+    const notificarErrorCaso = () =>
+        toast.error(`${t("mensajes.mscreacionerror")}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored"
+        });;
     const Post = () => {
         axios.post('/api/base_ambulancia', form)
             .then(response => {
@@ -133,7 +221,7 @@ const notificarErrorCaso = () =>
 
     useEffect(() => {
         Get()
-
+        GetLugares()
     }, []);
 
     const Elimina = () => {
@@ -149,328 +237,488 @@ const notificarErrorCaso = () =>
         handleClose();
     }
 
+    const subHeaderComponent = useMemo(() => {
+        const handleClear = () => {
+            if (filterText) setFilterText('');
+        };
 
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
 
+                    </Stack>
+                </Grid>
 
-    const { SearchBar } = Search;
-    const columns = [{
-        dataField: 'id_base',
-        text: `${t("administracion.base.datos.id")}`,
-        sort: true
-    }, {
-        dataField: 'nombre',
-        text: `${t("administracion.base.datos.nombre")}`,
-        sort: true
-    }, {
-        dataField: 'dpto',
-        text: `${t("administracion.base.datos.dpto")}`,
-        sort: true
-    }, {
-        dataField: 'provincia',
-        text: `${t("administracion.base.datos.provincia")}`,
-        sort: true
-    }, {
-        dataField: 'distrito',
-        text: `${t("administracion.base.datos.distrito")}`,
-        sort: true
-    }, {
-        dataField: 'longitud',
-        text: `${t("administracion.base.datos.longitud")}`,
-        sort: true
-    }, {
-        dataField: 'latitud',
-        text: `${t("administracion.base.datos.latitud")}`,
-        sort: true
-    }, {
-        text:'',
-        dataField: '453',
-        formatter: (cell, row, rowIndex, extraData) => {
-            return (
-                <div>
-                    <Icofont icon="search-1" className="mx-2" onClick={() => {
-                        handleView()
-                        setForm({
-                            nombre: row.nombre,
-                            dpto: row.dpto,
-                            provincia: row.provincia,
-                            distrito: row.distrito,
-                            longitud: row.longitud,
-                            latitud: row.latitud
-                        })
-                        setLine({
-                            id_base:row.id_base,
-                            nombre: row.nombre,
-                            dpto: row.dpto,
-                            provincia: row.provincia,
-                            distrito: row.distrito,
-                            longitud: row.longitud,
-                            latitud: row.latitud
-                        })
-                        handleShow();
-                    }} />
-                </div>
-            );
-        }
-    }, {
-        text:'',
-        dataField: '78',
-        formatter: (cell, row, rowIndex, extraData) => {
-            return (
-                <div>
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear}
+                        filterText={filterText}
+                        onFilter={(e) => setFilterText(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterText]);
 
-                    <Icofont icon="pencil-alt-2" className="mx-2" onClick={() => {
-                        handleEdit()
-                        setForm({
-                            nombre: row.nombre,
-                            dpto: row.dpto,
-                            provincia: row.provincia,
-                            distrito: row.distrito,
-                            longitud: row.longitud,
-                            latitud: row.latitud
-                        })
-                        setLine({
-                            id_base:row.id_base,
-                            nombre: row.nombre,
-                            dpto: row.dpto,
-                            provincia: row.provincia,
-                            distrito: row.distrito,
-                            longitud: row.longitud,
-                            latitud: row.latitud
-                        })
-                        handleShowE()
-                    }} />
+    const filteredItems = tablas.filter(
+        (item) =>
+            (item.id_base &&
+                item.id_base
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.nombre &&
+                item.nombre
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.dpto &&
+                item.dpto
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.provincia &&
+                item.provincia
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.distrito &&
+                item.distrito
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.longitud &&
+                item.longitud
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.latitud &&
+                item.latitud
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+                    (item.direccion &&
+                        item.direccion
+                            .toString()
+                            .toLowerCase()
+                            .includes(filterText.toLowerCase()))
 
-                </div>
-            );
-        }
-    }, {
-        text:'',
-        dataField: '12',
-        formatter: (cell, row, rowIndex, extraData) => {
-            return (
-                <div>
-                    <Icofont icon="trash" className="mx-2" onClick={() => {
-                        handleDelet()
-                        setForm({
-                            nombre: row.nombre,
-                            dpto: row.dpto,
-                            provincia: row.provincia,
-                            distrito: row.distrito,
-                            longitud: row.longitud,
-                            latitud: row.latitud
-                        })
-                        setLine({
-                            id_base:row.id_base,
-                            nombre: row.nombre,
-                            dpto: row.dpto,
-                            provincia: row.provincia,
-                            distrito: row.distrito,
-                            longitud: row.longitud,
-                            latitud: row.latitud
-                        })
-                        handleShow();
-                    }} />
-                </div>
-            );
-        }
-    }
-    ];
-    const options = {
-        custom: true,
-        paginationSize: 5,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: tablas.length
-    };
-    const selectRow = {
-        mode: 'radio',
-        clickToSelect: true,
-        selected: [1],
-        hideSelectColumn: true,
-        classes: 'selection-row'
-    };
-    const contentTable = ({ paginationProps, paginationTableProps }) => (
-        <div>
-            <ToolkitProvider
-                keyField="id_base"
-                columns={columns}
-                data={tablas}
-                search
-            >
-                {
-                    toolkitprops => (
-                        <div>
-                            <SearchBar placeholder={`${t("tabla.buscador")}`}  {...toolkitprops.searchProps} />
-                            <BootstrapTable
-                                striped
-                                hover
-                                {...toolkitprops.baseProps}
-                                {...paginationTableProps}
-                                noDataIndication={`${t("tabla.sindatos")}`}
-                                selectRow={selectRow}
-                            />
-                        </div>
-                    )
-                }
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
     );
 
 
+    const columns = useMemo(() => [
+
+        {
+            name: `${t("administracion.base.datos.id")}`,
+            sortable: true,
+            selector: (row) => row.id_base,
+        }, {
+            name: `${t("administracion.base.datos.nombre")}`,
+            sortable: true,
+            selector: (row) => row.nombre,
+        }, {
+            name: `${t("administracion.base.datos.dpto")}`,
+            sortable: true,
+            selector: (row) => row.dpto,
+        }, {
+            name: `${t("administracion.base.datos.provincia")}`,
+            sortable: true,
+            selector: (row) => row.provincia,
+        }, {
+            name: `${t("administracion.base.datos.distrito")}`,
+            sortable: true,
+            selector: (row) => row.distrito,
+        }, {
+            name: `${t("administracion.base.datos.longitud")}`,
+            sortable: true,
+            selector: (row) => row.longitud,
+        }, {
+            name: `${t("administracion.base.datos.latitud")}`,
+            sortable: true,
+            selector: (row) => row.latitud,
+        },  {
+            name: `Dirección`,
+            sortable: true,
+            selector: (row) => row.direccion,
+        },{
+            name: ``,
+            width: '50px',
+            cell: (row) => {
+                return (
+                    <div>
+                        <SearchIcon onClick={() => {
+                            handleView()
+                            setForm({
+                                nombre: row.nombre,
+                                dpto: row.dpto,
+                                direccion:row.direccion,
+                                provincia: row.provincia,
+                                distrito: row.distrito,
+                                longitud: row.longitud,
+                                latitud: row.latitud
+                            })
+                            setLine({
+                                id_base: row.id_base,
+                                nombre: row.nombre,
+                                dpto: row.dpto,
+                                direccion:row.direccion,
+                                provincia: row.provincia,
+                                distrito: row.distrito,
+                                longitud: row.longitud,
+                                latitud: row.latitud
+                            })
+                            handleShow();
+
+                        }} />
+                    </div>
+                );
+            },
+        }, {
+            name: ``,
+            width: '50px',
+            cell: (row) => {
+                return (
+                    <div>
+
+                        <EditIcon onClick={() => {
+                            handleEdit()
+                            setForm({
+                                nombre: row.nombre,
+                                dpto: row.dpto,
+                                direccion:row.direccion,
+                                provincia: row.provincia,
+                                distrito: row.distrito,
+                                longitud: row.longitud,
+                                latitud: row.latitud
+                            })
+                            setLine({
+                                id_base: row.id_base,
+                                nombre: row.nombre,
+                                dpto: row.dpto,
+                                direccion:row.direccion,
+                                provincia: row.provincia,
+                                distrito: row.distrito,
+                                longitud: row.longitud,
+                                latitud: row.latitud
+                            })
+                            handleShowE()
+                        }} />
+
+                    </div>
+                );
+            },
+        }, {
+            name: '',
+            width: '50px',
+            cell: (row) => {
+                return (
+                    <div>
+                        <DeleteIcon onClick={() => {
+                            handleDelet()
+                            setForm({
+                                nombre: row.nombre,
+                                dpto: row.dpto,
+                                direccion:row.direccion,
+                                provincia: row.provincia,
+                                distrito: row.distrito,
+                                longitud: row.longitud,
+                                latitud: row.latitud
+                            })
+                            setLine({
+                                id_base: row.id_base,
+                                nombre: row.nombre,
+                                dpto: row.dpto,
+                                direccion:row.direccion,
+                                provincia: row.provincia,
+                                distrito: row.distrito,
+                                longitud: row.longitud,
+                                latitud: row.latitud
+                            })
+                            handleShow();
+
+                        }} />
+
+                    </div>
+                );
+            },
+        },
+    ])
+
     return (
         <div>
-            <div>
-                <h2>{t("administracion.base.titulo")}</h2>
-            </div>
-            <div>
-                <Button variant="outline-dark" onClick={() => {
-                    handleAdd()
-                    clearform()
-                    handleShowE()
-                }}>
-                    <Icofont icon="ui-add" className="mx-2" />
-                </Button>
-                <PaginationProvider
-                    pagination={
-                        paginationFactory(options)
-                    }
-                >
-                    {contentTable}
-                </PaginationProvider>
+            <Backdrop
+                sx={{
+                    color: '#fff',
+                    zIndex: (theme) => theme.zIndex.drawer + 101,
+                }}
+                open={openLoad}
+            >
+                <Stack spacing={1} alignItems="center">
+                    <CircularProgress disableShrink color="inherit" />
+                    <Typography>{textLoad}</Typography>
+                </Stack>
+            </Backdrop>
+            <h2>{t("administracion.base.titulo")}</h2>
+            <Button variant="contained" onClick={() => {
 
-                <Modal show={show} onHide={() => {
+                handleAdd()
+                clearform()
+                handleShowE()
+            }}>
+                <AddIcon />
+            </Button>
+
+            <Card>
+                <CardContent
+                    sx={{
+                        pb: '0 !important',
+                        '& > header': {
+                            padding: 0,
+                        },
+                        '& .rdt_Table': {
+                            border: 'solid 1px rgba(0, 0, 0, .12)',
+                        },
+                    }}
+                >
+                    <DataTable
+                        striped
+                        columns={columns}
+                        data={filteredItems}
+                        conditionalRowStyles={common.conditionalRowStyles}
+                        pagination
+                        paginationComponentOptions={
+                            common.paginationComponentOptions
+                        }
+                        subHeader
+                        subHeaderComponent={subHeaderComponent}
+                        fixedHeader
+                        persistTableHead
+                        fixedHeaderScrollHeight="calc(100vh - 317px)"
+                        customStyles={common.customStyles}
+                        highlightOnHover
+                        noDataComponent={
+                            <Typography sx={{ my: 2 }}>
+                                No existen datos para mostrar
+                            </Typography>
+                        }
+                    />
+                </CardContent>
+            </Card>
+
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={show}
+                onClose={() => {
                     handleClose()
                     setLine('')
-                }} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title> <h1>{t("administracion.base.titulo")} - {view ? t("etiquetas.ver") : t("etiquetas.eliminar")}</h1></Modal.Title>
-                    </Modal.Header>
+                }}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t("administracion.base.titulo")} - {view ? t("etiquetas.ver") : t("etiquetas.eliminar")}
+                        </Typography>
 
-                    <Modal.Body>
-                        <div className="mb-5">
-                            <Button variant="outline-dark" onClick={() => {
-                                clearform()
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={() => {
                                 handleClose()
-                                handleAdd()
                                 setLine('')
-                                handleShowE()
-                            }}>
-                                <Icofont icon="ui-add" className="mx-2" />
-                            </Button>
+                            }}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    <ButtonGroup variant="outlined">
+                        <Button onClick={() => {
+                            clearform()
+                            handleClose()
+                            handleAdd()
+                            setLine('')
+                            handleShowE()
 
-                            <Button variant="outline-dark" onClick={() => {
-                                handleEdit()
-                                handleClose()
-                                handleShowE()
-                            }}>
-                                <Icofont icon="pencil-alt-2" className="mx-2" />
-                            </Button>
+                        }}>
+                            <AddIcon />
+                        </Button>
 
-                            <Button variant="outline-dark" disabled={!view} onClick={() => {
-                                handleClose()
-                                handleDelet()
-                                handleShow()
-                            }} >
-                                <Icofont icon='trash' className="mx-2" />
-                            </Button>
-                        </div>
-                        <Form>
-                            <Form.Group as={Row} className="mb-3" controlId="formid">
-                                <Form.Label column sm="2">
+                        <Button onClick={() => {
+                            handleEdit()
+                            handleClose()
+                            handleShowE()
+
+                        }}>
+                            <EditIcon />
+                        </Button>
+
+                        <Button disabled={!view} onClick={() => {
+                            handleClose()
+                            handleDelet()
+                            handleShow()
+
+                        }} >
+                            <DeleteIcon />
+                        </Button>
+                    </ButtonGroup>
+                    <Grid
+                        container
+                        noValidate
+                        direction="row"
+                        justifyContent="center"
+                        spacing={2}
+                        sx={{ my: 2 }}
+                        component="form"
+                        autoComplete="off"
+                    >
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
                                 {t("administracion.base.datos.id")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.id_base} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("administracion.base.datos.nombre")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.nombre} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("administracion.base.datos.dpto")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.dpto} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("administracion.base.datos.provincia")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.provincia} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("administracion.base.datos.distrito")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.distrito} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("administracion.base.datos.longitud")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.longitud} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("administracion.base.datos.latitud")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.latitud} />
-                                </Col>
-                            </Form.Group>
-                        </Form>
-                    </Modal.Body>
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.id_base}
+                            </Typography>
+                        </Grid>
 
-                    <Modal.Footer>
-                        <Button variant={view ? 'primary' : 'danger'} onClick={view ? () => {
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("administracion.base.datos.nombre")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.nombre}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("administracion.base.datos.dpto")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.dpto}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("administracion.base.datos.provincia")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.provincia}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("administracion.base.datos.distrito")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.distrito}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("administracion.base.datos.longitud")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.longitud}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("administracion.base.datos.latitud")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.latitud}
+                            </Typography>
+                        </Grid>
+
+
+                    </Grid>
+
+                    <DialogActions sx={{ mb: 1 }}>
+
+                        <Button variant='contained' color={view ? 'primary' : 'error'} onClick={view ? () => {
                             handleClose()
                             setLine('')
                         }
                             : Elimina}>
                             {view ? t("etiquetas.hecho") : t("etiquetas.eliminar")}
                         </Button>
-                        <Button variant="secondary" onClick={() => {
+                        <Button variant="outlined" onClick={() => {
                             handleClose()
                             setLine('')
                         }}>
                             {t("etiquetas.cancelar")}
                         </Button>
-                    </Modal.Footer>
-                </Modal>
 
-                <Modal show={showe} onHide={() => {
+                    </DialogActions>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={showe}
+                onClose={() => {
                     handleCloseE()
                     setLine('')
-                }} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title>{t("administracion.base.titulo")} - {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}</Modal.Title>
-                    </Modal.Header>
+                }}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t("administracion.base.titulo")}
+                            - {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}
+                        </Typography>
 
-                    <Modal.Body>
-                        {editar ? <div className="mb-5">
-                            <Button variant="outline-dark" onClick={() => {
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={() => {
+                                handleCloseE()
+                                setLine('')
+                            }}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    {editar ?
+                        <ButtonGroup variant="outlined">
+                            <Button onClick={() => {
                                 handleCloseE()
                                 clearform()
                                 handleAdd()
@@ -478,72 +726,160 @@ const notificarErrorCaso = () =>
                                 handleShowE()
 
                             }}>
-                                <Icofont icon="ui-add" className="mx-2" />
+                                <AddIcon />
                             </Button>
-                            <Button variant="outline-dark" onClick={() => {
+                            <Button onClick={() => {
                                 handleCloseE()
                                 handleDelet()
                                 handleShow()
                             }}>
-                                <Icofont icon='trash' className="mx-2" />
+                                <DeleteIcon />
                             </Button>
-                        </div> : ''}
+                        </ButtonGroup>
+                        : ''}
+                    <Grid
+                        container
+                        noValidate
+                        direction="row"
+                        justifyContent="center"
+                        spacing={2}
+                        sx={{ my: 2 }}
+                        component="form"
+                        autoComplete="off"
+                    >
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={t("administracion.base.datos.nombre")}
+                                value={form.nombre}
+                                onChange={handleChange}
+                                name="nombre"
+                            />
 
-                        <Form className='m-xxl-4'>
-                            <Form.Group as={Row} className="mb-3" controlId="formcodigo">
-                                <Form.Label column sm="3">
-                                {t("administracion.base.datos.nombre")}
-                                </Form.Label>
-                                <Col sm={4} >
-                                    <Form.Control type='text' placeholder={`${t("administracion.base.datos.nombre")}`} value={form.nombre} onChange={handleChange} name="nombre" />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formcodigo">
-                                <Form.Label column sm="3">
-                                {t("administracion.base.datos.dpto")}
-                                </Form.Label>
-                                <Col sm={4} >
-                                    <Form.Control type='text' placeholder={`${t("administracion.base.datos.dpto")}`} value={form.dpto} onChange={handleChange} name="dpto" />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formcodigo">
-                                <Form.Label column sm="3">
-                                {t("administracion.base.datos.provincia")}
-                                </Form.Label>
-                                <Col sm={4} >
-                                    <Form.Control type='text' placeholder={`${t("administracion.base.datos.provincia")}`} value={form.provincia} onChange={handleChange} name="provincia" />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formcodigo">
-                                <Form.Label column sm="3">
-                                {t("administracion.base.datos.distrito")}
-                                </Form.Label>
-                                <Col sm={4} >
-                                    <Form.Control type='text' placeholder={`${t("administracion.base.datos.distrito")}`} value={form.distrito} onChange={handleChange} name="distrito" />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formcodigo">
-                                <Form.Label column sm="3">
-                                {t("administracion.base.datos.longitud")}
-                                </Form.Label>
-                                <Col sm={4} >
-                                    <Form.Control type='text' placeholder={`${t("administracion.base.datos.longitud")}`} value={form.longitud} onChange={handleChange} name="longitud" />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formcodigo">
-                                <Form.Label column sm="3">
-                                {t("administracion.base.datos.latitud")}
-                                </Form.Label>
-                                <Col sm={4} >
-                                    <Form.Control type='text' placeholder={`${t("administracion.base.datos.latitud")}`} value={form.latitud} onChange={handleChange} name="latitud" />
-                                </Col>
-                            </Form.Group>
+                        </Grid>
 
-                        </Form>
-                    </Modal.Body>
 
-                    <Modal.Footer>
-                        <Button variant='primary' onClick={editar ? () => {
+                        <Grid item xs={12}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="tipodoc-label">
+                                    {t("administracion.base.datos.dpto")}
+                                </InputLabel>
+
+                                <Select
+                                    labelId="tipodoc-label"
+                                    id="tipodoc"
+                                    label={t("administracion.base.datos.dpto")}
+                                    name="dpto"
+                                    value={form.dpto}
+                                    onChange={handleChange}
+                                >
+                                    {departamentos.map((item) => (
+                                        <MenuItem
+                                            key={item.cod_dpto}
+                                            value={item.cod_dpto}
+                                        >
+                                            {item.nombre_dpto}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="tipodoc-label">
+                                    {t("administracion.base.datos.provincia")}
+                                </InputLabel>
+
+                                <Select
+                                    labelId="tipodoc-label"
+                                    id="tipodoc"
+                                    label={t("administracion.base.datos.provincia")}
+                                    name="provincia"
+                                    value={form.provincia}
+                                    onChange={handleChange}
+                                >
+                                    {provincias.filter((e) => e.cod_departamento == form.dpto).map((item) => (
+                                        <MenuItem
+                                            key={item.cod_provincia}
+                                            value={item.cod_provincia}
+                                        >
+                                            {item.nombre_provincia}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="tipodoc-label">
+                                    {t("administracion.base.datos.distrito")}
+                                </InputLabel>
+
+                                <Select
+                                    labelId="tipodoc-label"
+                                    id="tipodoc"
+                                    label={t("administracion.base.datos.distrito")}
+                                    name="distrito"
+                                    value={form.distrito}
+                                    onChange={handleChange}
+                                >
+                                    {distritos.filter((e) => e.cod_provincia == form.provincia).map((item) => (
+                                        <MenuItem
+                                            key={item.cod_distrito}
+                                            value={item.cod_distrito}
+                                        >
+                                            {item.nombre_distrito}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={t("administracion.base.datos.longitud")}
+                                value={form.longitud}
+                                onChange={handleChange}
+                                name="longitud"
+                            />
+
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={t("administracion.base.datos.latitud")}
+                                value={form.latitud}
+                                onChange={handleChange}
+                                name="latitud"
+                            />
+
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label="Dirección"
+                                value={form.direccion}
+                                onChange={handleChange}
+                                name="direccion"
+                            />
+
+                        </Grid>
+                    </Grid>
+                    <DialogActions sx={{ mb: 1 }}>
+                        <Button variant='contained' onClick={editar ? () => {
                             Edit()
                             handleCloseE()
                         } : () => {
@@ -552,18 +888,17 @@ const notificarErrorCaso = () =>
                         }}>
                             {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}
                         </Button>
-                        <Button variant="secondary" onClick={() => {
-                            handleCloseE()
-                            setLine('')
-                            clearform()
+                        <Button variant="outlined" onClick={() => {
+                             handleCloseE()
+                             setLine('')
+                             clearform()
+                            
                         }}>
                             {t("etiquetas.cancelar")}
                         </Button>
-                    </Modal.Footer>
-                </Modal>
-
-            </div>
-
+                    </DialogActions>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 

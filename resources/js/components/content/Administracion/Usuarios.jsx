@@ -1,11 +1,55 @@
 import React from 'react'
 import Icofont from 'react-icofont';
-
+import EditIcon from '@mui/icons-material/Edit';
+import DataTable from 'react-data-table-component';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import {
+    InputLabel,
+    MenuItem,
+    FormControl,
+    OutlinedInput,
+    Box,
+    Stack,
+    Chip,
+    Checkbox,
+    FormGroup,
+    Item,
+    Grid,
+    TextField,
+    Typography,
+    Dialog,
+    DialogContent,
+    DialogActions,
+    AppBar,
+    NativeSelect,
+    Toolbar,
+    Card,
+    CardContent,
+    Radio,
+    FormControlLabel,
+    FormLabel,
+    Backdrop,
+    ButtonGroup,
+    Button,
+    CircularProgress,
+    IconButton,
+} from '@mui/material';
+const moment = require('moment');
+import common from '../../../common';
+import ArticleIcon from '@mui/icons-material/Article';
+import SearchIcon from '@mui/icons-material/Search';
+import { useEffect, useMemo, useState } from 'react';
 import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { useEffect, useState } from "react";
 import axios from "axios";
 import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit';
 //import 'react-phone-input-2/lib/style.css'
@@ -56,6 +100,13 @@ const Usuarios = () => {
     const [hospitalTemp, setHospitalTemp] = useState("");
     const [idHospitalTemp, setIdHospitalTemp] = useState("");
 
+    const [textLoad, setTextLoad] = useState('Cargando ...');
+    const [openLoad, setOpenLoad] = useState(false);
+    const [filterText, setFilterText] = useState('');
+    const [filterText1, setFilterText1] = useState('');
+
+
+
     const [form, setForm] = useState({
         fecha_creacion: '',
         nombres: '',
@@ -89,14 +140,16 @@ const Usuarios = () => {
 
 
 
-    const Get = () => {
-        axios.get(`/api/usuarios/DavidcomplicadoDeMiercoles`)
+    const Get = async () => {
+        setOpenLoad(true);
+        await axios.get(`/api/usuarios/DavidcomplicadoDeMiercoles`)
             .then(response => {
-
+                setOpenLoad(false);
                 setTablas(response.data);
                 return response.data;
             })
             .catch(error => {
+                setOpenLoad(false);
                 return error;
             })
     }
@@ -159,28 +212,28 @@ const Usuarios = () => {
 
     }
     const notificarExitoCaso = (idcaso) =>
-    toast.success(`${t("mensajes.mscasoid")} ${idcaso} ${t("mensajes.msexito")}`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored"
-    });;
+        toast.success(`${t("mensajes.mscasoid")} ${idcaso} ${t("mensajes.msexito")}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored"
+        });;
 
-const notificarErrorCaso = () =>
-    toast.error(`${t("mensajes.mscreacionerror")}`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored"
-    });;
+    const notificarErrorCaso = () =>
+        toast.error(`${t("mensajes.mscreacionerror")}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored"
+        });;
     const Post = () => {
         axios.post('/api/usuarios', form)
             .then(response => {
@@ -249,420 +302,623 @@ const notificarErrorCaso = () =>
     }
 
 
-    const { SearchBar } = Search;
-    const columns = [{
-        dataField: 'id_user',
-        text: `${t("administracion.usuarios.datos.id")}`,
-        sort: true
-    }, {
-        dataField: 'nombres',
-        text: `${t("administracion.usuarios.datos.nombres")}`,
-        sort: true
-    }, {
-        dataField: 'apellidos',
-        text: `${t("administracion.usuarios.datos.apellidos")}`,
-        sort: true
-    }, {
-        dataField: 'telefono',
-        text: `${t("administracion.usuarios.datos.telefono")}`,
-        sort: true
-    }, {
-        dataField: 'login',
-        text: `${t("administracion.usuarios.datos.usuario")}`,
-        sort: true
-    }, {
-        dataField: 'userlevelname',
-        text: `${t("administracion.usuarios.datos.perfil")}`,
-        sort: true
-    }, {
-        dataField: 'sede',
-        text: `${t("administracion.usuarios.datos.sede")}`,
-        sort: true
-    }, {
-        dataField: 'acode',
-        text: `${t("administracion.usuarios.datos.acode")}`,
-        sort: true
-    }, {
-        dataField: 'hospital.nombre_hospital',
-        text: `${t("administracion.usuarios.datos.hospital")}`,
-        sort: true
-    }, {
-        text:'',
-        dataField: '789',
-        formatter: (cell, row, rowIndex, extraData) => {
-            return (
-                <div>
-                    <Icofont icon="search-1" className="mx-2" onClick={() => {
-                        handleView()
-                        obtener(row.id_user)
+    const subHeaderComponent1 = useMemo(() => {
+        const handleClear = () => {
+            if (filterText1) setFilterText1('');
+        };
 
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
 
-                        if (!row.hospital) {
-                            setIdHospital('');
-                            setHospital('');
-                        } else {
-                            setIdHospital(row.hospital.id_hospital);
-                            setHospital(row.hospital.nombre_hospital);
-                        }
-                        setLine({
-                            id_user: row.id_user,
-                            nombres: row.nombres,
-                            apellidos: row.apellidos,
-                            telefono: row.telefono,
-                            login: row.login,
-                            perfil: row.userlevelname,
-                            sede: row.sede,
-                            acode: row.acode
-                        })
-                        handleShow();
-                    }} />
-                </div>
-            );
-        }
-    }, {
-        text:'',
-        dataField: '45',
-        formatter: (cell, row, rowIndex, extraData) => {
-            return (
-                <div>
+                    </Stack>
+                </Grid>
 
-                    <Icofont icon="pencil-alt-2" className="mx-2" onClick={() => {
-                        handleEdit()
-                        obtener(row.id_user)
-                        if (!row.hospital) {
-                            setIdHospital('');
-                            setHospital('');
-                        } else {
-                            setIdHospital(row.hospital.id_hospital);
-                            setHospital(row.hospital.nombre_hospital);
-                        }
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear}
+                        filterText={filterText1}
+                        onFilter={(e) => setFilterText1(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterText1]);
 
-                        setLine({
-                            id_user: row.id_user,
-                            nombres: row.nombres,
-                            apellidos: row.apellidos,
-                            telefono: row.telefono,
-                            login: row.login,
-                            perfil: row.userlevelname,
-                            sede: row.sede,
-                            acode: row.acode
-                        })
+    const subHeaderComponent = useMemo(() => {
+        const handleClear = () => {
+            if (filterText) setFilterText('');
+        };
 
-                        handleShowE()
-                    }} />
+        return (
+            <Grid container justifyContent="space-between">
+                <Grid item xs="auto">
+                    <Stack spacing={1} direction="row">
 
-                </div>
-            );
-        }
-    }, {
-        text:'',
-        dataField: '12',
-        formatter: (cell, row, rowIndex, extraData) => {
-            return (
-                <div>
-                    <Icofont icon="trash" className="mx-2" onClick={() => {
-                        handleDelet()
-                        obtener(row.id_user)
-                        if (!row.hospital) {
-                            setIdHospital('');
-                            setHospital('');
-                        } else {
-                            setIdHospital(row.hospital.id_hospital);
-                            setHospital(row.hospital.nombre_hospital);
-                        }
+                    </Stack>
+                </Grid>
 
-                        setLine({
-                            id_user: row.id_user,
-                            nombres: row.nombres,
-                            apellidos: row.apellidos,
-                            telefono: row.telefono,
-                            login: row.login,
-                            perfil: row.userlevelname,
-                            sede: row.sede,
-                            acode: row.acode
-                        })
+                <Grid item xs="auto">
+                    <common.FilterComponent
+                        onClear={handleClear}
+                        filterText={filterText}
+                        onFilter={(e) => setFilterText(e.target.value)}
+                    />
+                </Grid>
+            </Grid>
+        );
+    }, [filterText]);
 
-                        handleShow();
-                    }} />
-                </div>
-            );
-        }
-    }
-    ];
-    const options = {
-        custom: true,
-        paginationSize: 5,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: tablas.length
-    };
-    const selectRow = {
-        mode: 'radio',
-        clickToSelect: true,
-        selected: [1],
-        hideSelectColumn: true,
-        classes: 'selection-row'
-    };
-    const contentTable = ({ paginationProps, paginationTableProps }) => (
-        <div>
-            <ToolkitProvider
-                keyField="id_user"
-                columns={columns}
-                data={tablas}
-                search
+    const filteredItems1 = hospitales.filter(
+        (item) =>
+        (item.nombre_hospital &&
+            item.nombre_hospital
+                .toString()
+                .toLowerCase()
+                .includes(filterText1.toLowerCase()))
 
-            >
-                {
-                    toolkitprops => (
-                        <div>
-                            <SearchBar placeholder={`${t("tabla.buscador")}`}  {...toolkitprops.searchProps} />
-                            <BootstrapTable
-                                striped
-                                hover
-                                {...toolkitprops.baseProps}
-                                {...paginationTableProps}
-                                noDataIndication={`${t("tabla.sindatos")}`}
-                                selectRow={selectRow}
-                            />
-                        </div>
-                    )
-                }
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
     );
 
+    const filteredItems = tablas.filter(
+        (item) =>
+            (item.id_user &&
+                item.id_user
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.nombres &&
+                item.nombres
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.apellidos &&
+                item.apellidos
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.telefono &&
+                item.telefono
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.login &&
+                item.login
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.userlevelname &&
+                item.userlevelname
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.sede &&
+                item.sede
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.acode &&
+                item.acode
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ||
+            (item.hospital.nombre_hospital &&
+                item.hospital.nombre_hospital
+                    .toString()
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase()))
 
-    const columns1 =
-        [{
-            text:'',
-            dataField: 'nombre_hospital',
-            sort: true
-        }];
-    const options1 = {
-        custom: true,
-        paginationSize: 3,
-        pageStartIndex: 1,
-        firstPageText: `${t("tabla.primera")}`,
-        prePageText: `${t("tabla.anterior")}`,
-        nextPageText: `${t("tabla.sgte")}`,
-        lastPageText: `${t("tabla.ultima")}`,
-        nextPageTitle: `${t("tabla.sgtepag")}`,
-        prePageTitle: `${t("tabla.anteriorpag")}`,
-        firstPageTitle: `${t("tabla.primerapag")}`,
-        lastPageTitle: `${t("tabla.ultimapag")}`,
-        showTotal: true,
-        totalSize: hospitales.length
-    };
-    const selectRow1 = {
-        mode: 'radio',
-        clickToSelect: true,
-        hideSelectColumn: false,
-        style: { color: "#fff", background: "#0d6efd" },
-        onSelect: (row, isSelect, rowIndex, e) => {
-            setHospitalTemp(row.nombre_hospital);
+    );
+
+    const columns1 = useMemo(() => [
+
+        {
+            name: '',
+            sortable: true,
+            selector: (row) => row.nombre_hospital,
+        }
+    ])
+
+    const columns = useMemo(() => [
+
+        {
+            name: `${t("administracion.usuarios.datos.id")}`,
+            sortable: true,
+            selector: (row) => row.id_user,
+        }, {
+            name: `${t("administracion.usuarios.datos.nombres")}`,
+            sortable: true,
+            selector: (row) => row.nombres,
+        }, {
+            name: `${t("administracion.usuarios.datos.apellidos")}`,
+            sortable: true,
+            selector: (row) => row.apellidos,
+        }, {
+            name: `${t("administracion.usuarios.datos.telefono")}`,
+            sortable: true,
+            selector: (row) => row.telefono,
+        }, {
+            name: `${t("administracion.usuarios.datos.usuario")}`,
+            sortable: true,
+            selector: (row) => row.login,
+        }, {
+            name: `${t("administracion.usuarios.datos.perfil")}`,
+            sortable: true,
+            selector: (row) => row.userlevelname,
+        }, {
+            name: `${t("administracion.usuarios.datos.sede")}`,
+            sortable: true,
+            selector: (row) => row.sede,
+        }, {
+            name: `${t("administracion.usuarios.datos.acode")}`,
+            sortable: true,
+            selector: (row) => row.acode,
+        }, {
+            name: `${t("administracion.usuarios.datos.hospital")}`,
+            sortable: true,
+            selector: (row) =>  row.hospital ? row.hospital.nombre_hospital : '' 
+        }, {
+            name: ``,
+            width: '50px',
+            cell: (row) => {
+                return (
+                    <div>
+                        <SearchIcon onClick={() => {
+                            handleView()
+                            obtener(row.id_user)
+
+
+                            if (!row.hospital) {
+                                setIdHospital('');
+                                setHospital('');
+                            } else {
+                                setIdHospital(row.hospital.id_hospital);
+                                setHospital(row.hospital.nombre_hospital);
+                            }
+                            setLine({
+                                id_user: row.id_user,
+                                nombres: row.nombres,
+                                apellidos: row.apellidos,
+                                telefono: row.telefono,
+                                login: row.login,
+                                perfil: row.userlevelname,
+                                sede: row.sede,
+                                acode: row.acode
+                            })
+                            handleShow();
+
+                        }} />
+                    </div>
+                );
+            },
+        }, {
+            name: ``,
+            width: '50px',
+            cell: (row) => {
+                return (
+                    <div>
+
+                        <EditIcon onClick={() => {
+                            handleEdit()
+                            obtener(row.id_user)
+                            if (!row.hospital) {
+                                setIdHospital('');
+                                setHospital('');
+                            } else {
+                                setIdHospital(row.hospital.id_hospital);
+                                setHospital(row.hospital.nombre_hospital);
+                            }
+
+                            setLine({
+                                id_user: row.id_user,
+                                nombres: row.nombres,
+                                apellidos: row.apellidos,
+                                telefono: row.telefono,
+                                login: row.login,
+                                perfil: row.userlevelname,
+                                sede: row.sede,
+                                acode: row.acode
+                            })
+
+                            handleShowE()
+                        }} />
+
+                    </div>
+                );
+            },
+        }, {
+            name: '',
+            width: '50px',
+            cell: (row) => {
+                return (
+                    <div>
+                        <DeleteIcon onClick={() => {
+                            handleDelet()
+                            obtener(row.id_user)
+                            if (!row.hospital) {
+                                setIdHospital('');
+                                setHospital('');
+                            } else {
+                                setIdHospital(row.hospital.id_hospital);
+                                setHospital(row.hospital.nombre_hospital);
+                            }
+
+                            setLine({
+                                id_user: row.id_user,
+                                nombres: row.nombres,
+                                apellidos: row.apellidos,
+                                telefono: row.telefono,
+                                login: row.login,
+                                perfil: row.userlevelname,
+                                sede: row.sede,
+                                acode: row.acode
+                            })
+
+                            handleShow();
+
+                        }} />
+
+                    </div>
+                );
+            },
+        },
+    ])
+
+
+    const handleRowClicked = (row) => {
+        setHospitalTemp(row.nombre_hospital);
+        setIdHospitalTemp(row.id_hospital);
+        let select = row;
+        if (!idHospitalTemp) {
             setIdHospitalTemp(row.id_hospital);
+            const updatedData = hospitales.map((item) => {
+                if (row.id_hospital !== item.id_hospital) {
+                    return item;
+                }
+
+                return {
+                    ...item,
+                    toggleSelected: true,
+                };
+            });
+
+            setHospitales(updatedData);
+        } else {
+            if (row.id_hospital === idHospitalTemp) {
+                select = null;
+                setIdHospitalTemp(row.id_hospital);
+                const updatedData = hospitales.map((item) => {
+                    if (row.id_hospital !== item.id_hospital) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: false,
+                    };
+                });
+                setHospitales(updatedData);
+            } else {
+                setIdHospitalTemp(row.id_hospital);
+                const updatedData = hospitales.map((item) => {
+                    if (idHospitalTemp === item.id_hospital) {
+                        return {
+                            ...item,
+                            toggleSelected: false,
+                        };
+                    } else if (row.id_hospital !== item.id_hospital) {
+                        return item;
+                    }
+
+                    return {
+                        ...item,
+                        toggleSelected: true,
+                    };
+                });
+                setHospitales(updatedData);
+            }
         }
     };
-
-    const contentTable1 = ({ paginationProps, paginationTableProps }) => (
-        <div>
-            <ToolkitProvider
-                keyField="id_hospital"
-                columns={columns1}
-                data={hospitales}
-                search
-            >
-                {
-                    toolkitprops => (
-                        <div>
-                            <SearchBar placeholder={`${t("tabla.buscador")}`}  {...toolkitprops.searchProps} className="mb-3" />
-                            <BootstrapTable
-                                hover
-                                {...toolkitprops.baseProps}
-                                {...paginationTableProps}
-                                noDataIndication={`${t("tabla.sindatos")}`}
-                                selectRow={selectRow1}
-                            />
-                        </div>
-                    )
-                }
-            </ToolkitProvider>
-            <PaginationListStandalone {...paginationProps} />
-        </div>
-    );
-
 
     return (
         <div>
-            <div>
-                <h2>{t("administracion.usuarios.titulo")}</h2>
-            </div>
+            <Backdrop
+                sx={{
+                    color: '#fff',
+                    zIndex: (theme) => theme.zIndex.drawer + 101,
+                }}
+                open={openLoad}
+            >
+                <Stack spacing={1} alignItems="center">
+                    <CircularProgress disableShrink color="inherit" />
+                    <Typography>{textLoad}</Typography>
+                </Stack>
+            </Backdrop>
+            <h2>{t("administracion.usuarios.titulo")}</h2>
 
-            <div>
-                <Button variant="outline-dark" onClick={() => {
-                    handleAdd()
-                    clearform()
-                    handleShowE()
-                }}>
-                    <Icofont icon="ui-add" className="mx-2" />
-                </Button>
-                <PaginationProvider
-                    pagination={
-                        paginationFactory(options)
-                    }
+            <Button variant="contained" onClick={() => {
+
+                handleAdd()
+                clearform()
+                handleShowE()
+            }}>
+                <AddIcon />
+            </Button>
+            <Card>
+                <CardContent
+                    sx={{
+                        pb: '0 !important',
+                        '& > header': {
+                            padding: 0,
+                        },
+                        '& .rdt_Table': {
+                            border: 'solid 1px rgba(0, 0, 0, .12)',
+                        },
+                    }}
                 >
-                    {contentTable}
-                </PaginationProvider>
+                    <DataTable
+                        striped
+                        columns={columns}
+                        data={filteredItems}
+                        conditionalRowStyles={common.conditionalRowStyles}
+                        pagination
+                        paginationComponentOptions={
+                            common.paginationComponentOptions
+                        }
+                        subHeader
+                        subHeaderComponent={subHeaderComponent}
+                        fixedHeader
+                        persistTableHead
+                        fixedHeaderScrollHeight="calc(100vh - 317px)"
+                        customStyles={common.customStyles}
+                        highlightOnHover
+                        noDataComponent={
+                            <Typography sx={{ my: 2 }}>
+                                No existen datos para mostrar
+                            </Typography>
+                        }
+                    />
+                </CardContent>
+            </Card>
 
-                <Modal show={show} onHide={() => {
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={show}
+                onClose={() => {
                     handleClose()
                     setLine('')
-                }} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title> <h1>{t("administracion.usuarios.titulo")} - {view ?  t("etiquetas.ver") : t("etiquetas.eliminar")}</h1></Modal.Title>
-                    </Modal.Header>
+                }}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t("administracion.usuarios.titulo")} - {view ? t("etiquetas.ver") : t("etiquetas.eliminar")}
+                        </Typography>
 
-                    <Modal.Body>
-                        <div className="mb-5">
-                            <Button variant="outline-dark" onClick={() => {
-                                clearform()
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={() => {
                                 handleClose()
-                                handleAdd()
                                 setLine('')
-                                handleShowE()
-                            }}>
-                                <Icofont icon="ui-add" className="mx-2" />
-                            </Button>
+                            }}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    <ButtonGroup variant="outlined">
+                        <Button onClick={() => {
 
-                            <Button variant="outline-dark" onClick={() => {
-                                handleEdit()
-                                handleClose()
-                                handleShowE()
-                            }}>
-                                <Icofont icon="pencil-alt-2" className="mx-2" />
-                            </Button>
+                            clearform()
+                            handleClose()
+                            handleAdd()
+                            setLine('')
+                            handleShowE()
+                        }}>
+                            <AddIcon />
+                        </Button>
 
-                            <Button variant="outline-dark" disabled={!view} onClick={() => {
-                                handleClose()
-                                handleDelet()
-                                handleShow()
-                            }} >
-                                <Icofont icon='trash' className="mx-2" />
-                            </Button>
-                        </div>
-                        <Form>
-                            <Form.Group as={Row} className="mb-3" controlId="formid">
-                                <Form.Label column sm="2">
+                        <Button onClick={() => {
+                            handleEdit()
+                            handleClose()
+                            handleShowE()
+
+                        }}>
+                            <EditIcon />
+                        </Button>
+
+                        <Button disabled={!view} onClick={() => {
+                            handleClose()
+                            handleDelet()
+                            handleShow()
+
+
+                        }} >
+                            <DeleteIcon />
+                        </Button>
+                    </ButtonGroup>
+                    <Grid
+                        container
+                        noValidate
+                        direction="row"
+                        justifyContent="center"
+                        spacing={2}
+                        sx={{ my: 2 }}
+                        component="form"
+                        autoComplete="off"
+                    >
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
                                 {t("administracion.usuarios.datos.id")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.id_user} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("administracion.usuarios.datos.nombres")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.nombres} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("administracion.usuarios.datos.apellidos")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.apellidos} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("administracion.usuarios.datos.telefono")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.telefono} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("administracion.usuarios.datos.usuario")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.login} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("administracion.usuarios.datos.perfil")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.perfil} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("administracion.usuarios.datos.sede")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.sede} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("administracion.usuarios.datos.acode")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={line.acode} />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formname">
-                                <Form.Label column sm="2">
-                                {t("administracion.usuarios.datos.hospital")}
-                                </Form.Label>
-                                <Col sm="10">
-                                    <Form.Control plaintext readOnly defaultValue={hospital} />
-                                </Col>
-                            </Form.Group>
-                        </Form>
-                    </Modal.Body>
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.id_user}
+                            </Typography>
+                        </Grid>
 
-                    <Modal.Footer>
-                        <Button variant={view ? 'primary' : 'danger'} onClick={view ? () => {
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("administracion.usuarios.datos.nombres")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.nombres}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("administracion.usuarios.datos.apellidos")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.apellidos}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("administracion.usuarios.datos.telefono")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.telefono}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("administracion.usuarios.datos.usuario")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.login}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("administracion.usuarios.datos.perfil")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.perfil}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("administracion.usuarios.datos.sede")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.sede}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("administracion.usuarios.datos.acode")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {line.acode}
+                            </Typography>
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <Typography variant="subtitle1" gutterBottom component="div">
+                                {t("administracion.usuarios.datos.hospital")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" gutterBottom>
+                                {hospital}
+                            </Typography>
+                        </Grid>
+
+
+
+
+                    </Grid>
+
+                    <DialogActions sx={{ mb: 1 }}>
+
+                        <Button variant='contained' color={view ? 'primary' : 'error'} onClick={view ? () => {
                             handleClose()
                             setLine('')
                         }
                             : Elimina}>
                             {view ? t("etiquetas.hecho") : t("etiquetas.eliminar")}
                         </Button>
-                        <Button variant="secondary" onClick={() => {
+                        <Button variant="outlined" onClick={() => {
                             handleClose()
                             setLine('')
                         }}>
                             {t("etiquetas.cancelar")}
                         </Button>
-                    </Modal.Footer>
-                </Modal>
 
-                <Modal show={showe} onHide={() => {
+                    </DialogActions>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={showe}
+                onClose={() => {
                     handleCloseE()
                     setLine('')
-                }} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title>{t("administracion.usuarios.titulo")} - {editar ? t("etiquetas.editar") :  t("etiquetas.agregar")}</Modal.Title>
-                    </Modal.Header>
+                }}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t("administracion.usuarios.titulo")}
+                            - {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}
+                        </Typography>
 
-                    <Modal.Body>
-                        {editar ? <div className="mb-5">
-                            <Button variant="outline-dark" onClick={() => {
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={() => {
+                                handleCloseE()
+                                setLine('')
+                            }}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    {editar ?
+                        <ButtonGroup variant="outlined">
+                            <Button onClick={() => {
                                 handleCloseE()
                                 clearform()
                                 handleAdd()
@@ -670,201 +926,342 @@ const notificarErrorCaso = () =>
                                 handleShowE()
 
                             }}>
-                                <Icofont icon="ui-add" className="mx-2" />
+                                <AddIcon />
                             </Button>
-                            <Button variant="outline-dark" onClick={() => {
+                            <Button onClick={() => {
                                 handleCloseE()
                                 handleDelet()
                                 handleShow()
                             }}>
-                                <Icofont icon='trash' className="mx-2" />
+                                <DeleteIcon />
                             </Button>
-                        </div> : ''}
+                        </ButtonGroup>
+                        : ''}
+                    <Grid
+                        container
+                        noValidate
+                        direction="row"
+                        justifyContent="center"
+                        spacing={2}
+                        sx={{ my: 2 }}
+                        component="form"
+                        autoComplete="off"
+                    >
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={t("administracion.usuarios.datos.nombres")}
+                                value={form.nombres}
+                                onChange={handleChange}
+                                name="nombres"
+                            />
 
-                        <Form className='m-xxl-4'>
-                            <Form.Group as={Row} className="mb-3" controlId="formnombre">
-                                <Form.Label column sm="3">
-                                {t("administracion.usuarios.datos.nombres")}
-                                </Form.Label>
-                                <Col sm={4} >
-                                    <Form.Control type='text' placeholder={`${t("administracion.usuarios.datos.nombres")}`} value={form.nombres} onChange={handleChange} name="nombres" />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formapellido">
-                                <Form.Label column sm="3">
-                                {t("administracion.usuarios.datos.apellidos")}
-                                </Form.Label>
-                                <Col sm={4} >
-                                    <Form.Control type='text' placeholder={`${t("administracion.usuarios.datos.apellidos")}`} value={form.apellidos} onChange={handleChange} name="apellidos" />
-                                </Col>
-                            </Form.Group>
+                        </Grid>
 
-                            <Form.Group as={Row} className="mb-3" controlId="Telefono">
-                                <Form.Label column sm={3}>{t("administracion.usuarios.datos.telefono")}</Form.Label>
-                                <Col sm={6}>
-                                    <PhoneInput
-                                        containerClass="mx-0"
-                                        inputClass="mx-0"
-                                        country={ServiceConfig.codgoPais}
-                                        value={form.telefono}
-                                        onChange={value => setForm(prevState => ({
-                                            ...prevState,
-                                            telefono: value
-                                        }))}
-                                    />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formlogin">
-                                <Form.Label column sm="3">
-                                {t("administracion.usuarios.datos.usuario")}
-                                </Form.Label>
-                                <Col sm={4} >
-                                    <Form.Control type='text' placeholder={`${t("administracion.usuarios.datos.usuario")}`} value={form.login} onChange={handleChange} name="login" />
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" controlId="formpw">
-                                <Form.Label column sm="3">
-                                {t("administracion.usuarios.datos.pw")}
-                                </Form.Label>
-                                <Col sm={4} >
-                                    <InputGroup className="mb-2">
-                                        <Form.Control type={passw ? 'text' : 'password'} placeholder={`${t("administracion.usuarios.datos.pw")}`} value={form.password} onChange={handleChange} name="password" />
-                                        <Button variant="outline-secondary" onClick={passw ? handlePassw : handleText}>
-                                            <Icofont icon={passw ? 'eye-blocked' : 'eye'} className="mx-2" />
-                                        </Button>
-                                    </InputGroup>
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} controlId="formperfil">
-                                <Form.Label column sm="3">
-                                {t("administracion.usuarios.datos.perfil")}
-                                </Form.Label>
-                                <Col sm={7}>
-                                    <InputGroup className="mb-2" >
-                                        <Form.Control as="select" value={form.perfil} onChange={handleChange} name="perfil">
-                                            <option value="" id="defespec">
-                                                {`-- ${t("etiquetas.seleccion")} --`}
-                                            </option>
-                                            {nivel.map(serv =>
-                                                <option key={serv.userlevelid} value={serv.userlevelid} >
-                                                    {serv.userlevelname}
-                                                </option>)}
-                                        </Form.Control>
-                                    </InputGroup>
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} controlId="formsede">
-                                <Form.Label column sm="3">
-                                {t("administracion.usuarios.datos.sede")}
-                                </Form.Label>
-                                <Col sm={7}>
-                                    <InputGroup className="mb-2" >
-                                        <Form.Control as="select" value={form.sede} onChange={handleChange} name="sede">
-                                            <option value="" id="defesede">
-                                                {`-- ${t("etiquetas.seleccion")} --`}
-                                            </option>
-                                            {sede.map(serv =>
-                                                <option key={serv.id_sede} value={serv.id_sede} >
-                                                    {serv.nombre_sede}
-                                                </option>)}
-                                        </Form.Control>
-                                    </InputGroup>
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} controlId="formacode">
-                                <Form.Label column sm="3">
-                                {t("administracion.usuarios.datos.acode")}
-                                </Form.Label>
-                                <Col sm={7}>
-                                    <InputGroup className="mb-2" >
-                                        <Form.Control as="select" value={form.acode} onChange={handleChange} name="acode">
-                                            <option value="" id="defeacode">
-                                                {`-- ${t("etiquetas.seleccion")} --`}
-                                            </option>
-                                            {acode.map(serv =>
-                                                <option key={serv.idacode} value={serv.nombreacode} >
-                                                    {serv.nombreacode}
-                                                </option>)}
-                                        </Form.Control>
-                                    </InputGroup>
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3">
-                                <Form.Label column sm={3}>
-                                {t("administracion.usuarios.datos.hospital")}
-                                </Form.Label>
-                                <Col sm={7}>
-                                    <InputGroup className="mb-2" >
-                                        <Form.Control id="x"
-                                            placeholder={`-- ${t("etiquetas.seleccionhptl")} --`}
-                                            disabled
-                                            value={hospital}
-                                            onChange={handleChange}
-                                            name="hospital"
-                                        />
-                                        <Button variant="outline-secondary" id="button-search" onClick={handleShow2}>
-                                            <Icofont icon="ui-search" className="mx-2" />
-                                        </Button>
-                                    </InputGroup>
-                                </Col>
-                            </Form.Group>
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={t("administracion.usuarios.datos.apellidos")}
+                                value={form.apellidos}
+                                onChange={handleChange}
+                                name="apellidos"
+                            />
 
-                        </Form>
-                    </Modal.Body>
+                        </Grid>
 
-                    <Modal.Footer>
-                        <Button variant='primary' onClick={editar ? () => {
+                        <Grid
+                            item
+                            xs={12}
+                            sx={{
+                                '& > .react-tel-input > .special-label': {
+                                    display: 'block',
+                                    color: 'rgba(0, 0, 0, 0.6)',
+                                    backgroundColor: 'transparent',
+                                },
+                                '& > .react-tel-input > input.form-control': {
+                                    width: '100%',
+                                    minHeight: '41px',
+                                    backgroundColor: 'transparent',
+                                },
+                                '& > .react-tel-input ul.country-list': {
+                                    width: '100%',
+                                    minWidth: '300px',
+                                },
+                            }}
+                        >
+                            <PhoneInput
+                                label={t("administracion.usuarios.datos.telefono")}
+                                country={common.codgoPais}
+                                value={form.telefono}
+                                onChange={(value) =>
+                                    setForm((prevState) => ({
+                                        ...prevState,
+                                        telefono: value,
+                                    }))
+                                }
+                            />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                variant="outlined"
+                                label={t("administracion.usuarios.datos.usuario")}
+                                value={form.login}
+                                onChange={handleChange}
+                                name="login"
+                            />
+
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <Stack direction="row">
+
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    variant="outlined"
+                                    label={t("administracion.usuarios.datos.pw")}
+                                    type={passw ? 'text' : 'password'}
+                                    value={form.password}
+                                    onChange={handleChange}
+                                    name="password"
+
+                                />
+
+                                <Button variant="outlined" onClick={passw ? handlePassw : handleText}
+                                    sx={{
+                                        p: 0,
+                                        minWidth: '40px',
+                                        '& > span.MuiButton-startIcon': { m: 0 }
+                                    }} >
+                                    {passw ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                </Button>
+                            </Stack>
+                        </Grid>
+
+
+                        <Grid item xs={12}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="tipodoc-label">
+
+                                </InputLabel>
+
+                                <Select
+                                    labelId="tipodoc-label"
+                                    id="tipodoc"
+                                    label={t("administracion.usuarios.datos.perfil")}
+                                    name="perfil"
+                                    value={form.perfil}
+                                    onChange={handleChange}
+                                >
+                                    {nivel.map((item) => (
+                                        <MenuItem
+                                            key={item.userlevelid}
+                                            value={item.userlevelid}
+                                        >
+                                            {item.userlevelname}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+
+                        <Grid item xs={12}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="tipodoc-label">
+
+                                </InputLabel>
+
+                                <Select
+                                    labelId="tipodoc-label"
+                                    id="tipodoc"
+                                    label={t("administracion.usuarios.datos.sede")}
+                                    name="sede"
+                                    value={form.sede}
+                                    onChange={handleChange}
+                                >
+                                    {sede.map((item) => (
+                                        <MenuItem
+                                            key={item.id_sede}
+                                            value={item.id_sede}
+                                        >
+                                            {item.nombre_sede}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+
+                        <Grid item xs={12}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel id="tipodoc-label">
+
+                                </InputLabel>
+
+                                <Select
+                                    labelId="tipodoc-label"
+                                    id="tipodoc"
+                                    label={t("administracion.usuarios.datos.acode")}
+                                    name="acode"
+                                    value={form.acode}
+                                    onChange={handleChange}
+                                >
+                                    {acode.map((item) => (
+                                        <MenuItem
+                                            key={item.idacode}
+                                            value={item.idacode}
+                                        >
+                                            {item.nombreacode}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <Stack direction="row">
+
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    variant="outlined"
+                                    label={t("administracion.usuarios.datos.hospital")}
+                                    value={hospital}
+                                    onChange={handleChange}
+                                    name="hospital"
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
+
+                                />
+
+                                <Button variant="outlined" onClick={handleShow2}
+                                    startIcon={< SearchIcon />}
+                                    sx={{
+                                        p: 0,
+                                        minWidth: '40px',
+                                        '& > span.MuiButton-startIcon': { m: 0 },
+                                    }} />
+                            </Stack>
+                        </Grid>
+                    </Grid>
+                    <DialogActions sx={{ mb: 1 }}>
+                        <Button variant='contained' onClick={editar ? () => {
                             Edit()
                             handleCloseE()
                         } : () => {
-                            setForm(prevState => ({
-                                ...prevState,
-                                fecha_creacion: Date.now()
-                            }));
                             Post()
                             handleCloseE()
                         }}>
-                            {editar ? t("etiquetas.editar") :  t("etiquetas.agregar")}
+                            {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}
                         </Button>
-                        <Button variant="secondary" onClick={() => {
+                        <Button variant="outlined" onClick={() => {
                             handleCloseE()
                             setLine('')
                             clearform()
                         }}>
                             {t("etiquetas.cancelar")}
                         </Button>
-                    </Modal.Footer>
-                </Modal>
+                    </DialogActions>
+                </DialogContent>
+            </Dialog>
 
-                <Modal show={show2} onHide={handleClose2} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title>{t("administracion.usuarios.datos.hospital")} </Modal.Title>
-                    </Modal.Header>
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={show2}
+                onClose={handleClose2}
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar
+                        variant="dense"
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Typography sx={{ fontSize: '1.3rem' }}>
+                            {t("administracion.usuarios.datos.hospital")}
+                        </Typography>
 
-                    <Modal.Body>
-                        <PaginationProvider pagination={paginationFactory(options1)}>
-                            {contentTable1}
-                        </PaginationProvider>
-                    </Modal.Body>
-
-                    <Modal.Footer>
-                        <Button variant="primary" onClick={() => {
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={handleClose2}
+                            aria-label="Cerrar"
+                        >
+                            <CloseRoundedIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent dividers>
+                    <Card>
+                        <CardContent
+                            sx={{
+                                pb: '0 !important',
+                                '& > header': {
+                                    padding: 0,
+                                },
+                                '& .rdt_Table': {
+                                    border: 'solid 1px rgba(0, 0, 0, .12)',
+                                },
+                            }}
+                        >
+                            <DataTable
+                                striped
+                                columns={columns1}
+                                data={filteredItems1}
+                                onRowClicked={handleRowClicked}
+                                conditionalRowStyles={common.conditionalRowStyles}
+                                pagination
+                                paginationComponentOptions={
+                                    common.paginationComponentOptions
+                                }
+                                subHeader
+                                subHeaderComponent={subHeaderComponent1}
+                                fixedHeader
+                                persistTableHead
+                                fixedHeaderScrollHeight="calc(100vh - 317px)"
+                                customStyles={common.customStyles}
+                                highlightOnHover
+                                noDataComponent={
+                                    <Typography sx={{ my: 2 }}>
+                                        No existen datos para mostrar
+                                    </Typography>
+                                }
+                            />
+                        </CardContent>
+                    </Card>
+                </DialogContent>
+                <DialogActions sx={{ mb: 1 }}>
+                    <Button
+                        variant="contained"
+                        onClick={() => {
                             setHospital(hospitalTemp);
                             setIdHospital(idHospitalTemp);
                             handleClose2();
-                        }}>
-                            {t("etiquetas.seleccionar")}
-                        </Button>
-                        <Button variant="secondary" onClick={() => {
+                        }}
+                    >
+                        {t('etiquetas.seleccionar')}
+                    </Button>
+
+                    <Button
+                        variant="outlined"
+                        onClick={() => {
                             handleClose2();
-                        }}>
-                            {t("etiquetas.cancelar")}
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-
-            </div>
-
+                        }}
+                    >
+                        {t('etiquetas.cancelar')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     )
 

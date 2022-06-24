@@ -805,7 +805,7 @@ const Mantenimiento = () => {
                         component="form"
                         autoComplete="off"
                     >
-                        <Grid item xs={12} lg={6}>
+                        <Grid item xs={12} >
                             <TextField
                                 fullWidth
                                 size="small"
@@ -819,7 +819,7 @@ const Mantenimiento = () => {
                             />
                         </Grid>
 
-                        <Grid item xs={6} md={3} lg={2}>
+                        <Grid item xs={12}>
                             <LocalizationProvider
                                 dateAdapter={AdapterMoment}
                                 locale={common.locale}
@@ -851,7 +851,7 @@ const Mantenimiento = () => {
                             </LocalizationProvider>
                         </Grid>
 
-                        <Grid item xs={6} md={3} lg={2}>
+                        <Grid item xs={12}>
                             <LocalizationProvider
                                 dateAdapter={AdapterMoment}
                                 locale={common.locale}
@@ -883,7 +883,7 @@ const Mantenimiento = () => {
                             </LocalizationProvider>
                         </Grid>
 
-                        <Grid item xs={12} lg={6}>
+                        <Grid item xs={12}>
                             <TextField
                                 fullWidth
                                 size="small"
@@ -898,7 +898,7 @@ const Mantenimiento = () => {
                         </Grid>
 
 
-                        <Grid item xs={12} lg={6}>
+                        <Grid item xs={12}>
                             <FormControl fullWidth size="small">
                                 <InputLabel id="tipodoc-label">
 

@@ -5,6 +5,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+import { red, orange, yellow, blue, green } from '@mui/material/colors';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
@@ -15,6 +16,7 @@ import {
     OutlinedInput,
     Box,
     Stack,
+    Fab,
     Chip,
     Checkbox,
     FormGroup,
@@ -133,46 +135,60 @@ const Eventos = () => {
             sortable: true,
             selector: (row) => row.servicio,
         }, {
-            name: ``,
-            width: '50px',
+            name: `${t("ambulancias.eventos.datos.estadokm")}`,
             cell: (row) => {
                 return (
                     <div>
-                        <SearchIcon onClick={() => {
-
-
-                        }} />
-                    </div>
+            {row.anticipo_km > row.frecuencia_km ?
+                <h4 className="text-center">
+                    <Button variant="contained" color="success">
+                    {t("ambulancias.eventos.datos.atiempo")}
+                    </Button>
+                </h4>:
+                <h4 className="text-center">
+                    <Button variant="contained" color="danger">
+                    {t("ambulancias.eventos.datos.vencido")}
+                    </Button>
+                </h4>}
+          </div>
                 );
             },
         }, {
-            name: ``,
-            width: '50px',
+            name: `${t("ambulancias.eventos.datos.estadoseguro")}`,
             cell: (row) => {
                 return (
                     <div>
-
-                        <EditIcon onClick={() => {
-
-
-
-                        }} />
-
-                    </div>
+                    {row.fecha_iniseguro > row.fecha_finseguro ?
+                    <h4 className="text-center">
+                        <Button variant="contained" color="success">
+                        {t("ambulancias.eventos.datos.atiempo")}
+                        </Button>
+                    </h4>:
+                    <h4 className="text-center">
+                        <Button variant="contained" color="danger">
+                        {t("ambulancias.eventos.datos.vencido")}
+                        </Button>
+                    </h4>}
+                  </div>
                 );
             },
         }, {
-            name: '',
-            width: '50px',
+            name: `${t("ambulancias.eventos.datos.estadoti")}`,
             cell: (row) => {
                 return (
                     <div>
-                        <DeleteIcon onClick={() => {
-
-
-                        }} />
-
-                    </div>
+                    {row.anticipo_tiempo > row.frecuencia_tiempo ?
+                        <h4 className="text-center">
+                        <Button variant="contained" color="success">
+                        {t("ambulancias.eventos.datos.atiempo")}
+                        </Button>
+                    </h4>:
+                    <h4 className="text-center">
+                        <Button variant="contained" color="danger">
+                        {t("ambulancias.eventos.datos.vencido")}
+                        </Button>
+                    </h4>}
+                  </div>
                 );
             },
         },

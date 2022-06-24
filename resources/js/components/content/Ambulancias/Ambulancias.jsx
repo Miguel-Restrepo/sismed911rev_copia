@@ -71,6 +71,9 @@ const Ambulancias = () => {
 
     const [tablas, setTablas] = useState([]);
     const [servicios, setServicios] = useState([]);
+    const [marcas, setMarcas] = useState([]);
+    const [tipos, setTipos] = useState([]);
+    const [tiposamb, setTiposAmb] = useState([]);
     const [line, setLine] = useState("");
     const [show, setShow] = useState(false);
     const [showe, setShowE] = useState(false);
@@ -102,6 +105,7 @@ const Ambulancias = () => {
         modelo: '',
         tipo_conbustible: '',
         fecha_iniseguro: '',
+        tipo_translado: '',
         fecha_finseguro: '',
         especial: ''
     });
@@ -114,6 +118,7 @@ const Ambulancias = () => {
         modelo: '',
         tipo_conbustible: '',
         fecha_iniseguro: '',
+        tipo_translado: '',
         fecha_finseguro: '',
         especial: ''
     })
@@ -125,10 +130,10 @@ const Ambulancias = () => {
 
 
 
-    const Get = async() => {
+    const Get = async () => {
         setOpenLoad(true);
 
-       await axios.get(`/api/ambulancias`)
+        await axios.get(`/api/ambulancias`)
             .then(response => {
                 setOpenLoad(false);
                 setTablas(response.data);
@@ -141,6 +146,35 @@ const Ambulancias = () => {
 
     }
 
+
+    const GetMarca = () => {
+        axios.get('/api/marca')
+            .then(response => {
+                setMarcas(response.data)
+                return response.data;
+            })
+            .catch(error => {
+                return error;
+            })
+
+        axios.get('/api/tipo_combustible')
+            .then(response => {
+                setTipos(response.data)
+                return response.data;
+            })
+            .catch(error => {
+                return error;
+            })
+
+        axios.get('/api/tipo_ambulancia')
+            .then(response => {
+                setTiposAmb(response.data)
+                return response.data;
+            })
+            .catch(error => {
+                return error;
+            })
+    }
     const GetServicios = () => {
         axios.get('/api/especial_ambulancia')
             .then(response => {
@@ -239,7 +273,7 @@ const Ambulancias = () => {
     useEffect(() => {
         GetServicios();
         Get()
-
+        GetMarca()
     }, []);
 
     const Elimina = () => {
@@ -326,6 +360,7 @@ const Ambulancias = () => {
                                 placas: row.placas,
                                 chasis: row.chasis,
                                 marca: row.marca,
+                                tipo_translado: row.tipo_translado,
                                 modelo: row.modelo,
                                 tipo_conbustible: row.tipo_conbustible,
                                 fecha_iniseguro: row.fecha_iniseguro,
@@ -337,6 +372,7 @@ const Ambulancias = () => {
                                 cod_ambulancias: row.cod_ambulancias,
                                 placas: row.placas,
                                 chasis: row.chasis,
+                                tipo_translado: row.tipo_translado,
                                 marca: row.marca,
                                 modelo: row.modelo,
                                 tipo_conbustible: row.tipo_conbustible,
@@ -365,6 +401,7 @@ const Ambulancias = () => {
                                 placas: row.placas,
                                 chasis: row.chasis,
                                 marca: row.marca,
+                                tipo_translado: row.tipo_translado,
                                 modelo: row.modelo,
                                 tipo_conbustible: row.tipo_conbustible,
                                 fecha_iniseguro: row.fecha_iniseguro,
@@ -376,6 +413,7 @@ const Ambulancias = () => {
                                 cod_ambulancias: row.cod_ambulancias,
                                 placas: row.placas,
                                 chasis: row.chasis,
+                                tipo_translado: row.tipo_translado,
                                 marca: row.marca,
                                 modelo: row.modelo,
                                 tipo_conbustible: row.tipo_conbustible,
@@ -405,6 +443,7 @@ const Ambulancias = () => {
                                 placas: row.placas,
                                 chasis: row.chasis,
                                 marca: row.marca,
+                                tipo_translado: row.tipo_translado,
                                 modelo: row.modelo,
                                 tipo_conbustible: row.tipo_conbustible,
                                 fecha_iniseguro: row.fecha_iniseguro,
@@ -416,6 +455,7 @@ const Ambulancias = () => {
                                 cod_ambulancias: row.cod_ambulancias,
                                 placas: row.placas,
                                 chasis: row.chasis,
+                                tipo_translado: row.tipo_translado,
                                 marca: row.marca,
                                 modelo: row.modelo,
                                 tipo_conbustible: row.tipo_conbustible,
@@ -578,7 +618,7 @@ const Ambulancias = () => {
                             }}
                         >
                             <Typography sx={{ fontSize: '1.3rem' }}>
-                            {t("ambulancias.ambulancias.titulo")}  - {view ? t("etiquetas.ver") : t("etiquetas.eliminar")}
+                                {t("ambulancias.ambulancias.titulo")}  - {view ? t("etiquetas.ver") : t("etiquetas.eliminar")}
                             </Typography>
 
                             <IconButton
@@ -779,7 +819,7 @@ const Ambulancias = () => {
                             }}
                         >
                             <Typography sx={{ fontSize: '1.3rem' }}>
-                            {t("ambulancias.ambulancias.titulo")}  - {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}
+                                {t("ambulancias.ambulancias.titulo")}  - {editar ? t("etiquetas.editar") : t("etiquetas.agregar")}
                             </Typography>
 
                             <IconButton
@@ -862,16 +902,32 @@ const Ambulancias = () => {
                                     name="chasis"
                                 />
                             </Grid>
+
+
                             <Grid item xs={12} lg={6}>
-                                <TextField
-                                    fullWidth
-                                    size="small"
-                                    variant="outlined"
-                                    label={`${t("ambulancias.ambulancias.datos.marca")}`}
-                                    value={form.marca}
-                                    onChange={handleChange}
-                                    name="marca"
-                                />
+                                <FormControl fullWidth size="small">
+                                    <InputLabel id="tipodoc-label">
+                                        {t("ambulancias.ambulancias.datos.marca")}
+                                    </InputLabel>
+
+                                    <Select
+                                        labelId="tipodoc-label"
+                                        id="tipodoc"
+                                        label={t("ambulancias.ambulancias.datos.marca")}
+                                        name="marca"
+                                        value={form.marca}
+                                        onChange={handleChange}
+                                    >
+                                        {marcas.map((item) => (
+                                            <MenuItem
+                                                key={item.id}
+                                                value={item.id}
+                                            >
+                                                {item.nombre}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
                             </Grid>
 
                             <Grid item xs={12} lg={6}>
@@ -886,52 +942,95 @@ const Ambulancias = () => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} lg={6}>
-                                <TextField
-                                    fullWidth
-                                    size="small"
-                                    variant="outlined"
-                                    label={`${t("ambulancias.ambulancias.datos.tipo")}`}
-                                    value={form.tipo_conbustible}
-                                    onChange={handleChange}
-                                    name="tipo_conbustible"
-                                />
-                            </Grid>
+
 
                             <Grid item xs={12} lg={6}>
-                            <Stack direction="row">
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="tipodoc-label">
-                                        {t("ambulancias.ambulancias.datos.servicio")}
+                                        {t("ambulancias.ambulancias.datos.tipo")}
                                     </InputLabel>
 
                                     <Select
                                         labelId="tipodoc-label"
                                         id="tipodoc"
-                                        label={`${t("ambulancias.ambulancias.datos.servicio")}`}
-                                        name="especial"
-                                        value={form.especial}
+                                        label={t("ambulancias.ambulancias.datos.tipo")}
+                                        name="tipo_conbustible"
+                                        value={form.tipo_conbustible}
                                         onChange={handleChange}
                                     >
-                                        {servicios.map((item) => (
+                                        {tipos.map((item) => (
                                             <MenuItem
-                                                key={item.id_especialambulancia}
-                                                value={item.id_especialambulancia}
+                                                key={item.id}
+                                                value={item.id}
                                             >
-                                                {item.especial_es}
+                                                {item.nombre}
                                             </MenuItem>
                                         ))}
                                     </Select>
                                 </FormControl>
-                                <Button variant="outlined" onClick={handleShow1}
-                                startIcon={< AddIcon />}
-                                sx={{
-                                    p: 0,
-                                    minWidth: '40px',
-                                    '& > span.MuiButton-startIcon': { m: 0 },
-                                }} />
+                            </Grid>
+
+                            <Grid item xs={12} lg={6}>
+                                <Stack direction="row">
+                                    <FormControl fullWidth size="small">
+                                        <InputLabel id="tipodoc-label">
+                                            {t("ambulancias.ambulancias.datos.servicio")}
+                                        </InputLabel>
+
+                                        <Select
+                                            labelId="tipodoc-label"
+                                            id="tipodoc"
+                                            label={`${t("ambulancias.ambulancias.datos.servicio")}`}
+                                            name="especial"
+                                            value={form.especial}
+                                            onChange={handleChange}
+                                        >
+                                            {servicios.map((item) => (
+                                                <MenuItem
+                                                    key={item.id_especialambulancia}
+                                                    value={item.id_especialambulancia}
+                                                >
+                                                    {item.especial_es}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                    <Button variant="outlined" onClick={handleShow1}
+                                        startIcon={< AddIcon />}
+                                        sx={{
+                                            p: 0,
+                                            minWidth: '40px',
+                                            '& > span.MuiButton-startIcon': { m: 0 },
+                                        }} />
                                 </Stack>
                             </Grid>
+
+                            <Grid item xs={12} lg={6}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel id="tipodoc-label">
+                                        Tipo ambulancia
+                                    </InputLabel>
+
+                                    <Select
+                                        labelId="tipodoc-label"
+                                        id="tipodoc"
+                                        label='Tipo ambulancia'
+                                        name="tipo_translado"
+                                        value={form.tipo_translado}
+                                        onChange={handleChange}
+                                    >
+                                        {tiposamb.map((item) => (
+                                            <MenuItem
+                                                key={item.id_tipotransport}
+                                                value={item.id_tipotransport}
+                                            >
+                                                {item.tipo_amb_es}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+
 
                             <Grid item xs={12} lg={6}>
                                 <LocalizationProvider
@@ -946,11 +1045,12 @@ const Ambulancias = () => {
                                         todayText={t('etiquetas.hoy')}
                                         name="fecha_iniseguro"
                                         value={moment(form.fecha_iniseguro)}
-                                        onChange={(e)=>{
+                                        onChange={(e) => {
                                             setForm((prevState) => ({
-                                            ...prevState,
-                                            fecha_iniseguro: e.format('YYYY-MM-DD'),
-                                        }))}}
+                                                ...prevState,
+                                                fecha_iniseguro: e.format('YYYY-MM-DD'),
+                                            }))
+                                        }}
                                         renderInput={(params) => (
                                             <TextField {...params} size="small" />
                                         )}
@@ -977,11 +1077,12 @@ const Ambulancias = () => {
                                         todayText={t('etiquetas.hoy')}
                                         name="fecha_finseguro"
                                         value={moment(form.fecha_finseguro)}
-                                        onChange={(e)=>{
+                                        onChange={(e) => {
                                             setForm((prevState) => ({
-                                            ...prevState,
-                                            fecha_finseguro: e.format('YYYY-MM-DD'),
-                                        }))}}
+                                                ...prevState,
+                                                fecha_finseguro: e.format('YYYY-MM-DD'),
+                                            }))
+                                        }}
                                         renderInput={(params) => (
                                             <TextField {...params} size="small" />
                                         )}
@@ -1076,7 +1177,8 @@ const Ambulancias = () => {
                             variant="contained"
                             onClick={() => {
                                 PostServicio();
-                                handleClose1();}}
+                                handleClose1();
+                            }}
                         >
                             {t('etiquetas.agregar')}
                         </Button>
