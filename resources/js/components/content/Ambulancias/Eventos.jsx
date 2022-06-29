@@ -146,7 +146,7 @@ const Eventos = () => {
                     </Button>
                 </h4>:
                 <h4 className="text-center">
-                    <Button variant="contained" color="danger">
+                    <Button variant="contained" color="error">
                     {t("ambulancias.eventos.datos.vencido")}
                     </Button>
                 </h4>}
@@ -165,7 +165,7 @@ const Eventos = () => {
                         </Button>
                     </h4>:
                     <h4 className="text-center">
-                        <Button variant="contained" color="danger">
+                        <Button variant="contained" color="error">
                         {t("ambulancias.eventos.datos.vencido")}
                         </Button>
                     </h4>}
@@ -184,7 +184,7 @@ const Eventos = () => {
                         </Button>
                     </h4>:
                     <h4 className="text-center">
-                        <Button variant="contained" color="danger">
+                        <Button variant="contained" color="error">
                         {t("ambulancias.eventos.datos.vencido")}
                         </Button>
                     </h4>}
