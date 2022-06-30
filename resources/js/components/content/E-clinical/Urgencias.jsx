@@ -1280,12 +1280,11 @@ function Urgencias() {
             ojo: eliminarNormal(e.target.value)
         }));
     };
-    const eliminarNormal = (arr)=>{
-        if(arr.length==1)
-        {
+    const eliminarNormal = (arr) => {
+        if (arr.length == 1) {
             return arr;
-        }else{
-            return arr.filter((_item, index)=> _item.value!=1);    
+        } else {
+            return arr.filter((_item, index) => _item.value != 1);
         }
     }
 
@@ -1515,102 +1514,114 @@ function Urgencias() {
 
     //PDF
     const generatePDFMedicamentos = () => {
-        let doc = new jsPDF("p", "pt");
-        doc.setFont("helvetica");
-        //Tabla hospital
-        let colHospital = ["Hospital", "Fecha emitida"];
-        let rowsHospital = [];
-        if (registro.hospital != null) {
-            rowsHospital.push([registro.hospital.nombre_hospital, new Date()]);
-        } else {
-            rowsHospital.push(["Sin asignar hospital", new Date()]);
+        let img = new Image();
+        img.src = 'assets/image.jpg';
+
+        img.onload = function () {
+            let doc = new jsPDF("p", "pt");
+
+            doc.setFont("helvetica");
+            //Tabla hospital
+            let colHospital = ["Hospital", "Fecha emitida"];
+            let rowsHospital = [];
+            if (registro.hospital != null) {
+                rowsHospital.push([registro.hospital.nombre_hospital, new Date()]);
+            } else {
+                rowsHospital.push(["Sin asignar hospital", new Date()]);
+            }
+
+            //Tabla Paciente
+            let colPaciente = ["Paciente", "Documento", "Edad"];
+            let rowsPaciente = [];
+            rowsPaciente.push([
+                registro.paciente.nombre1 +
+                " " +
+                registro.paciente.nombre2 +
+                " " +
+                registro.paciente.apellido1 +
+                " " +
+                registro.paciente.apellido2,
+                registro.paciente.num_doc,
+                registro.paciente.edad +
+                " " +
+                registro.paciente.codigo_edad.nombre_edad,
+            ]);
+
+            //Tabla medicamentos
+            let colMedicamentos = ["Medicamento", "Dosis"];
+            let rowsMedicamentos = [];
+            let itemNew = medicamentosSeleccionados;
+            itemNew.forEach((element) => {
+                let temp1 = [element.nombre_medicamento, element.dosis];
+                rowsMedicamentos.push(temp1);
+            });
+            //Tabla Doctor
+            let colDoctor = ["Medico"];
+            let rowsDoctor = [];
+            rowsDoctor.push([sesionActual.nombres + " " + sesionActual.apellidos]);
+            doc.addImage(img, 'JPEG', 35, 25, 109, 34);
+            doc.autoTable(colHospital, rowsHospital, { startY: 70 });
+            doc.autoTable(colPaciente, rowsPaciente, { startY: 120 });
+            doc.autoTable(colMedicamentos, rowsMedicamentos, { startY: 220 });
+            doc.autoTable(colDoctor, rowsDoctor, { startY: 170 });
+            doc.save("orden_Medicamento.pdf");
         }
-
-        //Tabla Paciente
-        let colPaciente = ["Paciente", "Documento", "Edad"];
-        let rowsPaciente = [];
-        rowsPaciente.push([
-            registro.paciente.nombre1 +
-            " " +
-            registro.paciente.nombre2 +
-            " " +
-            registro.paciente.apellido1 +
-            " " +
-            registro.paciente.apellido2,
-            registro.paciente.num_doc,
-            registro.paciente.edad +
-            " " +
-            registro.paciente.codigo_edad.nombre_edad,
-        ]);
-
-        //Tabla medicamentos
-        let colMedicamentos = ["Medicamento", "Dosis"];
-        let rowsMedicamentos = [];
-        let itemNew = medicamentosSeleccionados;
-        itemNew.forEach((element) => {
-            let temp1 = [element.nombre_medicamento, element.dosis];
-            rowsMedicamentos.push(temp1);
-        });
-        //Tabla Doctor
-        let colDoctor = ["Medico"];
-        let rowsDoctor = [];
-        rowsDoctor.push([sesionActual.nombres + " " + sesionActual.apellidos]);
-
-        doc.autoTable(colHospital, rowsHospital, { startY: 70 });
-        doc.autoTable(colPaciente, rowsPaciente, { startY: 120 });
-        doc.autoTable(colMedicamentos, rowsMedicamentos, { startY: 220 });
-        doc.autoTable(colDoctor, rowsDoctor, { startY: 170 });
-        doc.save("orden_Medicamento.pdf");
     };
 
     const generatePDFExamenes = () => {
-        let doc = new jsPDF("p", "pt");
-        doc.setFont("helvetica");
-        //Tabla hospital
-        let colHospital = ["Hospital", "Fecha emitida"];
-        let rowsHospital = [];
-        if (registro.hospital != null) {
-            rowsHospital.push([registro.hospital.nombre_hospital, new Date()]);
-        } else {
-            rowsHospital.push(["Sin asignar hospital", new Date()]);
+        let img = new Image();
+        img.src = 'assets/image.jpg';
+
+        img.onload = function () {
+            let doc = new jsPDF("p", "pt");
+
+            doc.setFont("helvetica");
+            //Tabla hospital
+            let colHospital = ["Hospital", "Fecha emitida"];
+            let rowsHospital = [];
+            if (registro.hospital != null) {
+                rowsHospital.push([registro.hospital.nombre_hospital, new Date()]);
+            } else {
+                rowsHospital.push(["Sin asignar hospital", new Date()]);
+            }
+
+            //Tabla Paciente
+            let colPaciente = ["Paciente", "Documento", "Edad"];
+            let rowsPaciente = [];
+            rowsPaciente.push([
+                registro.paciente.nombre1 +
+                " " +
+                registro.paciente.nombre2 +
+                " " +
+                registro.paciente.apellido1 +
+                " " +
+                registro.paciente.apellido2,
+                registro.paciente.num_doc,
+                registro.paciente.edad +
+                " " +
+                registro.paciente.codigo_edad.nombre_edad,
+            ]);
+
+            //Tabla examenes
+            let colExamenes = ["Examen"];
+            let rowsExamenes = [];
+            let itemNew = examenesSeleccionados;
+            itemNew.forEach((element) => {
+                let temp1 = [element.nombre_examen];
+                rowsExamenes.push(temp1);
+            });
+
+            //Tabla Doctor
+            let colDoctor = ["Medico"];
+            let rowsDoctor = [];
+            rowsDoctor.push([sesionActual.nombres + " " + sesionActual.apellidos]);
+            doc.addImage(img, 'JPEG', 35, 25, 109, 34);
+            doc.autoTable(colHospital, rowsHospital, { startY: 70 });
+            doc.autoTable(colPaciente, rowsPaciente, { startY: 120 });
+            doc.autoTable(colExamenes, rowsExamenes, { startY: 220 });
+            doc.autoTable(colDoctor, rowsDoctor, { startY: 170 });
+            doc.save("orden_Examenes.pdf");
         }
-
-        //Tabla Paciente
-        let colPaciente = ["Paciente", "Documento", "Edad"];
-        let rowsPaciente = [];
-        rowsPaciente.push([
-            registro.paciente.nombre1 +
-            " " +
-            registro.paciente.nombre2 +
-            " " +
-            registro.paciente.apellido1 +
-            " " +
-            registro.paciente.apellido2,
-            registro.paciente.num_doc,
-            registro.paciente.edad +
-            " " +
-            registro.paciente.codigo_edad.nombre_edad,
-        ]);
-
-        //Tabla examenes
-        let colExamenes = ["Examen"];
-        let rowsExamenes = [];
-        let itemNew = examenesSeleccionados;
-        itemNew.forEach((element) => {
-            let temp1 = [element.nombre_examen];
-            rowsExamenes.push(temp1);
-        });
-
-        //Tabla Doctor
-        let colDoctor = ["Medico"];
-        let rowsDoctor = [];
-        rowsDoctor.push([sesionActual.nombres + " " + sesionActual.apellidos]);
-
-        doc.autoTable(colHospital, rowsHospital, { startY: 70 });
-        doc.autoTable(colPaciente, rowsPaciente, { startY: 120 });
-        doc.autoTable(colExamenes, rowsExamenes, { startY: 220 });
-        doc.autoTable(colDoctor, rowsDoctor, { startY: 170 });
-        doc.save("orden_Examenes.pdf");
     };
 
     const guardar = () => {

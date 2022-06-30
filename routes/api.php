@@ -123,6 +123,7 @@ use App\Http\Controllers\Temp_camasController;
 use App\Http\Controllers\TerminosController;
 use App\Http\Controllers\Tipo_ambulanciaController;
 use App\Http\Controllers\Tipo_cierrecasoController;
+use App\Http\Controllers\Tipo_combustibleController;
 use App\Http\Controllers\Tipo_edadController;
 use App\Http\Controllers\Tipo_generoController;
 use App\Http\Controllers\Tipo_idController;
@@ -222,6 +223,7 @@ Route::controller(ArchivosController::class)->group(function () {
 
 Route::controller(Base_ambulanciaController::class)->group(function () {
     Route::get('base_ambulancia', 'index'); //Para obtener todos
+    Route::get('base_ambulancia/vista', 'indexe'); //Para obtener todos
     Route::get('base_ambulancia/{id}', 'show'); //Para consultar especifico
     Route::post('base_ambulancia', 'store'); //Para guardar
     Route::put('base_ambulancia/{id}', 'update'); //Para actualizar//metodo cambiable a put
@@ -1222,7 +1224,7 @@ Route::controller(Tipo_cierrecasoController::class)->group(function () {
     Route::put('tipo_cierrecaso/{id}', 'update'); //Para actualizar//metodo cambiable a put
     Route::delete('tipo_cierrecaso/{id}/delete', 'destroy'); //Para eliminar un registro, cambiable a delete
 });
-Route::controller(Tipo_combustible::class)->group(function () {
+Route::controller(Tipo_combustibleController::class)->group(function () {
     Route::get('tipo_combustible', 'index'); //Para obtener todos
     Route::get('tipo_combustible/{id}', 'show'); //Para consultar especifico
     Route::post('tipo_combustible', 'store'); //Para guardar

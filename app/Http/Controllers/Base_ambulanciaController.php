@@ -10,20 +10,42 @@ use App\Models\Distrito_reniec;
 use App\Models\Provincias;
 use App\Models\Provincias_reniec;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 class Base_ambulanciaController extends Controller
 {
     //
     public function index(){//PARA OBTENER TODOS LOS REGISTROS
         $acercades= Base_ambulancia::all();
         foreach ($acercades as $post) {
-            $post->departamento = Depto_reniec::find(intval($post->dpto));
-            $post->distrito = Distrito_reniec::find(intval($post->distrito));
-            $post->provincia = Provincias_reniec::find(intval($post->provincia));
+            $post->departamento = Departamento::find($post->dpto);
+            $post->distrito = Distrito::find($post->distrito);
+            $post->provincia = Provincias::find($post->provincia);
             
         }
         return $acercades;
     }
+    public function indexe(){//PARA OBTENER TODOS LOS REGISTROS
+        $SQLconsulta = "SELECT
+        departamento.nombre_dpto,
+        provincias.nombre_provincia,
+        distrito.nombre_distrito
+        FROM
+        departamento
+        INNER JOIN
+        provincias
+        ON
+        departamento.cod_dpto = provincias.cod_departamento
+        INNER JOIN
+        distrito
+        ON
+        provincias.cod_departamento = distrito.cod_dpto AND
+        provincias.cod_provincia = distrito.cod_provincia;";
+
+        $acercades = DB::select($SQLconsulta, array());
+     
+        return $acercades;
+    }
+    
     public function show($id){//Muestra uno en especifico
         //$objeto= Base_ambulancia::find($id);
         $objeto= Base_ambulancia::where('id_base',$id)->first();

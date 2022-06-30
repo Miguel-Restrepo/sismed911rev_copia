@@ -283,7 +283,23 @@ class Interh_maestroController extends Controller
             $post->soloFecha = date('d/m/Y', $tmp);
             $post->soloHora = date('h:i:s', $tmp);
             $post->seguimientos = Interh_seguimiento::where('cod_casointerh', $post->codigo)->get();
-            $post->pacientes = Pacientegeneral::where('cod_casointerh', $post->codigo)->get();
+            $post->pacientes = Pacientegeneral::where('cod_casointerh', $post->codigo)
+            ->leftJoin('tipo_id', 'tipo_id.id_tipo', '=', 'pacientegeneral.tipo_doc')
+            ->leftJoin('tipo_edad', 'tipo_edad.id_edad', '=', 'pacientegeneral.cod_edad')
+            ->leftJoin('tipo_genero', 'tipo_genero.id_genero', '=', 'pacientegeneral.genero')
+            ->leftJoin('departamento', 'departamento.cod_dpto', '=', 'pacientegeneral.dpto_pte')
+            ->leftJoin('provincias', 'provincias.cod_provincia', '=', 'pacientegeneral.provin_pte')
+            ->leftJoin('distrito_reniec', 'distrito_reniec.cod_distrito', '=', 'pacientegeneral.distrito_pte')
+            ->select(
+                'pacientegeneral.id_paciente as codigo',
+                'pacientegeneral.*',
+                'tipo_id.*',
+                'tipo_edad.*',
+                'tipo_genero.*',
+                'departamento.*',
+                'provincias.*',
+                'distrito_reniec.*'
+            )->get();
             $nombres = "";
             foreach ($post->pacientes as $pacientes) {
                 if ($nombres == "") {

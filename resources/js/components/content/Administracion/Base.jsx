@@ -112,7 +112,7 @@ const Base = () => {
 
     const Get = async () => {
         setOpenLoad(true);
-        await axios.get(`/api/base_ambulancia`)
+        await axios.get(`/api/base_ambulancia/indexe`)
             .then(response => {
                 setOpenLoad(false);
                 console.log(response.data)
@@ -320,7 +320,7 @@ const Base = () => {
         }, {
             name: `${t("administracion.base.datos.dpto")}`,
             sortable: true,
-            selector: (row) => row.dpto ? row.departamento.nombre_dpto : '',
+            selector: (row) => row.departamento ? row.departamento.nombre_dpto : '',
         }, {
             name: `${t("administracion.base.datos.provincia")}`,
             sortable: true,

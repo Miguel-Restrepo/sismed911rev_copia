@@ -1,4 +1,5 @@
 import React from 'react'
+import "./EstilosSearch.css";
 import Icofont from 'react-icofont';
 import EditIcon from '@mui/icons-material/Edit';
 import DataTable from 'react-data-table-component';
@@ -9,6 +10,8 @@ import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import SelectSearch from 'react-select-search';
+import { useRef } from "react";
 import {
     InputLabel,
     MenuItem,
@@ -79,6 +82,7 @@ const Novedades = () => {
     const handleShow1 = () => setShow1(true);
     const handleClose1 = () => setShow1(false);
     const [motivos, setMotivos] = useState([]);
+    const [basesopciones, setBasesOpciones] = useState([]);
     const [line, setLine] = useState("");
     const [show, setShow] = useState(false);
     const [showe, setShowE] = useState(false);
@@ -137,7 +141,21 @@ const Novedades = () => {
             })
         axios.get(`/api/base_ambulancia`)
             .then(response => {
+                let basesop = [];
+                let obejtobaite = {
+                    type: "group",
+                    name: "",
+                    items: [
 
+                    ]
+                };
+                response.data.forEach(element => {
+                    obejtobaite.items.push({ name: element.nombre, value: element.id_base });
+
+
+                });
+                basesop.push(obejtobaite);
+                setBasesOpciones(basesop);
                 setBases(response.data);
                 return response.data;
             })
@@ -193,6 +211,12 @@ const Novedades = () => {
 
 
     }
+    const handleChangeBases = (...args) => {
+        // searchInput.current.querySelector("input").value = "";
+        console.log("ARGS:", args);
+
+        console.log("CHANGE:");
+    };
 
     const notificarExitoCaso = (idcaso) =>
         toast.success(`${t("mensajes.mscasoid")} ${idcaso} ${t("mensajes.msexito")}`, {
@@ -205,7 +229,22 @@ const Novedades = () => {
             progress: undefined,
             theme: "colored"
         });;
-
+    //Select
+    const searchInput = useRef();
+    const handleFilter = (items) => {
+        return (searchValue) => {
+            if (searchValue.length === 0) {
+                return basesopciones;
+            }
+            const updatedItems = items.map((list) => {
+                const newItems = list.items.filter((item) => {
+                    return item.name.toLowerCase().includes(searchValue.toLowerCase());
+                });
+                return { ...list, items: newItems };
+            });
+            return updatedItems;
+        };
+    };
     const notificarErrorCaso = () =>
         toast.error(`${t("mensajes.mscreacionerror")}`, {
             position: "top-right",
@@ -781,29 +820,21 @@ const Novedades = () => {
                     >
 
                         <Grid item xs={12}>
-                            <FormControl fullWidth size="small">
-                                <InputLabel id="tipodoc-label">
-                                    {t("ambulancias.novedades.datos.bases")}
-                                </InputLabel>
-
-                                <Select
-                                    labelId="tipodoc-label"
-                                    id="tipodoc"
-                                    label={t("ambulancias.novedades.datos.bases")}
-                                    name="id_base"
+                            
+       
+                                <SelectSearch
+                                    ref={searchInput}
+                                    options={basesopciones}
+                                    filterOptions={handleFilter}
                                     value={form.id_base}
-                                    onChange={handleChange}
-                                >
-                                    {bases.map((item) => (
-                                        <MenuItem
-                                            key={item.id_base}
-                                            value={item.id_base}
-                                        >
-                                            {item.nombre}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
+                                    name="id_base"
+                                    placeholder={t("ambulancias.novedades.datos.bases")}
+                                    search
+                                    onChange={handleChangeBases}
+                                />
+
+                            
+
                         </Grid>
 
                         <Grid item xs={12}>
@@ -832,7 +863,7 @@ const Novedades = () => {
                             </FormControl>
                         </Grid>
 
-                      
+
                         <Grid item xs={12}>
                             <FormControl fullWidth size="small">
                                 <InputLabel id="tipodoc-label">

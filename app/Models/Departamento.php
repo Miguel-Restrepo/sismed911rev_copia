@@ -11,7 +11,7 @@ class Departamento extends Model
     protected $table= "departamento";
     public $timestamps = false;//Evita columnas de actualizacion y creacion
     protected $primaryKey = 'cod_dpto';//Define id
-
+    protected $keyType = 'string';
      //protected $fillable= [''];//Especifica los campo a guardar
      protected $guarded= [];//especifica que quiere ignorar
 }

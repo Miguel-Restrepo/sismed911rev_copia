@@ -1519,11 +1519,10 @@ function Emergencias() {
     const generatePDFMedicamentos = () => {
         let img = new Image();
         img.src = 'assets/image.jpg';
-        let doc = new jsPDF("p", "pt");
-
-        doc.setFontSize(9);
+        
         img.onload = function () {
-            doc.addImage(img, 'JPEG', 35, 25, 109, 34);
+            let doc = new jsPDF("p", "pt");
+            
             doc.setFont("helvetica");
             //Tabla hospital
             let colHospital = ["Hospital", "Fecha emitida"];
@@ -1562,11 +1561,13 @@ function Emergencias() {
             let colDoctor = ["Medico"];
             let rowsDoctor = [];
             rowsDoctor.push([sesionActual.nombres + " " + sesionActual.apellidos]);
-
+            
+            doc.addImage(img, 'JPEG', 35, 25, 109, 34);
             doc.autoTable(colHospital, rowsHospital, { startY: 70 });
             doc.autoTable(colPaciente, rowsPaciente, { startY: 120 });
             doc.autoTable(colMedicamentos, rowsMedicamentos, { startY: 220 });
             doc.autoTable(colDoctor, rowsDoctor, { startY: 170 });
+           
             doc.save("orden_Medicamento.pdf");
         }
 
@@ -1574,10 +1575,12 @@ function Emergencias() {
     const generatePDFExamenes = () => {
         let img = new Image();
         img.src = 'assets/image.jpg';
-        let doc = new jsPDF("p", "pt");
-        doc.setFontSize(9);
+        
         img.onload = function () {
-            doc.addImage(img, 'JPEG', 35, 25, 109, 34);
+            let doc = new jsPDF("p", "pt");
+            
+            doc.setFont("helvetica");
+            doc.setFontSize(9);    
 
             doc.setFont("helvetica");
             //Tabla hospital
@@ -1618,6 +1621,8 @@ function Emergencias() {
             let rowsDoctor = [];
             rowsDoctor.push([sesionActual.nombres + " " + sesionActual.apellidos]);
 
+            doc.addImage(img, 'JPEG', 35, 25, 109, 34);
+            
             doc.autoTable(colHospital, rowsHospital, { startY: 70 });
             doc.autoTable(colPaciente, rowsPaciente, { startY: 120 });
             doc.autoTable(colExamenes, rowsExamenes, { startY: 220 });

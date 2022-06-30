@@ -961,7 +961,7 @@ const Ambulancias = () => {
                                         {tipos.map((item) => (
                                             <MenuItem
                                                 key={item.id}
-                                                value={item.id}
+                                                value={item.nombre}
                                             >
                                                 {item.nombre}
                                             </MenuItem>
